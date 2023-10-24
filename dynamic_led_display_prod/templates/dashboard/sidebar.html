@@ -29,19 +29,19 @@
     
         <!-- Nav Item - Pages Collapse Menu -->
     <li class="nav-item">
-        <button class="nav-link btn collapsed" aria-expanded="true" aria-controls="collapseTwo">
+        <a class="nav-link btn collapsed" href="{% url 'analytics' %}">
             <i class="fas fa-fw fa-cog"></i>
             <span>Analytics</span>
-        </button>
+        </a>
     </li>
     
     {% if request.user.is_editor %}
     <!-- Nav Item - Utilities Collapse Menu -->
     <li class="nav-item">
-        <button class="nav-link btn collapsed">
+        <a class="nav-link btn collapsed" href="{% url 'controller' %}">
             <i class="fas fa-fw fa-wrench"></i>
             <span>Controller</span>
-        </button>
+        </a>
     </li>
     {% endif %}
 

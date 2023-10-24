@@ -1,33 +1,28 @@
+{% extends "base.html" %}
 {% load static %}
+{% block title %}
+  Controller
+{% endblock title %}
+{% block content %}
+<script>
+    //Globals
+   var ws_rs232 = null
+   var ws_rs485 = null    
+   var ws_program_and_elements = null
+   var program_counter = 0
+   var program_lists = []
+   var program_names = []
+</script>
 <div class="container-fluid">
-
-    <!-- Page Heading -->
+    <!-- Page Heading -->    
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
-        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-                class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
+        <h1 class="h3 mb-0 text-gray-800">Controller</h1>        
     </div>
-
     <!-- Content Row -->
     <div class="row">
 
         <!-- Earnings (Monthly) Card Example -->
-        <div class="col-xl-12 col-md-12 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Connections</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="connection_label">None</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {% include "dashboard/connections_header.html" %}
 
         <script type = "text/javascript">
             async function reviewConnections(Connections){
@@ -38,7 +33,7 @@
                         ConnectionString += `${i} | `
                     }
                 }
-                console.log(ConnectionString)
+                if (ConnectionString.length == 0) ConnectionString = 'No Device Connected'
                 connection_label.textContent = ConnectionString
             }
             var Connections = {
@@ -46,21 +41,9 @@
                 RS485:false
             }
             async function WebSocketTestRS232() {
-                rs232_rtc_el = document.getElementById('rs232_rtc')
-                rs232_humidity_val_el = document.getElementById('rs232_humidity_val')
-                rs232_speed_val_el = document.getElementById('rs232_speed_val')
-                rs232_sr_val_el = document.getElementById('rs232_sr_val')
-                rs232_temp_val_el = document.getElementById('rs232_temp_val')
-                
-                rs232_humidity_progress_el = document.getElementById('rs232_humidity_progress')
-                rs232_speed_progress_el = document.getElementById('rs232_speed_progress')
-                rs232_sr_progress_el = document.getElementById('rs232_sr_progress')
-                rs232_temp_progress_el = document.getElementById('rs232_temp_progress')
-
                if ("WebSocket" in window) {
                   // Let us open a web socket
-                  var ws_rs232 = new WebSocket("ws://192.168.29.18:8000/serial_communication_rs232/");
-                   
+                  ws_rs232 = new WebSocket("ws://192.168.29.18:8000/serial_communication_rs232/");
                   ws_rs232.onopen = async function() {
                     Connections.RS232 = true
                     await reviewConnections(Connections)
@@ -73,25 +56,6 @@
                   ws_rs232.onmessage = async function (evt) { 
                      let received_msg = JSON.parse(evt.data);
                      console.log(received_msg)
-                     if (received_msg.client == 'producer' && received_msg.action == 'stream' && received_msg.mode == 'serial_rs232'){
-                        let rs232_rtc = received_msg.data.RTC
-                        let rs232_humidity_val = received_msg.data.AvgeHum
-                        let rs232_speed_val = received_msg.data.AvgeSpeed
-                        let rs232_sr_val = received_msg.data.AvgeSr
-                        let rs232_temp_val = received_msg.data.AvgeTemp
-
-                        rs232_rtc_el.textContent = rs232_rtc
-                        rs232_humidity_val_el.textContent = rs232_humidity_val
-                        rs232_speed_val_el.textContent = rs232_speed_val
-                        rs232_sr_val_el.textContent = rs232_sr_val
-                        rs232_temp_val_el.textContent = rs232_temp_val
-
-                        rs232_humidity_progress_el.style.width = `${(rs232_humidity_val + 1) * 50}%`
-                        rs232_speed_progress_el.style.width = `${(rs232_speed_val + 1) * 50}%`
-                        rs232_sr_progress_el.style.width = `${(rs232_sr_val + 1) * 50}%`
-                        rs232_temp_progress_el.style.width = `${(rs232_temp_val + 1) * 50}%`
-
-                     }
                   };
                    
                   ws_rs232.onclose = async function() {
@@ -104,20 +68,10 @@
                }
             }
             async function WebSocketTestRS485() {
-                rs485_rtc_el = document.getElementById('rs485_rtc')
-                rs485_humidity_val_el = document.getElementById('rs485_humidity_val')
-                rs485_speed_val_el = document.getElementById('rs485_speed_val')
-                rs485_sr_val_el = document.getElementById('rs485_sr_val')
-                rs485_temp_val_el = document.getElementById('rs485_temp_val')
-                
-                rs485_humidity_progress_el = document.getElementById('rs485_humidity_progress')
-                rs485_speed_progress_el = document.getElementById('rs485_speed_progress')
-                rs485_sr_progress_el = document.getElementById('rs485_sr_progress')
-                rs485_temp_progress_el = document.getElementById('rs485_temp_progress')
                
                 if ("WebSocket" in window) {
                    // Let us open a web socket
-                   var ws_rs485 = new WebSocket("ws://192.168.29.18:8000/serial_communication_rs485/");
+                   ws_rs485 = new WebSocket("ws://192.168.29.18:8000/serial_communication_rs485/");
                     
                    ws_rs485.onopen = async function() {  
                     Connections.RS485 = true
@@ -131,25 +85,6 @@
                    ws_rs485.onmessage = async function (evt) { 
                     let received_msg = JSON.parse(evt.data);
                     console.log(received_msg)
-                    if (received_msg.client == 'producer' && received_msg.action == 'stream' && received_msg.mode == 'serial_rs485'){
-                       let rs485_rtc = received_msg.data.RTC
-                       let rs485_humidity_val = received_msg.data.AvgeHum
-                       let rs485_speed_val = received_msg.data.AvgeSpeed
-                       let rs485_sr_val = received_msg.data.AvgeSr
-                       let rs485_temp_val = received_msg.data.AvgeTemp
-
-                       rs485_rtc_el.textContent = rs485_rtc
-                       rs485_humidity_val_el.textContent = rs485_humidity_val
-                       rs485_speed_val_el.textContent = rs485_speed_val
-                       rs485_sr_val_el.textContent = rs485_sr_val
-                       rs485_temp_val_el.textContent = rs485_temp_val
-
-                       rs485_humidity_progress_el.style.width = `${(rs485_humidity_val + 1) * 50}%`
-                       rs485_speed_progress_el.style.width = `${(rs485_speed_val + 1) * 50}%`
-                       rs485_sr_progress_el.style.width = `${(rs485_sr_val + 1) * 50}%`
-                       rs485_temp_progress_el.style.width = `${(rs485_temp_val + 1) * 50}%`
-
-                    }
                    };
                     
                    ws_rs485.onclose = async function() {
@@ -161,313 +96,217 @@
                    alert("WebSocket NOT supported by your Browser!");
                 }
              }
+             async function PorgramsAndElements() {
+               
+                if ("WebSocket" in window) {
+                   // Let us open a web socket
+                   ws_program_and_elements = new WebSocket("ws://192.168.29.18:8000/programs_and_elements/");
+                    
+                   ws_program_and_elements.onopen = async function() {  
+                        ws_program_and_elements.send(JSON.stringify({
+                            client:'dashboard',
+                            page:'controller',
+                            action:'get_programs'
+                        }))
+                        console.log("Connected")
+                   };
+                    
+                   ws_program_and_elements.onmessage = async function (evt) { 
+                    let received_msg = JSON.parse(evt.data);
+                    console.log(received_msg)
+                    if(received_msg.action == 'add_program'){
+                        if(program_counter == 0){                            
+                            program_container.innerHTML = ''
+                        }
+                        if(received_msg.error == false){
+                            program_names.push(received_msg.message)
+                            await set_programs_footer()
+                            program_container = document.getElementById('program_container')
+                            program_content = `<div class="card program_card shadow mb-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase program_name_container" data-program-name=${received_msg.message}>
+                                                ${received_msg.message}</div>                                                        
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="bi bi-trash2 btn btn-sm btn-outline-danger" onclick="delete_program('${received_msg.message}')"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`
+                            program_container.innerHTML += (program_content)
+                            program_counter+=1
+                        }else{
+                            alert(received_msg.message)
+                        }
+                    }
+                    if(received_msg.action == 'get_programs'){
+                        program_names = []
+                        if(received_msg.error == false){
+                            program_lists = JSON.parse(received_msg.programs)
+                            program_container = document.getElementById('program_container')                        
+                            if(program_lists){
+                                program_counter = program_lists.length                                
+                                if (program_lists.length > 0){
+                                    program_container.innerHTML = ''
+                                    program_lists.forEach((i,e) => {
+                                        program_names.push(i.fields.program_name);
+                                        set_programs_footer()
+                                        program_content = `<div class="card program_card shadow mb-2">
+                                            <div class="card-body">
+                                                <div class="row no-gutters align-items-center">
+                                                    <div class="col">
+                                                        <div class="text-xs font-weight-bold text-primary text-uppercase program_name_container" data-program-name="${i.fields.program_name}">
+                                                            ${i.fields.program_name}</div>
+                                                    </div>
+                                                    <div class="col-auto">
+                                                        <i class="bi bi-trash2 btn btn-sm btn-outline-danger" onclick="delete_program('${i.fields.program_name}')"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>`
+                                        program_container.innerHTML += (program_content)
+                                    })
+                                }else{
+                                    program_container.innerHTML = '<h6 class="mb-0 text-gray">No Active Porgrams</h6>'
+                                }
+                            }else{                                                   
+                                await set_programs_footer()  
+                                program_counter  = 0
+                                program_container.innerHTML = '<h6 class="mb-0 text-gray">No Active Porgrams</h6>'
+                            }
+                        }else{
+                            program_container.innerHTML = '<h6 class="mb-0 text-gray">No Active Porgrams</h6>'
+                        }
+                    }if(received_msg.action == 'delete_programs'){
+                        if(received_msg.error == true){
+                            alert(received_msg.message)
+                        }
+                    }if(received_msg.action == 'delete_elements'){
+                        if(received_msg.error == true){
+                            alert(received_msg.message)
+                        }
+                    }if(received_msg.action == 'add_element'){
+                        if(received_msg.error == false){
+                            alert('element added successfully')
+                        }else{
+                            alert('something went wrong')
+                        }
+                    }if(received_msg.action == 'get_elements'){
+                        if(received_msg.error == false){
+                            elements = JSON.parse(received_msg.elements)
+                            let elements_container = document.getElementById('elements_container')                            
+                            elements_container.innerHTML = ''                            
+                            if(elements != null && elements.length > 0){
+                                elements.forEach((i) => {
+                                    let elementContent = `<div class="card program_card shadow mb-2">
+                                        <div class="card-body">
+                                            <div class="row no-gutters align-items-center">
+                                                <div class="col">
+                                                    <div class="text-xs font-weight-bold text-primary text-uppercase program_name_container" data-id="${i.pk}">
+                                                        ${i.fields.element_name}</div>
+                                                </div>
+                                                <div class="col-auto">
+                                                    <i class="bi bi-trash2 btn btn-sm btn-outline-danger" onclick="delete_element(${parseInt(i.pk)},'${received_msg.program_name}')"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>`
+                                    elements_container.innerHTML += elementContent;
+                                })
+                            }else{
+                                elements_container.innerHTML = `<div class="card program_card shadow mb-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col">
+                                                <div class="text-xs font-weight-bold text-primary text-uppercase program_name_container">
+                                                  No Active Elements...Please add some.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>`
+                            }
+                        }
+                    }
+                   };
+                    
+                   ws_program_and_elements.onclose = async function() {
+                     await reviewConnections()
+                     console.log("Connection Closed")                     
+                   };
+                } else {                  
+                   alert("WebSocket NOT supported by your Browser!");
+                }
+             }
          </script>
-
-        <!-- Earnings (Monthly) Card Example -->
-        <!-- <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Earnings (Annual)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">$215,000</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
+</div>             
+<div class="row">
+    <div class="col-xl-12 col-lg-12">
+        <div class="card shadow mb-4">
+            <!-- Card Header - Dropdown -->
+            <div
+                class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="font-weight-bold text-primary text-center">LED PANEL</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
                 </div>
-            </div>
-        </div> -->
-
-        <!-- Earnings (Monthly) Card Example -->
-        <!-- <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Tasks
-                            </div>
-                            <div class="row no-gutters align-items-center">
-                                <div class="col-auto">
-                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">50%</div>
-                                </div>
-                                <div class="col">
-                                    <div class="progress progress-sm mr-2">
-                                        <div class="progress-bar bg-info" role="progressbar"
-                                            style="width: 50%" aria-valuenow="50" aria-valuemin="0"
-                                            aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div> -->
-
-        <!-- Pending Requests Card Example -->
-        <!-- <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Pending Requests</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">18</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-comments fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div> -->
-    </div>
-
-    <!-- Content Row -->
-
-    <div class="row">
-        <!-- Area Chart -->
-        <div class="col-lg-6 mb-4">
-            <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div
+            </div>          
+            <!-- Card Body -->
+            <div class="card-body" style="">
                 
-                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">RS232</h6>                    
-                    <h6 class="m-0 font-weight-bold text-primary" id="rs232_rtc"></h6>
-                </div>
-                <!-- Card Body -->
-                <div class="card-body">
-                    <h4 class="small font-weight-bold">Average Humidity<span
-                        class="float-right" id="rs232_humidity_val"></span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar bg-danger" role="progressbar" id="rs232_humidity_progress"
-                        aria-valuenow="20" aria-valuemin="-1" aria-valuemax="1"></div>
-                </div>
-                <h4 class="small font-weight-bold">Average Speed<span
-                        class="float-right" id="rs232_speed_val"></span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar bg-warning" role="progressbar" id="rs232_speed_progress"
-                        aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                <h4 class="small font-weight-bold">Average Solar Radiation<span
-                        class="float-right"  id="rs232_sr_val"></span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar" role="progressbar" id="rs232_sr_progress"
-                        aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                <h4 class="small font-weight-bold" >Average Tempreture <span
-                        class="float-right"  id="rs232_temp_val"></span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar bg-info" role="progressbar" id="rs232_temp_progress" 
-                        aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-6 mb-4">
-            <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div
-                
-                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">RS485</h6>                    
-                    <h6 class="m-0 font-weight-bold text-primary" id="rs485_rtc"></h6>
-                </div>
-                <!-- Card Body -->
-                <div class="card-body">
-                    <h4 class="small font-weight-bold">Average Humidity<span
-                        class="float-right" id="rs485_humidity_val"></span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar bg-danger" role="progressbar" id="rs485_humidity_progress"
-                        aria-valuenow="20" aria-valuemin="-1" aria-valuemax="1"></div>
-                </div>
-                <h4 class="small font-weight-bold">Average Speed<span
-                        class="float-right" id="rs485_speed_val"></span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar bg-warning" role="progressbar" id="rs485_speed_progress"
-                        aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                <h4 class="small font-weight-bold">Average Solar Radiation<span
-                        class="float-right"  id="rs485_sr_val"></span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar" role="progressbar" id="rs485_sr_progress"
-                        aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                <h4 class="small font-weight-bold" >Average Tempreture <span
-                        class="float-right"  id="rs485_temp_val"></span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar bg-info" role="progressbar" id="rs485_temp_progress" 
-                        aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                </div>
-            </div>
-        </div>
-        </div>
-
-        <!-- Pie Chart -->
-        <div class="col-xl-12 col-lg-12">
-            <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div
-                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Cloud</h6>
-                    <div class="dropdown no-arrow">
-                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                            aria-labelledby="dropdownMenuLink">
-                            <div class="dropdown-header">Dropdown Header:</div>
-                            <a class="dropdown-item" href="#">Action</a>
-                            <a class="dropdown-item" href="#">Another action</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">Something else here</a>
-                        </div>
-                    </div>
-                </div>
-                <!-- Card Body -->
-                <div class="card-body">
-                    <div class="chart-pie pt-4 pb-2">
-                        <canvas id="myPieChart"></canvas>
-                    </div>
-                    <div class="mt-4 text-center small">
-                        <span class="mr-2">
-                            <i class="fas fa-circle text-primary"></i> Direct
-                        </span>
-                        <span class="mr-2">
-                            <i class="fas fa-circle text-success"></i> Social
-                        </span>
-                        <span class="mr-2">
-                            <i class="fas fa-circle text-info"></i> Referral
-                        </span>
-                    </div>
-                </div>
+                   
+                <!-- 190 * 3 | 160 * 3 -->
+                <div class="row" style="align-items:center;">
+                {% include "dashboard/program_container.html" %}
+                {% include "dashboard/panel_container.html" %}
+                {% include "dashboard/elements_container.html" %}
+    </div>
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-lg-6 mb-4">
-            <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div
-                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">TEXT</h6>
-                </div>
-                <!-- Card Body -->
-                <div class="card-body">
-                    <div class="chart-area">
-                       
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-6 mb-4">
-            <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div
-                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">SEQUENCE</h6>
-                </div>
-                <!-- Card Body -->
-                <div class="card-body">
-                    <div class="chart-area">
-                        
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Content Row -->
-    <div class="row">
-
-        <!-- Content Column -->
-        <div class="col-lg-12 mb-4">
-
-            <!-- Project Card Example -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Plotting</h6>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-xl-6 col-lg-6">
-                            <div class="card shadow mb-4">
-                                <!-- Card Header - Dropdown -->
-                                <div
-                                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                    <h6 class="m-0 font-weight-bold text-primary">RS432</h6>
-                                    <div class="dropdown no-arrow">
-                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                                        </a>
-                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                                            aria-labelledby="dropdownMenuLink">
-                                            <div class="dropdown-header">Dropdown Header:</div>
-                                            <a class="dropdown-item" href="#">Action</a>
-                                            <a class="dropdown-item" href="#">Another action</a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="#">Something else here</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Card Body -->
-                                <div class="card-body">
-                                    <div class="chart-area">
-                                        <canvas id="myAreaChartrs232"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-xl-6 col-lg-6">
-                            <div class="card shadow mb-4">
-                                <!-- Card Header - Dropdown -->
-                                <div
-                                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                    <h6 class="m-0 font-weight-bold text-primary">RS485</h6>
-                                    <div class="dropdown no-arrow">
-                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                                        </a>
-                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                                            aria-labelledby="dropdownMenuLink">
-                                            <div class="dropdown-header">Dropdown Header:</div>
-                                            <a class="dropdown-item" href="#">Action</a>
-                                            <a class="dropdown-item" href="#">Another action</a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="#">Something else here</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Card Body -->
-                                <div class="card-body">
-                                    <div class="chart-area">
-                                        <canvas id="myAreaChartrs485"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>            
-
-        </div>
-    </div>
-
+</div>
+<!-- row -->
+<!-- text element row -->
+{% include "dashboard/textElement.html" %}
+<!-- text element row -->
 </div>
 <script>
     window.onload = () => {
-        WebSocketTestRS232();
-        WebSocketTestRS485();
+        PorgramsAndElements()
+        //WebSocketTestRS232();
+        //WebSocketTestRS485();
     };    
 </script>
+<style>
+ 
+</style>
+<script>
+    async function set_programs_footer(){
+        const elements = document.querySelectorAll('.program_footer');
+        $('.program_footer').html('<option value="default">Select a program</option>')
+        if(program_names.length > 0)   {
+            elements.forEach(element => {    
+                program_names.forEach(i => {
+                    element.innerHTML += `<option value="${i}">${i}</option>`
+                })
+            }); 
+              
+        } 
+        } 
+</script>
+<script>
+    $(document).ready(function () {
+        $(".panel_body .resizable").resizable({containment: ".panel_body"});
+        $('.panel_body .draggable').draggable({ containment: ".panel_body" });
+    });
+</script>
+<script>
+    $( function() {
+      $("#program_container").sortable();
+    } );
+    </script>
+{% endblock content %}

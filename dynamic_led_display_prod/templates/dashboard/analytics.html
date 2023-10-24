@@ -1,13 +1,20 @@
+{% extends "base.html" %}
 {% load static %}
+{% block title %}
+  Analytics
+{% endblock title %}
+{% block content %}
+<script>
+     //Globals
+    var ws_rs232 = null
+    var ws_rs485 = null    
+</script>
 <div class="container-fluid">
 
     <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
-        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-                class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
+        <h1 class="h3 mb-0 text-gray-800">Analytics</h1>        
     </div>
-
     <!-- Content Row -->
     <div class="row">
 
@@ -38,7 +45,7 @@
                         ConnectionString += `${i} | `
                     }
                 }
-                console.log(ConnectionString)
+                if (ConnectionString.length == 0) ConnectionString = 'No Device Connected'
                 connection_label.textContent = ConnectionString
             }
             var Connections = {
@@ -59,7 +66,7 @@
 
                if ("WebSocket" in window) {
                   // Let us open a web socket
-                  var ws_rs232 = new WebSocket("ws://192.168.29.18:8000/serial_communication_rs232/");
+                  ws_rs232 = new WebSocket("ws://192.168.29.18:8000/serial_communication_rs232/");
                    
                   ws_rs232.onopen = async function() {
                     Connections.RS232 = true
@@ -70,9 +77,33 @@
                     }));
                   };
                    
-                  ws_rs232.onmessage = async function (evt) { 
+                  ws_rs232.onmessage = async function (evt) {                     
                      let received_msg = JSON.parse(evt.data);
                      console.log(received_msg)
+                     if(received_msg.rs232_plot){
+                        var xValues =    Object.keys(received_msg.rs232_plot);
+                        var yValues =  Object.keys(received_msg.rs232_plot).map(key => received_msg.rs232_plot[key]); 
+                        var barColors = ["red", "green","blue","orange"];
+                        new Chart("rs232Canvas", {
+                            type: "line",
+                            data: {
+                              labels: xValues,
+                              datasets: [{
+                                fill: false,
+                                lineTension: 0,
+                                backgroundColor: "rgba(0,0,255,1.0)",
+                                borderColor: "rgba(0,0,255,0.1)",
+                                data: yValues
+                              }]
+                            },
+                            options: {
+                              legend: {display: false},
+                              scales: {
+                               // yAxes: [{ticks: {min: -1, max:1}}],
+                              }
+                            }
+                          });
+                     }
                      if (received_msg.client == 'producer' && received_msg.action == 'stream' && received_msg.mode == 'serial_rs232'){
                         let rs232_rtc = received_msg.data.RTC
                         let rs232_humidity_val = received_msg.data.AvgeHum
@@ -117,7 +148,7 @@
                
                 if ("WebSocket" in window) {
                    // Let us open a web socket
-                   var ws_rs485 = new WebSocket("ws://192.168.29.18:8000/serial_communication_rs485/");
+                   ws_rs485 = new WebSocket("ws://192.168.29.18:8000/serial_communication_rs485/");
                     
                    ws_rs485.onopen = async function() {  
                     Connections.RS485 = true
@@ -129,8 +160,47 @@
                    };
                     
                    ws_rs485.onmessage = async function (evt) { 
-                    let received_msg = JSON.parse(evt.data);
-                    console.log(received_msg)
+                    let received_msg = JSON.parse(evt.data);                    
+                    if(received_msg.csv_data){                           
+                        if(received_msg.csv_data == 'finished'){                            
+                            const base64Datars485 = received_chunks_rs485.join();                            
+                            const binaryDatars485 = atob(base64Datars485);                            
+                            try {
+                                const blobRs232 = new Blob([binaryDatars485], { type: 'application/csv' });
+                                const downloadLink = document.createElement('a');
+                                downloadLink.href = URL.createObjectURL(blobRs232);
+                                downloadLink.download = 'your_data.csv';
+                                downloadLink.click();
+                            } catch (error) {
+                                console.error('Download error:', error);
+                            }                            
+                        }else{
+                            received_chunks_rs485.push(received_msg.csv_data);
+                        }
+                     }
+                    if(received_msg.rs485_plot){
+                        var xValues =    Object.keys(received_msg.rs485_plot);
+                        var yValues =  Object.keys(received_msg.rs485_plot).map(key => received_msg.rs485_plot[key]); 
+                        new Chart("rs485Canvas", {
+                            type: "line",
+                            data: {
+                              labels: xValues,
+                              datasets: [{
+                                fill: false,
+                                lineTension: 0,
+                                backgroundColor: "rgba(0,0,255,1.0)",
+                                borderColor: "rgba(0,0,255,0.1)",
+                                data: yValues
+                              }]
+                            },
+                            options: {
+                              legend: {display: false},
+                              scales: {
+                                //yAxes: [{ticks: {min: -1, max:1}}],
+                              }
+                            }
+                          });
+                     }
                     if (received_msg.client == 'producer' && received_msg.action == 'stream' && received_msg.mode == 'serial_rs485'){
                        let rs485_rtc = received_msg.data.RTC
                        let rs485_humidity_val = received_msg.data.AvgeHum
@@ -161,7 +231,7 @@
                    alert("WebSocket NOT supported by your Browser!");
                 }
              }
-         </script>
+         </script>         
 
         <!-- Earnings (Monthly) Card Example -->
         <!-- <div class="col-xl-3 col-md-6 mb-4">
@@ -230,10 +300,9 @@
     </div>
 
     <!-- Content Row -->
-
-    <div class="row">
-        <!-- Area Chart -->
-        <div class="col-lg-6 mb-4">
+    
+        <!-- RS232 -->
+        <div class="col-lg-12 mb-4">
             <div class="card shadow mb-4">
                 <!-- Card Header - Dropdown -->
                 <div
@@ -244,72 +313,157 @@
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
-                    <h4 class="small font-weight-bold">Average Humidity<span
-                        class="float-right" id="rs232_humidity_val"></span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar bg-danger" role="progressbar" id="rs232_humidity_progress"
-                        aria-valuenow="20" aria-valuemin="-1" aria-valuemax="1"></div>
-                </div>
-                <h4 class="small font-weight-bold">Average Speed<span
-                        class="float-right" id="rs232_speed_val"></span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar bg-warning" role="progressbar" id="rs232_speed_progress"
-                        aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                <h4 class="small font-weight-bold">Average Solar Radiation<span
-                        class="float-right"  id="rs232_sr_val"></span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar" role="progressbar" id="rs232_sr_progress"
-                        aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                <h4 class="small font-weight-bold" >Average Tempreture <span
-                        class="float-right"  id="rs232_temp_val"></span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar bg-info" role="progressbar" id="rs232_temp_progress" 
-                        aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                </div>
+                    <div class="row">
+                        <div class="col-lg-6 mb-4">
+                            <div class="card shadow mb-4">
+                                <!-- Card Header - Dropdown -->
+                                <div
+                                
+                                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">RS232</h6>                    
+                                    <h6 class="m-0 font-weight-bold text-primary" id="rs232_rtc"></h6>
+                                </div>
+                                <!-- Card Body -->
+                                <div class="card-body">
+                                    <h4 class="small font-weight-bold">Average Humidity<span
+                                        class="float-right" id="rs232_humidity_val"></span></h4>
+                                <div class="progress mb-4">
+                                    <div class="progress-bar bg-danger" role="progressbar" id="rs232_humidity_progress"
+                                        aria-valuenow="20" aria-valuemin="-1" aria-valuemax="1"></div>
+                                </div>
+                                <h4 class="small font-weight-bold">Average Speed<span
+                                        class="float-right" id="rs232_speed_val"></span></h4>
+                                <div class="progress mb-4">
+                                    <div class="progress-bar bg-warning" role="progressbar" id="rs232_speed_progress"
+                                        aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <h4 class="small font-weight-bold">Average Solar Radiation<span
+                                        class="float-right"  id="rs232_sr_val"></span></h4>
+                                <div class="progress mb-4">
+                                    <div class="progress-bar" role="progressbar" id="rs232_sr_progress"
+                                        aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <h4 class="small font-weight-bold" >Average Tempreture <span
+                                        class="float-right"  id="rs232_temp_val"></span></h4>
+                                <div class="progress mb-4">
+                                    <div class="progress-bar bg-info" role="progressbar" id="rs232_temp_progress" 
+                                        aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-6 col-lg-6">
+                            <div class="card shadow mb-4">
+                                <!-- Card Header - Dropdown -->
+                                <div
+                                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">RS432</h6>
+                                    <div class="dropdown no-arrow">
+                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <!-- Card Body -->
+                                <div class="card-body">
+                                    <div class="chart-area d-flex" style="justify-content: center; align-items:center;">
+                                        <canvas id="rs232Canvas" style="width:100%; height:auto;"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                 </div>   
             </div>
         </div>
-        <div class="col-lg-6 mb-4">
+        
+        <!-- RS485 -->
+        <div class="col-lg-12 mb-4">
             <div class="card shadow mb-4">
                 <!-- Card Header - Dropdown -->
                 <div
-                
                     class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">RS485</h6>                    
                     <h6 class="m-0 font-weight-bold text-primary" id="rs485_rtc"></h6>
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
-                    <h4 class="small font-weight-bold">Average Humidity<span
-                        class="float-right" id="rs485_humidity_val"></span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar bg-danger" role="progressbar" id="rs485_humidity_progress"
-                        aria-valuenow="20" aria-valuemin="-1" aria-valuemax="1"></div>
-                </div>
-                <h4 class="small font-weight-bold">Average Speed<span
-                        class="float-right" id="rs485_speed_val"></span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar bg-warning" role="progressbar" id="rs485_speed_progress"
-                        aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                <h4 class="small font-weight-bold">Average Solar Radiation<span
-                        class="float-right"  id="rs485_sr_val"></span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar" role="progressbar" id="rs485_sr_progress"
-                        aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                <h4 class="small font-weight-bold" >Average Tempreture <span
-                        class="float-right"  id="rs485_temp_val"></span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar bg-info" role="progressbar" id="rs485_temp_progress" 
-                        aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
+                    <div class="row">
+                        <div class="col-lg-6 mb-4">
+                            <div class="card shadow mb-4">
+                                <!-- Card Header - Dropdown -->
+                                <div
+                                
+                                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">RS485</h6>                    
+                                    <h6 class="m-0 font-weight-bold text-primary" id="rs485_rtc"></h6>
+                                </div>
+                                <!-- Card Body -->
+                                <div class="card-body">
+                                    <h4 class="small font-weight-bold">Average Humidity<span
+                                        class="float-right" id="rs485_humidity_val"></span></h4>
+                                <div class="progress mb-4">
+                                    <div class="progress-bar bg-danger" role="progressbar" id="rs485_humidity_progress"
+                                        aria-valuenow="20" aria-valuemin="-1" aria-valuemax="1"></div>
+                                </div>
+                                <h4 class="small font-weight-bold">Average Speed<span
+                                        class="float-right" id="rs485_speed_val"></span></h4>
+                                <div class="progress mb-4">
+                                    <div class="progress-bar bg-warning" role="progressbar" id="rs485_speed_progress"
+                                        aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <h4 class="small font-weight-bold">Average Solar Radiation<span
+                                        class="float-right"  id="rs485_sr_val"></span></h4>
+                                <div class="progress mb-4">
+                                    <div class="progress-bar" role="progressbar" id="rs485_sr_progress"
+                                        aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <h4 class="small font-weight-bold" >Average Tempreture <span
+                                        class="float-right"  id="rs485_temp_val"></span></h4>
+                                <div class="progress mb-4">
+                                    <div class="progress-bar bg-info" role="progressbar" id="rs485_temp_progress" 
+                                        aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Plot -->
+                        <div class="col-xl-6 col-lg-6">
+                            <div class="card shadow mb-4">
+                                <!-- Card Header - Dropdown -->
+                                <div
+                                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">RS485</h6>
+                                    <div class="dropdown no-arrow">
+                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                                            aria-labelledby="dropdownMenuLink">
+                                            <div class="dropdown-header">Dropdown Header:</div>
+                                            <a class="dropdown-item" href="#">Action</a>
+                                            <a class="dropdown-item" href="#">Another action</a>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item" href="#">Something else here</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Card Body -->
+                                <div class="card-body">
+                                    <div class="chart-area d-flex" style="justify-content: center; align-items:center;">
+                                        <canvas id="rs485Canvas" style="width:100%; height:auto;"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Plot -->
+                    </div>
                 </div>
             </div>
-        </div>
-        </div>
+        </div>        
 
         <!-- Pie Chart -->
         <div class="col-xl-12 col-lg-12">
@@ -352,117 +506,7 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-lg-6 mb-4">
-            <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div
-                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">TEXT</h6>
-                </div>
-                <!-- Card Body -->
-                <div class="card-body">
-                    <div class="chart-area">
-                       
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-6 mb-4">
-            <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div
-                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">SEQUENCE</h6>
-                </div>
-                <!-- Card Body -->
-                <div class="card-body">
-                    <div class="chart-area">
-                        
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Content Row -->
-    <div class="row">
-
-        <!-- Content Column -->
-        <div class="col-lg-12 mb-4">
-
-            <!-- Project Card Example -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Plotting</h6>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-xl-6 col-lg-6">
-                            <div class="card shadow mb-4">
-                                <!-- Card Header - Dropdown -->
-                                <div
-                                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                    <h6 class="m-0 font-weight-bold text-primary">RS432</h6>
-                                    <div class="dropdown no-arrow">
-                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                                        </a>
-                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                                            aria-labelledby="dropdownMenuLink">
-                                            <div class="dropdown-header">Dropdown Header:</div>
-                                            <a class="dropdown-item" href="#">Action</a>
-                                            <a class="dropdown-item" href="#">Another action</a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="#">Something else here</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Card Body -->
-                                <div class="card-body">
-                                    <div class="chart-area">
-                                        <canvas id="myAreaChartrs232"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-xl-6 col-lg-6">
-                            <div class="card shadow mb-4">
-                                <!-- Card Header - Dropdown -->
-                                <div
-                                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                    <h6 class="m-0 font-weight-bold text-primary">RS485</h6>
-                                    <div class="dropdown no-arrow">
-                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                                        </a>
-                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                                            aria-labelledby="dropdownMenuLink">
-                                            <div class="dropdown-header">Dropdown Header:</div>
-                                            <a class="dropdown-item" href="#">Action</a>
-                                            <a class="dropdown-item" href="#">Another action</a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="#">Something else here</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Card Body -->
-                                <div class="card-body">
-                                    <div class="chart-area">
-                                        <canvas id="myAreaChartrs485"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>            
-
-        </div>
-    </div>
+    </div>    
 
 </div>
 <script>
@@ -471,3 +515,4 @@
         WebSocketTestRS485();
     };    
 </script>
+{% endblock content %}

@@ -1,0 +1,24 @@
+WebSocket DISCONNECT /serial_communication_rs485/ [192.168.29.18:39108]
+WebSocket DISCONNECT /serial_communication_rs232/ [192.168.29.18:39104]
+[mHTTP GET / 200 [0.01, 192.168.29.18:39102][0m
+WebSocket HANDSHAKING /serial_communication_rs232/ [192.168.29.18:46150]
+WebSocket CONNECT /serial_communication_rs232/ [192.168.29.18:46150]
+WebSocket HANDSHAKING /serial_communication_rs485/ [192.168.29.18:46156]
+WebSocket CONNECT /serial_communication_rs485/ [192.168.29.18:46156]
+WebSocket DISCONNECT /serial_communication_rs485/ [192.168.29.18:46156]
+WebSocket DISCONNECT /serial_communication_rs232/ [192.168.29.18:46150]
+[32mHTTP GET /auth/login/ 302 [0.01, 192.168.29.18:59730][0m
+[mHTTP GET / 200 [0.01, 192.168.29.18:59730][0m
+WebSocket HANDSHAKING /serial_communication_rs232/ [192.168.29.18:59732]
+WebSocket CONNECT /serial_communication_rs232/ [192.168.29.18:59732]
+WebSocket HANDSHAKING /serial_communication_rs485/ [192.168.29.18:59748]
+WebSocket CONNECT /serial_communication_rs485/ [192.168.29.18:59748]
+WebSocket DISCONNECT /serial_communication_rs232/ [192.168.29.18:59732]
+WebSocket DISCONNECT /serial_communication_rs485/ [192.168.29.18:59748]
+[32mHTTP GET /auth/login/ 302 [0.01, 192.168.29.18:59730][0m
+[mHTTP GET / 200 [0.01, 192.168.29.18:59730][0m
+WebSocket HANDSHAKING /serial_communication_rs232/ [192.168.29.18:36352]
+WebSocket CONNECT /serial_communication_rs232/ [192.168.29.18:36352]
+WebSocket HANDSHAKING /serial_communication_rs485/ [192.168.29.18:36358]
+WebSocket CONNECT /serial_communication_rs485/ [192.168.29.18:36358]
+/home/manav1011/Documents/dynamic_led_display_prod/dynamic_led_display_prod/dynamic_led_display_prod/settings.py changed, reloading.
