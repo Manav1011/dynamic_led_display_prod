@@ -9,6 +9,7 @@
    var ws_rs232 = null
    var ws_rs485 = null    
    var ws_program_and_elements = null
+   var ws_panel_changed_events = null
    var program_counter = 0
    var program_lists = []
    var program_names = []
@@ -96,6 +97,30 @@
                    alert("WebSocket NOT supported by your Browser!");
                 }
              }
+             async function PanelChangedEevents(){
+                if ("WebSocket" in window) {
+                    ws_panel_changed_events = new WebSocket("ws://192.168.29.18:8000/panel_changed_events/");
+                    ws_panel_changed_events.onopen = async function() {  
+                        console.log("Panel Changed Consumer Connected")
+                        ws_panel_changed_events.send(JSON.stringify({
+                            client:'dashboard',
+                            page:'controller',
+                            action:'connection'
+                        }))
+                    };
+
+                    ws_panel_changed_events.onmessage = async function (evt) { 
+                        let received_msg = JSON.parse(evt.data);
+                    }
+                    ws_panel_changed_events.onclose = async function() {
+                        await reviewConnections()
+                        console.log("Panel Changed Consumer Connected")                     
+                      };
+                }
+                else {                  
+                    alert("WebSocket NOT supported by your Browser!");
+                }
+             }
              async function PorgramsAndElements() {
                
                 if ("WebSocket" in window) {
@@ -122,15 +147,15 @@
                             program_names.push(received_msg.message)
                             await set_programs_footer()
                             program_container = document.getElementById('program_container')
-                            program_content = `<div class="card program_card shadow mb-2">
+                            program_content = `<div class="card program_card shadow mb-2" onclick="get_elements_for_program(this,'${received_msg.message}')">
                                 <div class="card-body">
                                     <div class="row no-gutters align-items-center">
                                         <div class="col">
-                                            <div class="text-xs font-weight-bold text-primary text-uppercase program_name_container" data-program-name=${received_msg.message}>
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase program_name_container" data-program-name="${received_msg.message}">
                                                 ${received_msg.message}</div>                                                        
                                         </div>
-                                        <div class="col-auto">
-                                            <i class="bi bi-trash2 btn btn-sm btn-outline-danger" onclick="delete_program('${received_msg.message}')"></i>
+                                        <div class="col-auto delete-program-el">
+                                            <i class="bi bi-trash2 btn btn-sm btn-outline-danger delete-program-el" onclick="delete_program('${received_msg.message}')"></i>
                                         </div>
                                     </div>
                                 </div>
@@ -152,16 +177,16 @@
                                     program_container.innerHTML = ''
                                     program_lists.forEach((i,e) => {
                                         program_names.push(i.fields.program_name);
-                                        set_programs_footer()
-                                        program_content = `<div class="card program_card shadow mb-2">
+                                        set_programs_footer()                                        
+                                        program_content = `<div id="${i.pk}" class="card program_card shadow mb-2" onclick="get_elements_for_program(this,'${i.fields.program_name}','${i.fields.running_time}')">
                                             <div class="card-body">
                                                 <div class="row no-gutters align-items-center">
                                                     <div class="col">
                                                         <div class="text-xs font-weight-bold text-primary text-uppercase program_name_container" data-program-name="${i.fields.program_name}">
                                                             ${i.fields.program_name}</div>
                                                     </div>
-                                                    <div class="col-auto">
-                                                        <i class="bi bi-trash2 btn btn-sm btn-outline-danger" onclick="delete_program('${i.fields.program_name}')"></i>
+                                                    <div class="col-auto delete-program-el">
+                                                        <i class="bi bi-trash2 btn btn-sm btn-outline-danger delete-program-el" onclick="delete_program('${i.fields.program_name}')"></i>
                                                     </div>
                                                 </div>
                                             </div>
@@ -197,25 +222,46 @@
                         if(received_msg.error == false){
                             elements = JSON.parse(received_msg.elements)
                             let elements_container = document.getElementById('elements_container')                            
-                            elements_container.innerHTML = ''                            
+                            elements_container.innerHTML = ''  
                             if(elements != null && elements.length > 0){
-                                elements.forEach((i) => {
-                                    let elementContent = `<div class="card program_card shadow mb-2">
-                                        <div class="card-body">
-                                            <div class="row no-gutters align-items-center">
-                                                <div class="col">
-                                                    <div class="text-xs font-weight-bold text-primary text-uppercase program_name_container" data-id="${i.pk}">
-                                                        ${i.fields.element_name}</div>
+                                await add_to_panel(elements,received_msg.program_code,received_msg.program_name)
+                                elements.forEach((i) => {                                
+                                    let elementContent = `
+                                    <div class="dropdown">
+                                        <div class="card program_card shadow mb-2 dropdown-toggle" id="elementsdropdown${i.pk}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <div class="card-body">
+                                                <div class="row no-gutters align-items-center">
+                                                    <div class="col">
+                                                        <div class="text-xs font-weight-bold text-primary text-uppercase program_name_container" data-id="${i.pk}">
+                                                            ${i.fields.element_name}</div>
+                                                    </div>
+                                                    <div class="col-auto">
+                                                        <i class="bi bi-trash2 btn btn-sm btn-outline-danger" onclick="delete_element(${parseInt(i.pk)},'${received_msg.program_name}')"></i>
+                                                    </div>
                                                 </div>
-                                                <div class="col-auto">
-                                                    <i class="bi bi-trash2 btn btn-sm btn-outline-danger" onclick="delete_element(${parseInt(i.pk)},'${received_msg.program_name}')"></i>
+                                            </div>
+                                        </div>                                        
+                                        <div class="w-100 dropdown-menu" aria-labelledby="elementsdropdown${i.pk}">                                            
+                                            <div class="row card">
+                                                <div class="card-body">
+                                                    <div class="col-12 size-slider mb-2"> 
+                                                        <label for="customRange3" class="form-label">Font Size</label>
+                                                        <input type="range" class="w-100 form-range" min="0" max="100" step="1" id="customfontsize${i.pk}" data-element-id="${i.pk}"  oninput="elemetfontsizechanged(event)">
+                                                    </div>
+                                                    <div class="col-12 wright-slider mb-2"> 
+                                                        <label for="customRange3" class="form-label">Font Weight</label>
+                                                        <input type="range" class="w-100 form-range" min="0" max="1000" step="100" id="customfontweight${i.pk}" data-element-id="${i.pk}"  onclick="elemetfontweightchanged(event)">
+                                                    </div>
+                                                    <div class="col-12 btn btn-outline-success mb-2" onclick="updateElementOverall(${i.pk},'${received_msg.program_name}')"}>Send</div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>`
+                                      </div>
+                                    `
                                     elements_container.innerHTML += elementContent;
                                 })
                             }else{
+                                await add_to_panel(false)
                                 elements_container.innerHTML = `<div class="card program_card shadow mb-2">
                                     <div class="card-body">
                                         <div class="row no-gutters align-items-center">
@@ -277,6 +323,7 @@
 <script>
     window.onload = () => {
         PorgramsAndElements()
+        PanelChangedEevents()
         //WebSocketTestRS232();
         //WebSocketTestRS485();
     };    
@@ -298,15 +345,30 @@
         } 
         } 
 </script>
-<script>
+<!-- <script>
     $(document).ready(function () {
         $(".panel_body .resizable").resizable({containment: ".panel_body"});
         $('.panel_body .draggable').draggable({ containment: ".panel_body" });
     });
-</script>
+</script> -->
 <script>
     $( function() {
-      $("#program_container").sortable();
+      $("#program_container").sortable({
+        stop:function(event,ui){
+            var sortedIds = $(this).sortable('toArray');
+            var sortedIds_int = sortedIds.map(function(element) {
+                return parseInt(element, 10); // 10 is the radix (base)
+            });
+            if(ws_panel_changed_events){
+                ws_panel_changed_events.send(JSON.stringify({
+                    client:'dashboard',
+                    page:'controller',
+                    action:'sequence_changed',
+                    sequence:{'program_sequence':sortedIds_int}
+                }))
+            }
+        }
+      });
     } );
     </script>
 {% endblock content %}
