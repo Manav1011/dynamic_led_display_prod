@@ -17,6 +17,7 @@ class Programs(models.Model):
     code = models.TextField(blank=True,null=True)
     running_time = models.PositiveIntegerField(default=1)
     panel_code = models.TextField(blank=True,null=True)
+    animation = models.CharField(max_length=255,blank=True,null=True)
 
     def __str__(self) -> str:
         return self.program_name

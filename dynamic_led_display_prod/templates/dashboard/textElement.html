@@ -22,6 +22,22 @@
                         <a class="dropdown-item" href="#" data-font="Verdana, sans-serif">Verdana</a>                        
                     </div>
                 </div>
+                <div class="card-header dropdown">
+                    <select class="form-control form-select" aria-label="Default select example" oninput="text_element_alignment_changed(event)">
+                        <option selected value="default">Select Alignment</option>
+                        <option value="left">Left</option>
+                        <option value="center">Center</option>
+                        <option value="right">Right</option>
+                        <option value="justify">Justify</option>
+                        <script>
+                            async function text_element_alignment_changed(event){
+                                if(event.target.value !== 'default'){
+                                    $('#text_element_container .text_element_output').css('text-align', event.target.value);
+                                }
+                            }
+                        </script>
+                      </select>
+                </div>
             <!-- Card Body -->
             <div class="card-body">
                 <div class="row mb-3">

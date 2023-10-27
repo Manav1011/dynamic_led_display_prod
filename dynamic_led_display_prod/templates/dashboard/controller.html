@@ -226,7 +226,7 @@
                             let elements_container = document.getElementById('elements_container')                            
                             elements_container.innerHTML = ''  
                             if(elements != null && elements.length > 0){
-                                await add_to_panel(elements,received_msg.program_code,received_msg.program_name)
+                                await add_to_panel(elements,received_msg.program_code,received_msg.program_name,received_msg.animation)
                                 elements.forEach((i) => {                                
                                     let elementContent = `
                                     <div class="dropdown">
@@ -248,7 +248,7 @@
                                                 <div class="card-body">
                                                     <div class="col-12 size-slider mb-2"> 
                                                         <label for="customRange3" class="form-label">Font Size</label>
-                                                        <input type="range" class="w-100 form-range" min="0" max="100" step="1" id="customfontsize${i.pk}" data-element-id="${i.pk}"  oninput="elemetfontsizechanged(event)">
+                                                        <input type="range" class="w-100 form-range" min="0" max="1" step="0.1" id="customfontsize${i.pk}" data-element-id="${i.pk}"  oninput="elemetfontsizechanged(event)">
                                                     </div>
                                                     <div class="col-12 wright-slider mb-2"> 
                                                         <label for="customRange3" class="form-label">Font Weight</label>

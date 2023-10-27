@@ -150,6 +150,23 @@ class PorgramsAndElements(AsyncWebsocketConsumer):
                 new_running_time = text_data['new_running_time']
                 selected_program = text_data['selected_program']
                 await self.update_program_running_time(selected_program,new_running_time)                
+
+            if text_data['action'] == 'program_animation_changed' and text_data.get('selected_program') and text_data.get('new_animation'):
+                animation = text_data['new_animation']
+                selected_program = text_data['selected_program']
+                result = await self.update_program_animation(selected_program,animation)
+                if result:
+                    elements = await self.get_program_elements(selected_program=selected_program)            
+                    program_code = await self.get_program_code(text_data['selected_program'])
+                    if elements:
+                        await self.send(json.dumps({
+                            'action':'get_elements',
+                            'elements':elements,
+                            'program_name':selected_program,
+                            'program_code':program_code,
+                            'animation':animation,
+                            'error':False
+                    }))
         print('PorgramsAndElements',text_data)
 
     @database_sync_to_async
@@ -157,6 +174,16 @@ class PorgramsAndElements(AsyncWebsocketConsumer):
         program_obj = Programs.objects.get(program_name=selected_program)
         if program_obj:
             program_obj.running_time = new_running_time
+            program_obj.save()
+            return True
+        else:
+            return False
+        
+    @database_sync_to_async
+    def update_program_animation(self,selected_program,animation):
+        program_obj = Programs.objects.get(program_name=selected_program)
+        if program_obj:
+            program_obj.animation = animation
             program_obj.save()
             return True
         else:

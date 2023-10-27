@@ -6,14 +6,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CONSUMER</title>
-    <link rel="stylesheet" href="{% static 'css/normalize.css' %}">
     <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'js/jquery-ui.js' %}"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>    
+    <link rel="stylesheet" href="{% static 'css/jquery-ui.css' %}">        
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 </head>
 <style>
     *{
         line-height: normal !important;
-    }
+    }    
 </style>
 <script>
     // Globals
@@ -21,12 +25,17 @@
     var PanelPrograms = null    
     var CurrentSetTimeout = null
 </script>
-<body>
-    <div class="main" style="background:white;background: white;width: 100%;height: 100%;margin: 0 !important;">
-        <div id="led-panel-container" style="background: black; width: 190px;height: 160px;position: fixed;top: 0;left: 0;margin: 0 !important;padding: 0 !important;">
+<style>
+    /* For WebKit browsers */
 
-        </div>
+</style>
+<body style="background:black">
+    <div class="main">
+        <div id="led-panel-container" style="width: 5.08cm;height: 4.23cm;margin: 0 !important;padding: 0 !important;position: fixed;left: 0;"></div>
     </div>
+    <script>
+        $('.ui-resizable-handle').remove() 
+    </script>
     <script>
         async function StartPanelConsumer(){
             if ("WebSocket" in window) {
@@ -74,6 +83,10 @@
             const program = PanelPrograms[currentProgramIndex];
             let program_element = $(program.fields.panel_code)
             program_element.css('border','none')
+            program_element.css('position','fixed')
+            program_element.css('top','-5px')
+            program_element.css('margin-top','2px')
+            program_element.css('left','0')            
             programDisplay.html(program_element)            
 
             CurrentSetTimeout = setTimeout(() => {                
