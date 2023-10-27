@@ -22,5 +22,6 @@ urlpatterns = [
     path('',views.analytics,name='analytics'),
     path('controller/',views.controller,name='controller'),
     path('admin/', admin.site.urls),
-    path('auth/',include('CustomUser.urls')) 
+    path('auth/',include('CustomUser.urls')) ,
+    path('consumer/',views.consumer,name='consumer')
 ]

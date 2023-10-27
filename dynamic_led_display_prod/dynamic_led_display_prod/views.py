@@ -8,3 +8,6 @@ def analytics(request):
 @login_required
 def controller(request):
     return render(request,'dashboard/controller.html')
+
+def consumer(request):
+    return render(request, 'consumer/index.html')

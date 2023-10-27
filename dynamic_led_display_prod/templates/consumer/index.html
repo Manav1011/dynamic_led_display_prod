@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONSUMER</title>
+    <link rel="stylesheet" href="{% static 'css/normalize.css' %}">
+    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+</head>
+<style>
+    *{
+        line-height: normal !important;
+    }
+</style>
+<script>
+    // Globals
+    var PanelConsumer = null
+    var PanelPrograms = null    
+    var CurrentSetTimeout = null
+</script>
+<body>
+    <div class="main" style="background:white;background: white;width: 100%;height: 100%;margin: 0 !important;">
+        <div id="led-panel-container" style="background: black; width: 190px;height: 160px;position: fixed;top: 0;left: 0;margin: 0 !important;padding: 0 !important;">
+
+        </div>
+    </div>
+    <script>
+        async function StartPanelConsumer(){
+            if ("WebSocket" in window) {
+                PanelConsumer = new WebSocket("ws://192.168.29.18:8000/panel_changed_events/");
+                PanelConsumer.onopen = async function() {  
+                    PanelConsumer.send(JSON.stringify({            
+                        client:'consumer',
+                        page:'consumer',
+                        action:'connection'
+                    }));
+                };
+                PanelConsumer.onmessage = async function (evt) { 
+                    let received_msg = JSON.parse(evt.data);
+                    console.log(received_msg)
+                    if(received_msg.action == 'connected'){
+                        PanelConsumer.send(JSON.stringify({
+                            client:'consumer',
+                            page:'consumer',
+                            action:'get_panel_configs'
+                        }))
+                    }
+                    if(received_msg.action == 'configs_changed' && received_msg.program_data){
+                        PanelPrograms = JSON.parse(received_msg.program_data)
+                        clearTimeout(CurrentSetTimeout);
+                        await displayProgram(PanelPrograms)                        
+                    }
+                };
+                PanelConsumer.onclose = async function() {
+                    PanelConsumer = null
+                    console.log("Connection Closed")                     
+                };
+            }else {                  
+                alert("WebSocket NOT supported by your Browser!");
+             }
+        }
+    </script>
+    <script>        
+
+        async function displayProgram(PanelPrograms,currentProgramIndex = 0) {            
+            const programDisplay = $("#led-panel-container");
+            if (currentProgramIndex >= PanelPrograms.length) {
+                currentProgramIndex = 0;
+            }
+
+            const program = PanelPrograms[currentProgramIndex];
+            let program_element = $(program.fields.panel_code)
+            program_element.css('border','none')
+            programDisplay.html(program_element)            
+
+            CurrentSetTimeout = setTimeout(() => {                
+                currentProgramIndex++;
+                displayProgram(PanelPrograms,currentProgramIndex);
+            }, program.fields.running_time * 1000);
+        }        
+    </script>
+    <script>
+        setInterval(function() {
+        if (PanelConsumer === null || PanelConsumer.readyState === WebSocket.CLOSED) {
+            console.log('Trying to connect');
+            StartPanelConsumer();
+        } else {
+            console.log('Connected');
+        }
+    }, 5000);
+    </script>
+    <script>
+        window.onload = function() {
+            StartPanelConsumer();
+        };
+    </script>
+</body>
+</html>

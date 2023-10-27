@@ -16,6 +16,7 @@ class Programs(models.Model):
     elements = models.ManyToManyField(Elements,blank=True,null=True)
     code = models.TextField(blank=True,null=True)
     running_time = models.PositiveIntegerField(default=1)
+    panel_code = models.TextField(blank=True,null=True)
 
     def __str__(self) -> str:
         return self.program_name
@@ -24,7 +25,8 @@ class Programs(models.Model):
 class Panel(models.Model):
     programs = models.ManyToManyField(Programs,blank=True,null=True)
     styles = models.TextField(blank=True,null=True)
-    sequence = models.JSONField(max_length=256,blank=True,null=True)    
+    sequence = models.JSONField(max_length=256,blank=True,null=True) 
+    channel_name = models.CharField(max_length=255,blank=True,null=True)
 
     def return_program_in_order(self):
         if self.sequence:

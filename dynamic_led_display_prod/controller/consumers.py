@@ -6,8 +6,7 @@ from .models import Programs,Elements,Panel
 
 
 class PorgramsAndElements(AsyncWebsocketConsumer):
-    async def connect(self):
-        print(self)
+    async def connect(self):        
         await self.accept()
     
     async def disconnect(self,close_code):        
@@ -244,11 +243,13 @@ class PanelChangedConsumer(AsyncWebsocketConsumer):
         'controller':None,
         'consumer':None
     }
-    async def connect(self):        
+    async def connect(self):
         await self.accept()
+        await self.handle_channel_join_leave_event('join',self.channel_name)
     
     async def disconnect(self,close_code):        
         self.send(json.dumps(close_code))
+        await self.handle_channel_join_leave_event('leave',self.channel_name)
 
     async def receive(self,text_data):
         text_data = json.loads(text_data)
@@ -263,9 +264,54 @@ class PanelChangedConsumer(AsyncWebsocketConsumer):
                         pass
                     else:
                         pass
+                if text_data['action'] == 'update_program' and text_data.get('program_code'):
+                    await self.update_program(text_data['selected_program'],text_data['program_code'])
 
             if text_data['page'] == 'consumer':
-                pass
+                if text_data['action'] == 'connection':
+                    PanelChangedConsumer.entities['consumer'] = self
+                    await self.send(json.dumps({
+                        'action':'connected'                        
+                    }))
+                if text_data['action'] == 'get_panel_configs':                    
+                    program_data = await self.get_panel_configs()
+                    await self.send(json.dumps({
+                        'action':'configs_changed',
+                        'program_data':program_data
+                    }))
+
+    async def program_event(self,event):             
+        program_data = await PanelChangedConsumer.entities['consumer'].get_panel_configs()        
+        await PanelChangedConsumer.entities['consumer'].send(json.dumps({
+                        'action':'configs_changed',
+                        'program_data':program_data
+        }))
+    @database_sync_to_async
+    def handle_channel_join_leave_event(self,action,channel_name):
+        panel_obj = Panel.objects.first()
+        if panel_obj:
+            if action == 'join':
+                panel_obj.channel_name = channel_name
+            else:
+                panel_obj.channel_name = None
+            panel_obj.save()
+        
+    @database_sync_to_async
+    def update_program(self,selected_program,program_code):
+        program = Programs.objects.get(program_name=selected_program)
+        if program:
+            program.panel_code = program_code
+            program.save()
+            return True
+        else:
+            return False
+    @database_sync_to_async
+    def get_panel_configs(self):
+        panel_obj = Panel.objects.first()
+        programs = panel_obj.return_program_in_order()
+        if programs:
+            programs_data = serializers.serialize('json', programs)
+            return programs_data      
     
     @database_sync_to_async
     def set_new_sequence(self,sequence):
