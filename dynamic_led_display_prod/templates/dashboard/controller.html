@@ -148,7 +148,7 @@
                             program_names.push(received_msg.message)
                             await set_programs_footer()
                             program_container = document.getElementById('program_container')
-                            program_content = `<div class="card program_card shadow mb-2" onclick="get_elements_for_program(this,'${received_msg.message}')">
+                            program_content = `<div class="card program_card shadow-custom mb-2" onclick="get_elements_for_program(this,'${received_msg.message}')">
                                 <div class="card-body">
                                     <div class="row no-gutters align-items-center">
                                         <div class="col">
@@ -180,7 +180,7 @@
                                         program_names.push(i.fields.program_name);
                                         program_running_time[i.fields.program_name] = i.fields.running_time
                                         set_programs_footer()                                        
-                                        program_content = `<div id="${i.pk}" class="card program_card shadow mb-2" onclick="get_elements_for_program(this,'${i.fields.program_name}')">
+                                        program_content = `<div id="${i.pk}" class="card program_card shadow-custom mb-2" onclick="get_elements_for_program(this,'${i.fields.program_name}')">
                                             <div class="card-body">
                                                 <div class="row no-gutters align-items-center">
                                                     <div class="col">
@@ -220,6 +220,10 @@
                         }else{
                             alert('something went wrong')
                         }
+                    }if(received_msg.action == 'get_image_link'){                        
+                        if(received_msg.element_name == 'image_element'){
+                            await setImageLink(received_msg.image_link)
+                        }
                     }if(received_msg.action == 'get_elements'){
                         if(received_msg.error == false){
                             elements = JSON.parse(received_msg.elements)
@@ -230,7 +234,7 @@
                                 elements.forEach((i) => {                                
                                     let elementContent = `
                                     <div class="dropdown">
-                                        <div class="card program_card shadow mb-2 dropdown-toggle" id="elementsdropdown${i.pk}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <div class="card program_card shadow-custom mb-2 dropdown-toggle" id="elementsdropdown${i.pk}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             <div class="card-body">
                                                 <div class="row no-gutters align-items-center">
                                                     <div class="col">
@@ -264,7 +268,7 @@
                                 })
                             }else{
                                 await add_to_panel(false)
-                                elements_container.innerHTML = `<div class="card program_card shadow mb-2">
+                                elements_container.innerHTML = `<div class="card program_card shadow-custom mb-2">
                                     <div class="card-body">
                                         <div class="row no-gutters align-items-center">
                                             <div class="col">
@@ -291,7 +295,7 @@
 </div>             
 <div class="row">
     <div class="col-xl-12 col-lg-12">
-        <div class="card shadow mb-4">
+        <div class="card shadow-custom mb-4">
             <!-- Card Header - Dropdown -->
             <div
                 class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -304,7 +308,7 @@
                 </div>
             </div>          
             <!-- Card Body -->
-            <div class="card-body" style="">
+            <div class="card-body">
                 
                    
                 <!-- 190 * 3 | 160 * 3 -->
@@ -318,9 +322,14 @@
     </div>
 </div>
 <!-- row -->
-<!-- text element row -->
-{% include "dashboard/textElement.html" %}
-<!-- text element row -->
+<div class="row">
+<!-- text element column -->
+{% include "dashboard/elements/textElement.html" %}
+<!-- text element column -->
+<!-- text element column -->
+{% include "dashboard/elements/ImageElement.html" %}
+<!-- text element column -->
+</div>
 </div>
 <script>
     window.onload = () => {
@@ -347,12 +356,6 @@
         } 
         } 
 </script>
-<!-- <script>
-    $(document).ready(function () {
-        $(".panel_body .resizable").resizable({containment: ".panel_body"});
-        $('.panel_body .draggable').draggable({ containment: ".panel_body" });
-    });
-</script> -->
 <script>
     $( function() {
       $("#program_container").sortable({

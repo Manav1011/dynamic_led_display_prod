@@ -1,0 +1,93 @@
+{% load static %}
+<div class="col-lg-6 mb-4" id="image_element_container">
+        <div class="card shadow-custom mb-4">
+            <!-- Card Header - Dropdown -->
+            <div
+                class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">IMAGE</h6>                                        
+            </div>
+            <!-- Card Body -->
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col">
+                        <!-- Image upload container -->
+                        <div class="mb-3">
+                            <label for="formFile" class="form-label">Upload The Image</label>
+                            <input class="form-control" type="file" id="formFile" accept=".png, .jpg, .jpeg"  onchange="displaySelectedImage(event, 'selectedImage')" size="1000000">
+                          </div>                   
+                    </div>
+                </div>    
+                <script>
+                    async function displaySelectedImage(event, elementId) {
+                        let selectedImage = document.getElementById(elementId);
+                        let fileInput = event.target;                        
+                        let AllowedExtension = ["image/png","image/jpg","image/jpeg"]
+                        if (fileInput.files && fileInput.files[0]) {
+                            let file = fileInput.files[0]                                                                
+                            let fileName = file.name
+                            let fileType = file.type
+                            if(AllowedExtension.includes(fileType)){
+                                if((file.size / 1000000) < 5){
+                                    var reader = new FileReader();
+                                    var rawData = new ArrayBuffer();
+                                    reader.readAsDataURL(file);          
+                                    reader.onload = async function (e) {
+                                        let base64image = reader.result
+                                        if(ws_program_and_elements){
+                                            ws_program_and_elements.send(JSON.stringify({
+                                                client:'dashboard',
+                                                page:'controller',
+                                                action:'get_file_link',                                
+                                                'element_name':'image_element',                                                
+                                                'base64file':base64image,
+                                                'file_name':fileName,
+                                                'file_type':fileType,
+                                            }))
+                                        }
+                                    }                                       
+                                }else{
+                                    alert("File size exceeded limit : 5MB")
+                                }
+                            }else{
+                                alert(`File type not allowed ${fileType}`)
+                            }
+                        }
+                    }
+                    async function setImageLink(image_link){                        
+                        let image_element = $('#image_element_output_element')
+                        image_element.attr('src',`${window.location.origin}${image_link}`)
+                        await image_link_added()
+                    }
+                </script>            
+                <div class="row mb-3">
+                    <div class="col d-flex justify-content-center align-items-center">
+                        <div class="card image_element_output_container article" style="width: 300px; height:300px;">
+                            <div class="card-body image_element_output element" id="image_element_output">
+                                <img src="" id="image_element_output_element" alt="" style="width: 100%; height:auto;">
+                            </div>
+                        </div>
+                    </div>
+                  </div>
+            </div>                        
+            <div class="card-footer image_element_footer" style="display: hidden;">
+                <script>
+                    $(document).ready(function () {                        
+                        $(this).find('#image_element_container .image_element_footer').hide();
+                    });
+                </script>
+                <div class="form-group">
+                    <label for="program_select">Active Programs</label>
+                    <div class="send_program_view row " style="justify-content: space-around; gap:10px;">
+                        <select class="col-sm-7 col-md-7 col-lg-7 form-control program_footer" id="">
+                        </select>
+                        <button class="col-sm-3 col-md-3 col-lg-3 btn btn-outline-primary" onclick="image_element_program_value_changed(event)">Send</button>
+                    </div>
+                </div>        
+            </div>            
+        </div>
+    </div>        
+    <script>
+        async function image_link_added(event) {                                                                       
+            $('#image_element_container .image_element_footer').show()                        
+        }
+    </script>

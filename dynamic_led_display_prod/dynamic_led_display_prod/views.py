@@ -11,3 +11,6 @@ def controller(request):
 
 def consumer(request):
     return render(request, 'consumer/index.html')
+
+def testing(request):
+    return render(request, 'consumer/testing.html')

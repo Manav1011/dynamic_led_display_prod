@@ -39,7 +39,8 @@
     </div>
 <script>
     async function add_to_panel(elements,program_code=false,program_name=false,animation=false){        
-            let program_element = $(program_code)            
+            let program_element = $(program_code)      
+            console.log('animation',animation)      
             if(animation){
                 program_element.addClass(animation)
             }
