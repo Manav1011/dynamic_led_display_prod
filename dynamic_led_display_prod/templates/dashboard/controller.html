@@ -13,6 +13,7 @@
    var program_counter = 0
    var program_lists = []
    var program_names = []
+   var program_running_time = {}
 </script>
 <div class="container-fluid">
     <!-- Page Heading -->    
@@ -177,8 +178,9 @@
                                     program_container.innerHTML = ''
                                     program_lists.forEach((i,e) => {
                                         program_names.push(i.fields.program_name);
+                                        program_running_time[i.fields.program_name] = i.fields.running_time
                                         set_programs_footer()                                        
-                                        program_content = `<div id="${i.pk}" class="card program_card shadow mb-2" onclick="get_elements_for_program(this,'${i.fields.program_name}','${i.fields.running_time}')">
+                                        program_content = `<div id="${i.pk}" class="card program_card shadow mb-2" onclick="get_elements_for_program(this,'${i.fields.program_name}')">
                                             <div class="card-body">
                                                 <div class="row no-gutters align-items-center">
                                                     <div class="col">

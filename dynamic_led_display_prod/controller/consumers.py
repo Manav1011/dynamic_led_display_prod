@@ -280,12 +280,13 @@ class PanelChangedConsumer(AsyncWebsocketConsumer):
                         'program_data':program_data
                     }))
 
-    async def program_event(self,event):             
-        program_data = await PanelChangedConsumer.entities['consumer'].get_panel_configs()        
-        await PanelChangedConsumer.entities['consumer'].send(json.dumps({
+    async def program_event(self,event):  
+        if PanelChangedConsumer.entities['consumer']:
+            program_data = await PanelChangedConsumer.entities['consumer'].get_panel_configs()        
+            await PanelChangedConsumer.entities['consumer'].send(json.dumps({
                         'action':'configs_changed',
                         'program_data':program_data
-        }))
+            }))
     @database_sync_to_async
     def handle_channel_join_leave_event(self,action,channel_name):
         panel_obj = Panel.objects.first()

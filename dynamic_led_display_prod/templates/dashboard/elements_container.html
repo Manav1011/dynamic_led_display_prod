@@ -13,6 +13,9 @@
                             if(sequence_val > 1){
                                 sequence_val-=1
                                 $('#program_running_time').text(sequence_val)
+                                if(program_running_time){
+                                    program_running_time[selected_program] = sequence_val
+                                }
                                 if(ws_program_and_elements){
                                     ws_program_and_elements.send(JSON.stringify({
                                         client:'dashboard',
@@ -27,6 +30,9 @@
                         if (event.target.classList.contains("increment-sequence")) {                            
                             sequence_val+=1
                             $('#program_running_time').text(sequence_val)
+                            if(program_running_time){
+                                program_running_time[selected_program] = sequence_val
+                            }
                             if(ws_program_and_elements){
                                 ws_program_and_elements.send(JSON.stringify({
                                     client:'dashboard',

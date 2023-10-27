@@ -71,12 +71,14 @@
                                     <div class="" id="program_container"><h6 class="mb-0 text-gray">No Active Porgrams</h6></div>
                                 </div>
                                 <script>
-                                    async function get_elements_for_program(element,selected_program_name,running_time){                                        
+                                    async function get_elements_for_program(element,selected_program_name){
                                         if (!$(event.target).is('.delete-program-el')) {
                                             $('.program_card').removeClass('border-left-danger selected_program');
                                             $(element).toggleClass('border-left-danger selected_program');                                                  
                                             $('.program-running-time-div').removeClass('d-none').addClass('d-flex')
-                                            $('#program_running_time').text(`${running_time}`)
+                                            if(program_running_time){
+                                                $('#program_running_time').text(program_running_time[selected_program_name])
+                                            }
                                             $('#currently_selected_program').text(`${selected_program_name}`)
                                             if(ws_program_and_elements){
                                                 ws_program_and_elements.send(JSON.stringify({
