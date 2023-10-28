@@ -262,7 +262,12 @@ class PorgramsAndElements(AsyncWebsocketConsumer):
         file_storage_obj = FileSystemStorage()
         file = ContentFile(bytes_data)
         random_prefix = secrets.token_hex(16)
-        saved_file = file_storage_obj.save(f"{random_prefix}_{file_name}.{file_type.split('/')[1]}", file)
+        if(file_type == 'image/svg+xml'):            
+            extension = file_type.split('/')[-1]
+            extension  = extension.split('+')[0]
+        else:
+            extension = file_type.split('/')[1]
+        saved_file = file_storage_obj.save(f"{random_prefix}_{file_name}.{extension}", file)
         file_url = file_storage_obj.url(saved_file)
         return file_url
 

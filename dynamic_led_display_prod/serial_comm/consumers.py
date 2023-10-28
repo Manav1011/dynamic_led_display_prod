@@ -4,16 +4,12 @@ import asyncio
 import numpy as np
 import pandas as pd
 from channels.db import database_sync_to_async
-from .models import RS232,RS485
+from .models import SerialCommunication
 import matplotlib.pyplot as plt
 
 
 class SerialConsumerRS485(AsyncWebsocketConsumer):
-    entities_rs485 = {
-        'dashboard':{},
-        'producer':None,    
-    }
-    csv_b64 = ''
+    entities = {}    
     async def connect(self):
         await self.accept()
     
@@ -26,9 +22,14 @@ class SerialConsumerRS485(AsyncWebsocketConsumer):
             if text_data.get('page') and text_data['page'] == 'analytics':                
                 SerialConsumerRS485.entities_rs485['dashboard']['analytics'] = self
                 await self.send(json.dumps({'rs485_plot':await self.get_graph()}))
+
             elif text_data['page'] == 'controller':
                 SerialConsumerRS485.entities_rs485['dashboard']['controller'] = self
-        if text_data['client'] == 'producer':
+                
+        if text_data['client'] == 'producer' and text_data.get('device'):
+            device = text_data['device']
+            SerialConsumerRS485.entities[device]['producer'] = self
+            
             if text_data['action'] == 'connection':
                 SerialConsumerRS485.entities_rs485['producer'] = self
             if text_data['action'] == 'stream' and text_data['data']:

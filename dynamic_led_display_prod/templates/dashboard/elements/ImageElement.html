@@ -13,7 +13,7 @@
                         <!-- Image upload container -->
                         <div class="mb-3">
                             <label for="formFile" class="form-label">Upload The Image</label>
-                            <input class="form-control" type="file" id="formFile" accept=".png, .jpg, .jpeg"  onchange="displaySelectedImage(event, 'selectedImage')" size="1000000">
+                            <input class="form-control" type="file" id="formFile" accept=".png, .jpg, .jpeg .gif .svg"  onchange="displaySelectedImage(event, 'selectedImage')" size="1000000">
                           </div>                   
                     </div>
                 </div>    
@@ -21,9 +21,9 @@
                     async function displaySelectedImage(event, elementId) {
                         let selectedImage = document.getElementById(elementId);
                         let fileInput = event.target;                        
-                        let AllowedExtension = ["image/png","image/jpg","image/jpeg"]
+                        let AllowedExtension = ["image/png","image/jpg","image/jpeg",'image/svg+xml','image/gif']
                         if (fileInput.files && fileInput.files[0]) {
-                            let file = fileInput.files[0]                                                                
+                            let file = fileInput.files[0]                            
                             let fileName = file.name
                             let fileType = file.type
                             if(AllowedExtension.includes(fileType)){

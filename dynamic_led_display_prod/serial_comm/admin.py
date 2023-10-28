@@ -1,6 +1,6 @@
 from django.contrib import admin
 from datetime import datetime
-from .models import RS232,RS485
+from .models import SerialCommunication
 from django.http import HttpResponse
 import csv
 import xlsxwriter
@@ -57,19 +57,11 @@ class Actions:
     export_as_excel.short_description = "Export Selected (Excel)"    
 
 
-@admin.register(RS232)
-class RS232Admin(admin.ModelAdmin,Actions):
+@admin.register(SerialCommunication)
+class SerialCommunicationAdmin(admin.ModelAdmin,Actions):
     list_filter = (
         ("RTC", DateRangeQuickSelectListFilterBuilder()),
     )
 
     actions = ["export_as_csv","export_as_excel","sort_ascending","sort_descending"]
 # admin.site.register(RS232)
-
-@admin.register(RS485)
-class RS485Admin(admin.ModelAdmin,Actions):
-    list_filter = (
-        ("RTC", DateRangeQuickSelectListFilterBuilder()),
-    )
-    
-    actions = ["export_as_csv","export_as_excel","sort_ascending","sort_descending"]
