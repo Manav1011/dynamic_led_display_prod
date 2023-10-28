@@ -231,10 +231,12 @@
                             elements_container.innerHTML = ''  
                             if(elements != null && elements.length > 0){
                                 await add_to_panel(elements,received_msg.program_code,received_msg.program_name,received_msg.animation)
-                                elements.forEach((i) => {                                
-                                    let elementContent = `
+                                let elementContent = ''
+                                elements.forEach((i) => {   
+                                    if(i.fields.element_name == 'text_element'){
+                                        elementContent = `
                                     <div class="dropdown">
-                                        <div class="card program_card shadow-custom mb-2 dropdown-toggle" id="elementsdropdown${i.pk}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <div class="card program_card shadow-custom mb-2 dropdown-toggle" style="color:green;" id="elementsdropdown${i.pk}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             <div class="card-body">
                                                 <div class="row no-gutters align-items-center">
                                                     <div class="col">
@@ -264,10 +266,25 @@
                                         </div>
                                       </div>
                                     `
+                                    }else if(i.fields.element_name == 'image_element'){
+                                        elementContent = `<div class="card program_card shadow-custom mb-2">
+                                            <div class="card-body">
+                                                <div class="row no-gutters align-items-center">
+                                                    <div class="col">
+                                                        <div class="text-xs font-weight-bold text-primary text-uppercase program_name_container" data-id="${i.pk}">
+                                                            ${i.fields.element_name}</div>
+                                                    </div>
+                                                    <div class="col-auto">
+                                                        <i class="bi bi-trash2 btn btn-sm btn-outline-danger" onclick="delete_element(${parseInt(i.pk)},'${received_msg.program_name}')"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>   `
+                                    }
                                     elements_container.innerHTML += elementContent;
                                 })
                             }else{
-                                await add_to_panel(false)
+                                await add_to_panel(elements=false,program_code = received_msg.program_code,program_name=received_msg.program_name,animation=received_msg.animation)
                                 elements_container.innerHTML = `<div class="card program_card shadow-custom mb-2">
                                     <div class="card-body">
                                         <div class="row no-gutters align-items-center">

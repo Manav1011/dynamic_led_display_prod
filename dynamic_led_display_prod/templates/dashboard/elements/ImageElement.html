@@ -63,7 +63,7 @@
                     <div class="col d-flex justify-content-center align-items-center">
                         <div class="card image_element_output_container article" style="width: 300px; height:300px;">
                             <div class="card-body image_element_output element" id="image_element_output">
-                                <img src="" id="image_element_output_element" alt="" style="width: 100%; height:auto;">
+                                <img src="" id="image_element_output_element" alt="" style="width: 100%; height:auto; max-height:4.23cm; max-width:5.08cm;">
                             </div>
                         </div>
                     </div>
@@ -81,6 +81,24 @@
                         <select class="col-sm-7 col-md-7 col-lg-7 form-control program_footer" id="">
                         </select>
                         <button class="col-sm-3 col-md-3 col-lg-3 btn btn-outline-primary" onclick="image_element_program_value_changed(event)">Send</button>
+                        <script>
+                            async function image_element_program_value_changed(event){
+                                let program_name = $(event.target).parent().find('select').val()                                
+                                let element_html = $('.image_element_output_container').html()
+                                if (program_name != 'default'){
+                                    if(ws_program_and_elements){
+                                        ws_program_and_elements.send(JSON.stringify({
+                                            client:'dashboard',
+                                            page:'controller',
+                                            action:'add_element',                                
+                                            'element_name':'image_element',
+                                            'program_name':program_name,
+                                            'element_html':element_html
+                                        }))
+                                    }
+                                }
+                            }    
+                        </script>
                     </div>
                 </div>        
             </div>            

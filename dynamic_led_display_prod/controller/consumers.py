@@ -69,12 +69,9 @@ class PorgramsAndElements(AsyncWebsocketConsumer):
                         }))
                 if text_data['action'] == 'add_element' and text_data.get('element_name'):                
                     program_name = text_data.get('program_name')
-                    element_name = text_data.get('element_name')
-                    data = False
-                    if element_name == 'text_element':
-                        element_html = text_data.get('element_html')
-                        data  = await self.add_element(program_name,element_name,element_html=element_html)
-                
+                    element_name = text_data.get('element_name')                            
+                    element_html = text_data.get('element_html')
+                    data  = await self.add_element(program_name,element_name,element_html=element_html)                
                     if data:
                         await self.send(json.dumps({
                             'action':'add_element',
@@ -247,12 +244,9 @@ class PorgramsAndElements(AsyncWebsocketConsumer):
         return False
         
     @database_sync_to_async
-    def add_element(self,program_name,element_name,element_html=False,file_link=False):
-        program_obj = Programs.objects.get(program_name=program_name)      
-        if element_name == 'text_element' and element_name:
-            element_obj = Elements(element_name=element_name,code=element_html)
-        elif element_name == 'image_element':
-            pass        
+    def add_element(self,program_name,element_name,element_html=False):
+        program_obj = Programs.objects.get(program_name=program_name)              
+        element_obj = Elements(element_name=element_name,code=element_html)            
         try:
             element_obj.save()
             program_obj.elements.add(element_obj)
@@ -268,7 +262,7 @@ class PorgramsAndElements(AsyncWebsocketConsumer):
         file_storage_obj = FileSystemStorage()
         file = ContentFile(bytes_data)
         random_prefix = secrets.token_hex(16)
-        saved_file = file_storage_obj.save(f"{random_prefix}_{file_name}_{file_type.split('/')[1]}", file)
+        saved_file = file_storage_obj.save(f"{random_prefix}_{file_name}.{file_type.split('/')[1]}", file)
         file_url = file_storage_obj.url(saved_file)
         return file_url
 

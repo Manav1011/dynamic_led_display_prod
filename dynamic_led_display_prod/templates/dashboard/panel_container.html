@@ -100,6 +100,18 @@
                         }))
                     }
                 })  
-            }            
+            }else{
+                console.log(program_code)
+                if(ws_panel_changed_events){
+                    ws_panel_changed_events.send(JSON.stringify({
+                        client:'dashboard',
+                        page:'controller',
+                        action:'update_program',
+                        program_code:program_element.prop('outerHTML'),
+                        'selected_program':program_name
+                    }))
+                }
+            }
+
         }
     </script>
