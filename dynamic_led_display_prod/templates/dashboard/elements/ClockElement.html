@@ -1,0 +1,192 @@
+    <script>        
+        async function showTime12Hours() {
+            const timeZone = 'Asia/Kolkata';            
+            const date = new Date();
+            const options = {
+              timeZone,
+              timeZoneName: 'short', // To display the timezone abbreviation
+            };
+            
+            const dateOptions = {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            };
+            
+            const timeOptions = {
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+            };
+            
+            const dateFormat = date.toLocaleDateString('en-US', dateOptions);
+            const timeFormat = date.toLocaleTimeString('en-US', timeOptions);
+            const timeZoneString = new Intl.DateTimeFormat('en-US', options).formatToParts(date).find(part => part.type === 'timeZoneName').value;            
+                        
+            $('.12-hourClock').html(`${dateFormat}<br>${timeFormat}<br>${timeZoneString}`);
+
+            setTimeout(showTime12Hours, 1000);
+        }
+        
+        async function showTime24Hours() {
+            const timeZone = 'Asia/Kolkata';            
+            const date = new Date();
+            const options = {
+              timeZone,
+              timeZoneName: 'short', // To display the timezone abbreviation
+            };
+            
+            const dateOptions = {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            };
+            
+            const timeOptions = {
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+              hour12: false, // Set hour12 to false for 24-hour format
+            };
+            
+            const dateFormat = date.toLocaleDateString('en-US', dateOptions);
+            const timeFormat = date.toLocaleTimeString('en-US', timeOptions);
+            const timeZoneString = new Intl.DateTimeFormat('en-US', options).formatToParts(date).find(part => part.type === 'timeZoneName').value;            
+            
+            $('.24-hourClock').html(`${dateFormat}<br>${timeFormat}<br>${timeZoneString}`);
+
+            setTimeout(showTime24Hours, 1000);
+        }
+        
+
+        function toggleTimeFormat() {
+            is12HourFormat = !is12HourFormat;
+        }
+        showTime12Hours()
+        showTime24Hours()
+</script>
+<div class="col-lg-6 mb-4" id="clock_element_container">
+    <div class="card shadow-custom mb-4">
+        <!-- Card Header - Dropdown -->
+        <div
+            class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">CLOCK</h6>                                        
+        </div>
+            <div class="card-header">
+                <input class="w-100" type="color" oninput="changeClockElementFontColor(event)" id="favcolor" name="favcolor" value="#ff0000">
+            </div>
+            <div class="card-header dropdown">
+                <button class="w-100 btn btn-outline-primary dropdown-toggle" type="button" id="ClockfontDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Select Font Family
+                </button>
+                <div class="dropdown-menu" aria-labelledby="fontDropdown">
+                    <a class="dropdown-item font-dropdown-item" href="#" data-font="Orbitron">Orbitron</a> 
+                    <a class="dropdown-item font-dropdown-item" href="#" data-font="Arial, sans-serif">Arial</a>
+                    <a class="dropdown-item font-dropdown-item" href="#" data-font="Helvetica, sans-serif">Helvetica</a>
+                    <a class="dropdown-item font-dropdown-item" href="#" data-font="Times New Roman, serif">Times New Roman</a>
+                    <a class="dropdown-item font-dropdown-item" href="#" data-font="Courier New, monospace">Courier New</a>
+                    <a class="dropdown-item font-dropdown-item" href="#" data-font="Verdana, sans-serif">Verdana</a>                        
+                </div>
+            </div>
+            <div class="card-header dropdown">
+                <select class="form-control form-select" aria-label="Default select example" oninput="clock_element_alignment_changed(event)">
+                    <option selected value="default">Select Alignment</option>
+                    <option value="left">Left</option>
+                    <option value="center">Center</option>
+                    <option value="right">Right</option>
+                    <option value="justify">Justify</option>
+                    <script>
+                        async function clock_element_alignment_changed(event){
+                            if(event.target.value !== 'default'){
+                                $('#clock_element_container .clock_element_output').css('text-align', event.target.value);
+                            }
+                        }
+                    </script>
+                  </select>
+            </div>
+            <div class="card-header dropdown">
+                <select class="form-control form-select" aria-label="Default select example" oninput="clock_hour_format_changed(event)">
+                    <option selected value="default">Select Format</option>
+                    <option value="12_hour_format">12 Hour</option>
+                    <option value="24_hour_format">24 Hour</option>                    
+                    <script>
+                        async function clock_hour_format_changed(event){
+                            if(event.target.value !== 'default'){
+                                if(event.target.value == '12_hour_format'){
+                                    $('#clock_output_inner_div').removeClass('24-hourClock')
+                                    $('#clock_output_inner_div').addClass('12-hourClock')
+                                }else{
+                                    $('#clock_output_inner_div').addClass('24-hourClock')
+                                    $('#clock_output_inner_div').removeClass('12-hourClock')
+                                }
+                            }
+                        }
+                    </script>
+                  </select>
+            </div>
+        <!-- Card Body -->
+        <div class="card-body">            
+            <div class="row mb-3">
+                <div class="col">
+                    <div class="card clock_element_output_container article">
+                        <div class="card-body clock_element_output element"style="color: #17D4FE;font-size: 30px;font-family: Orbitron;letter-spacing: 7px;" id="clock_element_output">
+                            <div class="12-hourClock" id="clock_output_inner_div"></div>
+                        </div>
+                    </div>
+                </div>
+              </div>
+        </div>
+        <div class="card-footer clock_element_footer" style="display: hidden;">            
+            <div class="form-group">
+                <label for="program_select">Active Programs</label>
+                <div class="send_program_view row " style="justify-content: space-around; gap:10px;">
+                    <select class="col-sm-7 col-md-7 col-lg-7 form-control program_footer" id="">
+                    </select>
+                    <button class="col-sm-3 col-md-3 col-lg-3 btn btn-outline-primary" onclick="clock_element_program_value_changed(event)">Send</button>
+                </div>
+            </div>        
+        </div>            
+    </div>
+    <script>         
+        async function clock_element_program_value_changed(event){
+            let program_name = $(event.target).parent().find('select').val()                                
+            let element_html = $('.clock_element_output_container').html()
+            if (program_name != 'default'){
+                if(ws_program_and_elements){
+                    ws_program_and_elements.send(JSON.stringify({
+                        client:'dashboard',
+                        page:'controller',
+                        action:'add_element',                                
+                        'element_name':'clock_element',
+                        'program_name':program_name,
+                        'element_html':element_html
+                    }))
+                }
+            }
+        }                
+    </script>
+    
+</div>    
+<script>
+    // Get the font selection dropdown item links
+    async function changeClockElementFontColor(event){                        
+        $('#clock_element_container .clock_element_output').css('color', event.target.value);
+    }
+    let ClockfontLinks = document.querySelectorAll('#clock_element_container .font-dropdown-item');
+    
+    // Get the text container div
+    let ClockContainer = $('#clock_element_container .clock_element_output');
+
+    // Add an event listener to the dropdown item links
+    ClockfontLinks.forEach(link => {
+        link.addEventListener('click', function (event) {
+            event.preventDefault();
+            let selectedFont = this.getAttribute('data-font');
+            console.log(selectedFont)
+            ClockContainer.css('font-family',selectedFont)
+            document.querySelector('#ClockfontDropdown').textContent = this.textContent;
+        });
+    });
+</script>
+
+<!-- row -->

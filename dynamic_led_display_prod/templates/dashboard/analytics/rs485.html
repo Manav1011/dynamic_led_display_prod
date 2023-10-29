@@ -1,49 +1,21 @@
-<div class="col-lg-12 mb-4">
+{% load static %}
+<div class="col-lg-12 mb-4" id="container_rs485">
     <div class="card shadow mb-4">
         <!-- Card Header - Dropdown -->
-        <div
-            class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">RS485</h6>                    
-            <h6 class="m-0 font-weight-bold text-primary" id="rs485_rtc"></h6>
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">RS485</h6>
+            <select class="form-select w-50" aria-label="parameters_select" id="parameters_select_rs485" oninput="parameters_select_rs485_changed(event)"></select>          
         </div>
         <!-- Card Body -->
         <div class="card-body">
             <div class="row">
-                <div class="col-lg-6 mb-4">
+                <div class="col-lg-12 mb-4">
                     <div class="card shadow mb-4">
                         <!-- Card Header - Dropdown -->
-                        <div
-                        
-                            class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                            <h6 class="m-0 font-weight-bold text-primary">RS485</h6>                    
-                            <h6 class="m-0 font-weight-bold text-primary" id="rs485_rtc"></h6>
-                        </div>
-                        <!-- Card Body -->
                         <div class="card-body">
-                            <h4 class="small font-weight-bold">Average Humidity<span
-                                class="float-right" id="rs485_humidity_val"></span></h4>
-                        <div class="progress mb-4">
-                            <div class="progress-bar bg-danger" role="progressbar" id="rs485_humidity_progress"
-                                aria-valuenow="20" aria-valuemin="-1" aria-valuemax="1"></div>
-                        </div>
-                        <h4 class="small font-weight-bold">Average Speed<span
-                                class="float-right" id="rs485_speed_val"></span></h4>
-                        <div class="progress mb-4">
-                            <div class="progress-bar bg-warning" role="progressbar" id="rs485_speed_progress"
-                                aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <h4 class="small font-weight-bold">Average Solar Radiation<span
-                                class="float-right"  id="rs485_sr_val"></span></h4>
-                        <div class="progress mb-4">
-                            <div class="progress-bar" role="progressbar" id="rs485_sr_progress"
-                                aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <h4 class="small font-weight-bold" >Average Tempreture <span
-                                class="float-right"  id="rs485_temp_val"></span></h4>
-                        <div class="progress mb-4">
-                            <div class="progress-bar bg-info" role="progressbar" id="rs485_temp_progress" 
-                                aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
+                            <div class="chart-area d-flex" style="justify-content: center; align-items:center;">
+                                <canvas id="rs485live_data" style="width:100%; height:auto;"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -52,34 +24,196 @@
                 <div class="col-xl-6 col-lg-6">
                     <div class="card shadow mb-4">
                         <!-- Card Header - Dropdown -->
-                        <div
-                            class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                            <h6 class="m-0 font-weight-bold text-primary">RS485</h6>
-                            <div class="dropdown no-arrow">
-                                <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                                    aria-labelledby="dropdownMenuLink">
-                                    <div class="dropdown-header">Dropdown Header:</div>
-                                    <a class="dropdown-item" href="#">Action</a>
-                                    <a class="dropdown-item" href="#">Another action</a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#">Something else here</a>
-                                </div>
-                            </div>
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <div class="btn-group row w-100" role="group" aria-label="Basic mixed styles example">
+                                <button type="button" class="col-12 btn btn-outline-danger" onclick="get_windrose_chart_rs485()">Wind Rose</button>                                
+                              </div>
                         </div>
                         <!-- Card Body -->
                         <div class="card-body">
-                            <div class="chart-area d-flex" style="justify-content: center; align-items:center;">
-                                <canvas id="rs485Canvas" style="width:100%; height:auto;"></canvas>
+                            <div class="chart-area d-flex" style="justify-content: center; align-items:center;" id="windrose_chart_container_rs485">                                
+                                <img src='{% static "img/pie_chart.png" %}' alt="" id="no_plot_svg" style="width:auto; height:100%;">
+                                <!-- <canvas id="rs485Canvas" style="width:100%; height:auto;"></canvas> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-6 col-lg-6">
+                    <div class="card shadow mb-4">
+                        <!-- Card Header - Dropdown -->
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <div class="btn-group row w-100" role="group" aria-label="Basic mixed styles example">                                
+                                <button type="button" class="col-12 btn btn-outline-success" onclick="get_stats_rs485()">Stats</button>                                
+                              </div>
+                        </div>
+                        <!-- Card Body -->
+                        <div class="card-body">
+                            <div class="chart-area d-flex" style="justify-content: center; align-items:center;" id="stats_chart_container_rs485">                                
+                                <img src='{% static "img/pie_chart.png" %}' alt="" id="no_plot_svg" style="width:auto; height:100%;">
+                                <!-- <canvas id="rs485Canvas" style="width:100%; height:auto;"></canvas> -->
                             </div>
                         </div>
                     </div>
                 </div>
                 <!-- Plot -->
+                <script>
+                    async function get_windrose_chart_rs485(){
+                        if(ws_serial_communcation_rs485){
+                            ws_serial_communcation_rs485.send(JSON.stringify({
+                                client:'consumer',
+                                device:'rs485',
+                                action:'get_windrose',
+                                device:'rs485'
+                            }))
+                        }   
+                        $('#windrose_chart_container_rs485').find('img').attr('src',`${window.location.origin}/media/loading.gif`)
+                    }
+                </script>
             </div>
         </div>
     </div>
 </div> 
+<script>
+    //var uniqueColors = ['red','blue','green','purple','orange','cyan','pink','magenta','yellow','brown','teal','olive','navy','lime','maroon','gold'];
+    var rs485_live_chart = null
+    var currently_showring_chart = null
+    var current_rs485_frame = null
+    var rs_485_chart_data = {
+        labels: [],
+        datasets: []
+    };    
+    async function make_live_rs485_chart(stream){          
+        if(rs485_live_chart == null){            
+            currently_showring_chart = currently_showring_chart == null ? 'BPRS' : currently_showring_chart
+            for(let i in stream){
+                if(i == 'RTC'){    
+                    let date = new Date(stream[i]) 
+                    let minutes = date.getMinutes()
+                    let seconds = date.getSeconds()                      
+                    rs_485_chart_data.labels.push(`${minutes}:${seconds}`)
+                }else{
+                    if(i == currently_showring_chart){
+                        let obj = {
+                            label:currently_showring_chart,
+                            borderColor:'red',
+                            data:[stream[i]],
+                            fill: false,
+                        }	
+                        rs_485_chart_data.datasets.push(obj)
+                    }
+                }
+            }              
+              var chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'X-axis'
+                        }
+                    },
+                    y: {
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Y-axis'
+                        }
+                    }
+                }
+            };
+              var ctx = document.getElementById('rs485live_data').getContext('2d');
+                rs485_live_chart = new Chart(ctx, {
+                    type: 'line',
+                    data: rs_485_chart_data,
+                    options: chartOptions
+                });
+        }else{
+            let rs485keys = Object.keys(stream);
+            for (var index in rs485keys) {
+                var key = rs485keys[index];           
+                var value = stream[key];
+                if(key != 'RTC'){                                        
+                    if(rs485_live_chart.data.datasets[0] && key == currently_showring_chart){                         
+                        rs485_live_chart.data.datasets[0].data.push(value)
+                        if(rs485_live_chart.data.datasets[0].data.length > 5){
+                            rs485_live_chart.data.datasets[0].data.shift()
+                        }
+                    }
+                }else{
+                    let date = new Date(value) 
+                    let minutes = date.getMinutes()
+                    let seconds = date.getSeconds()                      
+                    rs485_live_chart.data.labels.push(`${minutes}:${seconds}`)                    
+                }
+            }
+            if (rs485_live_chart.data.labels.length > 5) {     
+                rs485_live_chart.data.labels.shift();          
+            }            
+            rs485_live_chart.update();
+        }
+    }
+    async function SerialCommunicationRS485() {
+               
+        if ("WebSocket" in window) {
+           // Let us open a web socket
+           ws_serial_communcation_rs485 = new WebSocket("ws://192.168.29.18:8000/serial_communication/");
+            
+           ws_serial_communcation_rs485.onopen = async function() {
+            ws_serial_communcation_rs485.send(JSON.stringify({
+                client:'consumer',
+                device:'rs485',
+                action:'connection'
+             }))
+           };
+            
+           ws_serial_communcation_rs485.onmessage = async function (evt) {                     
+              let received_msg = JSON.parse(evt.data);
+              if(received_msg.action == 'stream' && received_msg.frame && received_msg.device){
+                    let rs485_container = $(`#container_${received_msg.device}`)
+                    rs485_container.removeClass('d-none')                
+                    await make_live_rs485_chart(received_msg.frame)
+                    await populate_param_select_rs485(received_msg.frame)
+                    if(!$('#connection_label').text().includes('RS485 |')){
+                        if($('#connection_label').text() == 'None'){
+                            $('#connection_label').text('RS485 | ')
+                        }else{
+                            $('#connection_label').append('RS485 | ')
+                        }
+                    }
+              }if(received_msg.action == 'windrose_graph_received' && received_msg.device && received_msg.graph_link){
+                    let chart_container = $('#windrose_chart_container_rs485')
+                    chart_container.find('img').attr('src',received_msg.graph_link)
+              }
+           };
+            
+           ws_serial_communcation_rs485.onclose = async function() {
+
+           };
+        } else {                  
+           alert("WebSocket NOT supported by your Browser!");
+        }
+     }
+</script>
+<script>
+    async function populate_param_select_rs485(frame){
+        if(JSON.stringify(current_rs485_frame) != JSON.stringify(Object.keys(frame))){            
+            let select_element_rs485 = $('#parameters_select_rs485')
+            select_element_rs485.html('')
+            for(i in frame){
+                if(i != 'RTC' && frame[i] != 0.0){
+                    let option_el = $(`<option value='${i}'>${i}</option>`)
+                    select_element_rs485.append(option_el)
+                }
+            }
+            current_rs485_frame = Object.keys(frame)
+        }
+    }
+    async function parameters_select_rs485_changed(event){
+        currently_showring_chart = event.target.value
+        rs485_live_chart = null
+        rs_485_chart_data = {
+            labels: [],
+            datasets: []
+        }; 
+    }
+</script>

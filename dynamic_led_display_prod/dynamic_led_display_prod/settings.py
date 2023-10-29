@@ -23,6 +23,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!)
+
+
 SECRET_KEY = os.environ['SECRET']
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -33,8 +35,9 @@ ALLOWED_HOSTS = ['192.168.29.18']
 
 # Application definition
 
-INSTALLED_APPS = [
+INSTALLED_APPS = [    
     "daphne",
+    # 'ash',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # The following apps are required:        
+    'django_extensions',
     'allauth',
     'CustomUser',
     'serial_comm',
@@ -114,12 +118,10 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
+TIME_ZONE =  'Asia/Kolkata'
 USE_I18N = True
-
-USE_TZ = True
+USE_L10N = True
+USE_TZ = False
 
 # LOGGING = {
 #     'version': 1,

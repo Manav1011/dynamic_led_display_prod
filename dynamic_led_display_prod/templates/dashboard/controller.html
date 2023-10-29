@@ -233,7 +233,7 @@
                                 await add_to_panel(elements,received_msg.program_code,received_msg.program_name,received_msg.animation)
                                 let elementContent = ''
                                 elements.forEach((i) => {   
-                                    if(i.fields.element_name == 'text_element'){
+                                    if(i.fields.element_name == 'text_element' || i.fields.element_name == 'clock_element'){
                                         elementContent = `
                                     <div class="dropdown">
                                         <div class="card program_card shadow-custom mb-2 dropdown-toggle" style="color:green;" id="elementsdropdown${i.pk}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -345,6 +345,9 @@
 <!-- text element column -->
 <!-- text element column -->
 {% include "dashboard/elements/ImageElement.html" %}
+<!-- text element column -->
+<!-- text element column -->
+{% include "dashboard/elements/ClockElement.html" %}
 <!-- text element column -->
 </div>
 </div>

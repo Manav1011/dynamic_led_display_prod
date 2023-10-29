@@ -4,3 +4,12 @@
 .shadow-custom{
     box-shadow: 0 .15rem 1.75rem 0 rgba(58,59,69,.15)!important;
 }
+
+@keyframes moveLeftToRight {
+    0% {
+        left: 100%; /* Start from the right edge */
+    }
+    100% {
+        left: -100%; /* Move to the left edge */
+    }
+}

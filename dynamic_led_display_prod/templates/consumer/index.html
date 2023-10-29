@@ -74,7 +74,7 @@
     </script>
     <script>        
 
-        async function displayProgram(PanelPrograms,currentProgramIndex = 0) {            
+        async function displayProgram(PanelPrograms,currentProgramIndex = 0) {   
             const programDisplay = $("#led-panel-container");
             if (currentProgramIndex >= PanelPrograms.length) {
                 currentProgramIndex = 0;
@@ -88,11 +88,13 @@
             program_element.css('margin-top','2px')
             program_element.css('left','0')            
             programDisplay.html(program_element)            
-
-            CurrentSetTimeout = setTimeout(() => {                
-                currentProgramIndex++;
-                displayProgram(PanelPrograms,currentProgramIndex);
-            }, program.fields.running_time * 1000);
+            
+            if(PanelPrograms.length > 1){
+                CurrentSetTimeout = setTimeout(() => {                
+                    currentProgramIndex++;
+                    displayProgram(PanelPrograms,currentProgramIndex);
+                }, program.fields.running_time * 1000);
+            }
         }        
     </script>
     <script>
@@ -110,5 +112,76 @@
             StartPanelConsumer();
         };
     </script>
+    <script>        
+        async function showTime12Hours() {
+            const timeZone = 'Asia/Kolkata';            
+            const date = new Date();
+            const options = {
+              timeZone,
+              timeZoneName: 'short', // To display the timezone abbreviation
+            };
+            
+            const dateOptions = {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              timeZone:timeZone,
+            };
+            
+            const timeOptions = {
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+              timeZone:timeZone,
+            };
+            
+            const dateFormat = date.toLocaleDateString('en-US', dateOptions);
+            const timeFormat = date.toLocaleTimeString('en-US', timeOptions);
+            const timeZoneString = new Intl.DateTimeFormat('en-US', options).formatToParts(date).find(part => part.type === 'timeZoneName').value;            
+                        
+            $('.12-hourClock').html(`${dateFormat}<br>${timeFormat}<br>${timeZoneString}`);
+
+            setTimeout(showTime12Hours, 1000);
+        }
+        
+        async function showTime24Hours() {
+            const timeZone = 'Asia/Kolkata';            
+            const date = new Date();
+            const options = {
+              timeZone,
+              timeZoneName: 'short', // To display the timezone abbreviation
+            };
+            
+            const dateOptions = {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              timeZone:timeZone
+            };
+            
+            const timeOptions = {
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+              timeZone:timeZone,
+              hour12: false, // Set hour12 to false for 24-hour format
+            };
+            
+            const dateFormat = date.toLocaleDateString('en-US', dateOptions);
+            const timeFormat = date.toLocaleTimeString('en-US', timeOptions);
+            const timeZoneString = new Intl.DateTimeFormat('en-US', options).formatToParts(date).find(part => part.type === 'timeZoneName').value;            
+            
+            $('.24-hourClock').html(`${dateFormat}<br>${timeFormat}<br>${timeZoneString}`);
+
+            setTimeout(showTime24Hours, 1000);
+        }
+        
+
+        function toggleTimeFormat() {
+            is12HourFormat = !is12HourFormat;
+        }
+        showTime12Hours()
+        showTime24Hours()
+</script>
 </body>
 </html>

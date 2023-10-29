@@ -1,4 +1,4 @@
-<div class="col-lg-12 mb-4">
+<div class="col-lg-12 mb-4 d-none" id="container_rs232">
     <div class="card shadow mb-4">
         <!-- Card Header - Dropdown -->
         <div
@@ -73,3 +73,31 @@
          </div>   
     </div>
 </div>
+<script>
+    async function SerialCommunicationRS232() {        
+        if ("WebSocket" in window) {
+           // Let us open a web socket
+           ws_serial_communcation_rs232 = new WebSocket("ws://192.168.29.18:8000/serial_communication/");
+            
+           ws_serial_communcation_rs232.onopen = async function() {
+            ws_serial_communcation_rs232.send(JSON.stringify({
+                 client:'consumer',
+                 device:'rs232',
+                 action:'connection'
+             }))
+           };
+            
+           ws_serial_communcation_rs232.onmessage = async function (evt) {                     
+              let received_msg = JSON.parse(evt.data);
+              console.log(received_msg)
+              
+           };
+            
+           ws_serial_communcation_rs232.onclose = async function() {
+
+           };
+        } else {                  
+           alert("WebSocket NOT supported by your Browser!");
+        }
+     }
+</script>

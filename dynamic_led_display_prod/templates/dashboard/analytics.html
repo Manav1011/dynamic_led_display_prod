@@ -6,8 +6,8 @@
 {% block content %}
 <script>
      //Globals
-    var ws_rs232 = null
-    var ws_rs485 = null    
+    var ws_serial_communcation_rs232 = null
+    var ws_serial_communcation_rs485 = null
 </script>
 <div class="container-fluid">
 
@@ -25,7 +25,7 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Connections</div>
+                                Streaming</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800" id="connection_label">None</div>
                         </div>
                         <div class="col-auto">
@@ -35,203 +35,6 @@
                 </div>
             </div>
         </div>
-
-        <script type = "text/javascript">
-            async function reviewConnections(Connections){
-                let connection_label = document.getElementById('connection_label')
-                let ConnectionString = ''
-                for(let i in Connections){                    
-                    if(Connections[i] === true){
-                        ConnectionString += `${i} | `
-                    }
-                }
-                if (ConnectionString.length == 0) ConnectionString = 'No Device Connected'
-                connection_label.textContent = ConnectionString
-            }
-            var Connections = {
-                RS232:false,
-                RS485:false
-            }
-            async function WebSocketTestRS232() {
-                rs232_rtc_el = document.getElementById('rs232_rtc')
-                rs232_humidity_val_el = document.getElementById('rs232_humidity_val')
-                rs232_speed_val_el = document.getElementById('rs232_speed_val')
-                rs232_sr_val_el = document.getElementById('rs232_sr_val')
-                rs232_temp_val_el = document.getElementById('rs232_temp_val')
-                
-                rs232_humidity_progress_el = document.getElementById('rs232_humidity_progress')
-                rs232_speed_progress_el = document.getElementById('rs232_speed_progress')
-                rs232_sr_progress_el = document.getElementById('rs232_sr_progress')
-                rs232_temp_progress_el = document.getElementById('rs232_temp_progress')
-
-               if ("WebSocket" in window) {
-                  // Let us open a web socket
-                  ws_rs232 = new WebSocket("ws://192.168.29.18:8000/serial_communication_rs232/");
-                   
-                  ws_rs232.onopen = async function() {
-                    Connections.RS232 = true
-                    await reviewConnections(Connections)
-                    ws_rs232.send(JSON.stringify({            
-                        client:'dashboard',
-                        page:'analytics'
-                    }));
-                  };
-                   
-                  ws_rs232.onmessage = async function (evt) {                     
-                     let received_msg = JSON.parse(evt.data);
-                     console.log(received_msg)
-                     if(received_msg.rs232_plot){
-                        var xValues =    Object.keys(received_msg.rs232_plot);
-                        var yValues =  Object.keys(received_msg.rs232_plot).map(key => received_msg.rs232_plot[key]); 
-                        var barColors = ["red", "green","blue","orange"];
-                        new Chart("rs232Canvas", {
-                            type: "line",
-                            data: {
-                              labels: xValues,
-                              datasets: [{
-                                fill: false,
-                                lineTension: 0,
-                                backgroundColor: "rgba(0,0,255,1.0)",
-                                borderColor: "rgba(0,0,255,0.1)",
-                                data: yValues
-                              }]
-                            },
-                            options: {
-                              legend: {display: false},
-                              scales: {
-                               // yAxes: [{ticks: {min: -1, max:1}}],
-                              }
-                            }
-                          });
-                     }
-                     if (received_msg.client == 'producer' && received_msg.action == 'stream' && received_msg.mode == 'serial_rs232'){
-                        let rs232_rtc = received_msg.data.RTC
-                        let rs232_humidity_val = received_msg.data.AvgeHum
-                        let rs232_speed_val = received_msg.data.AvgeSpeed
-                        let rs232_sr_val = received_msg.data.AvgeSr
-                        let rs232_temp_val = received_msg.data.AvgeTemp
-
-                        rs232_rtc_el.textContent = rs232_rtc
-                        rs232_humidity_val_el.textContent = rs232_humidity_val
-                        rs232_speed_val_el.textContent = rs232_speed_val
-                        rs232_sr_val_el.textContent = rs232_sr_val
-                        rs232_temp_val_el.textContent = rs232_temp_val
-
-                        rs232_humidity_progress_el.style.width = `${(rs232_humidity_val + 1) * 50}%`
-                        rs232_speed_progress_el.style.width = `${(rs232_speed_val + 1) * 50}%`
-                        rs232_sr_progress_el.style.width = `${(rs232_sr_val + 1) * 50}%`
-                        rs232_temp_progress_el.style.width = `${(rs232_temp_val + 1) * 50}%`
-
-                     }
-                  };
-                   
-                  ws_rs232.onclose = async function() {
-                    Connections.RS232 = false
-                    await reviewConnections()
-                    console.log("Connection Closed")                     
-                  };
-               } else {                  
-                  alert("WebSocket NOT supported by your Browser!");
-               }
-            }
-            async function WebSocketTestRS485() {
-                rs485_rtc_el = document.getElementById('rs485_rtc')
-                rs485_humidity_val_el = document.getElementById('rs485_humidity_val')
-                rs485_speed_val_el = document.getElementById('rs485_speed_val')
-                rs485_sr_val_el = document.getElementById('rs485_sr_val')
-                rs485_temp_val_el = document.getElementById('rs485_temp_val')
-                
-                rs485_humidity_progress_el = document.getElementById('rs485_humidity_progress')
-                rs485_speed_progress_el = document.getElementById('rs485_speed_progress')
-                rs485_sr_progress_el = document.getElementById('rs485_sr_progress')
-                rs485_temp_progress_el = document.getElementById('rs485_temp_progress')
-               
-                if ("WebSocket" in window) {
-                   // Let us open a web socket
-                   ws_rs485 = new WebSocket("ws://192.168.29.18:8000/serial_communication_rs485/");
-                    
-                   ws_rs485.onopen = async function() {  
-                    Connections.RS485 = true
-                    await reviewConnections(Connections)
-                    ws_rs485.send(JSON.stringify({            
-                        client:'dashboard',
-                        page:'analytics'
-                    }));
-                   };
-                    
-                   ws_rs485.onmessage = async function (evt) { 
-                    let received_msg = JSON.parse(evt.data);                    
-                    if(received_msg.csv_data){                           
-                        if(received_msg.csv_data == 'finished'){                            
-                            const base64Datars485 = received_chunks_rs485.join();                            
-                            const binaryDatars485 = atob(base64Datars485);                            
-                            try {
-                                const blobRs232 = new Blob([binaryDatars485], { type: 'application/csv' });
-                                const downloadLink = document.createElement('a');
-                                downloadLink.href = URL.createObjectURL(blobRs232);
-                                downloadLink.download = 'your_data.csv';
-                                downloadLink.click();
-                            } catch (error) {
-                                console.error('Download error:', error);
-                            }                            
-                        }else{
-                            received_chunks_rs485.push(received_msg.csv_data);
-                        }
-                     }
-                    if(received_msg.rs485_plot){
-                        var xValues =    Object.keys(received_msg.rs485_plot);
-                        var yValues =  Object.keys(received_msg.rs485_plot).map(key => received_msg.rs485_plot[key]); 
-                        new Chart("rs485Canvas", {
-                            type: "line",
-                            data: {
-                              labels: xValues,
-                              datasets: [{
-                                fill: false,
-                                lineTension: 0,
-                                backgroundColor: "rgba(0,0,255,1.0)",
-                                borderColor: "rgba(0,0,255,0.1)",
-                                data: yValues
-                              }]
-                            },
-                            options: {
-                              legend: {display: false},
-                              scales: {
-                                //yAxes: [{ticks: {min: -1, max:1}}],
-                              }
-                            }
-                          });
-                     }
-                    if (received_msg.client == 'producer' && received_msg.action == 'stream' && received_msg.mode == 'serial_rs485'){
-                       let rs485_rtc = received_msg.data.RTC
-                       let rs485_humidity_val = received_msg.data.AvgeHum
-                       let rs485_speed_val = received_msg.data.AvgeSpeed
-                       let rs485_sr_val = received_msg.data.AvgeSr
-                       let rs485_temp_val = received_msg.data.AvgeTemp
-
-                       rs485_rtc_el.textContent = rs485_rtc
-                       rs485_humidity_val_el.textContent = rs485_humidity_val
-                       rs485_speed_val_el.textContent = rs485_speed_val
-                       rs485_sr_val_el.textContent = rs485_sr_val
-                       rs485_temp_val_el.textContent = rs485_temp_val
-
-                       rs485_humidity_progress_el.style.width = `${(rs485_humidity_val + 1) * 50}%`
-                       rs485_speed_progress_el.style.width = `${(rs485_speed_val + 1) * 50}%`
-                       rs485_sr_progress_el.style.width = `${(rs485_sr_val + 1) * 50}%`
-                       rs485_temp_progress_el.style.width = `${(rs485_temp_val + 1) * 50}%`
-
-                    }
-                   };
-                    
-                   ws_rs485.onclose = async function() {
-                     Connections.RS485 = false
-                     await reviewConnections()
-                     console.log("Connection Closed")                     
-                   };
-                } else {                  
-                   alert("WebSocket NOT supported by your Browser!");
-                }
-             }
-         </script>
     </div>
 
     <!-- Content Row -->
@@ -287,9 +90,9 @@
 
 </div>
 <script>
-    window.onload = () => {
-        WebSocketTestRS232();
-        WebSocketTestRS485();
+    window.onload = async () => {
+        await SerialCommunicationRS232()
+        await SerialCommunicationRS485()
     };    
 </script>
 {% endblock content %}
