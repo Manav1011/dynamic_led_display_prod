@@ -77,7 +77,7 @@
     async function SerialCommunicationRS232() {        
         if ("WebSocket" in window) {
            // Let us open a web socket
-           ws_serial_communcation_rs232 = new WebSocket("ws://192.168.29.18:8000/serial_communication/");
+           ws_serial_communcation_rs232 = new WebSocket(`ws://${window.location.host}/serial_communication/`);
             
            ws_serial_communcation_rs232.onopen = async function() {
             ws_serial_communcation_rs232.send(JSON.stringify({

@@ -14,6 +14,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from windrose import WindroseAxes
 from django.http import HttpResponse
+from matplotlib import cm
+from scipy.stats import circmean
+from matplotlib.colors import ListedColormap
+import base64
 
 
 class SerialConsumer(AsyncWebsocketConsumer):
@@ -39,12 +43,14 @@ class SerialConsumer(AsyncWebsocketConsumer):
                 print(SerialConsumer.entities) 
 
             if action == 'get_windrose':
-                image_link = await self.get_windrose(device)
+                values = text_data['values']
+                colors = text_data['colors']
+                image_base64,df_html = await self.get_windrose(device,values,colors)
                 await self.send(json.dumps({
                     'action':'windrose_graph_received',
                     'device':'rs485',
-                    'graph_link':image_link
-
+                    'image_base64':image_base64,
+                    'df_html':df_html
                 }))
 
         if text_data['client'] == 'producer' and text_data.get('device') and text_data.get('action'):
@@ -71,26 +77,32 @@ class SerialConsumer(AsyncWebsocketConsumer):
                 await self.store_stream_into_db(text_data['device'],text_data['frame'])
 
     @database_sync_to_async
-    def get_windrose(self,device):
+    def get_windrose(self,device,values=False,colors=False):
         speed_dir_objs = SerialCommunication.objects.filter(device=device).values('WSPD','WDIR')
-        wind_speed = []
-        wind_direction = []
-        for i in speed_dir_objs:
-            wind_speed.append(float(i['WSPD']))
-            wind_direction.append(float(i['WDIR']))
-        
-        ax = WindroseAxes.from_ax()
-        ax.bar(wind_direction, wind_speed, normed=True, opening=0.8, edgecolor='k')
-        
-        ax.set_legend()
-        ax.set_title("Windrose")   
-        image_data = io.BytesIO()
+        df = pd.DataFrame(speed_dir_objs).apply(pd.to_numeric,errors='coerce', downcast='float').round(3)
+        wdir_mean = round(circmean(df['WDIR'], high=360, low=0),3)
+        summary_df = df.describe().T
+        summary_df.loc['WDIR']['mean'] = wdir_mean
+        summary_df = summary_df[['count','min','max','mean']].T
+        table_html = summary_df.to_html(classes='table table-bordered table-striped text-center', escape=False, index=True,justify='center').replace('\n','')
+        wind_direction = list(df['WDIR'])
+        wind_speed = list(df['WSPD'])
+        ax = WindroseAxes.from_ax()         
+        if(values and colors):
+            custom_cmap = ListedColormap(colors)
+            custom_bins = np.array(values)    
+            ax.contourf(wind_direction, wind_speed, bins=custom_bins, cmap=custom_cmap)
+        else:
+            ax.contourf(wind_direction, wind_speed, normed=True, cmap=cm.hot)
+        # ax.bar(wind_direction, wind_speed, normed=True, opening=1.0, edgecolor='k')
+        ax.legend(title="Wind Speed (m/s)")
+        ax.set_title("Windrose")
+        image_data = io.BytesIO()                
         plt.savefig(image_data, format="png")
         image_data.seek(0)
-        response = HttpResponse(image_data, content_type='image/png')
-        response['Content-Disposition'] = 'inline; filename="windrose.png"'
-        print(response)
-        return response
+        image_base64 = base64.b64encode(image_data.read()).decode('utf-8')
+
+        return image_base64,table_html
 
 
     @database_sync_to_async
