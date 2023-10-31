@@ -34,19 +34,11 @@ DEBUG = True
 ALLOWED_HOSTS = set()
 import socket
 def get_private_ipv4_address():
-    try:
-        # Create a socket object
+    try:        
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-        # Connect to a remote server (doesn't have to be reachable)
-        s.connect(("8.8.8.8", 80))  # Google's DNS server
-
-        # Get the local IP address
+        s.connect(("8.8.8.8", 80))        
         private_ip = s.getsockname()[0]
-
-        # Close the socket
         s.close()
-
         return private_ip
     except Exception as e:
         return str(e)

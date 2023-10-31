@@ -9,7 +9,7 @@
         <!-- Card Body -->
         <div class="card-body">
             <div class="row">
-                <div class="col-lg-12 mb-4">
+                <div class="col-lg-6 mb-4">
                     <div class="card shadow mb-4">
                         <!-- Card Header - Dropdown -->
                         <div class="card-body">
@@ -19,12 +19,30 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-lg-6 mb-4">
+                    <div class="card bg-light shadow mb-4" id="currently_showing_params_rs485">
+                        <!-- Card Header - Dropdown -->
+                        <div class="card-body">
+                            <div class="card-header" id="currently_showing_header_rs485">Barometric Pressure</div>
+                            <div class="card-body">
+                                <div class="row" style="align-items: center;">
+                                    <div class="col-6">
+                                        <img id="currently_showing_param_icon_rs485" src='media/icons/BPRS.png' alt="" style="width:100%; height:auto;">
+                                    </div>
+                                    <div class="col-6 text-center">
+                                        <h1 style="font-size:3rem; font-weight:1000;" id="currently_showing_param_value_rs485"></h1>                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Plot -->                
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <div class="btn-group row w-100" role="group" aria-label="Basic mixed styles example">
                         <select class="form-select col-12 text-center btn-outline-danger" aria-label="Default select example" onchange="states_config_changed(event)">
-                            <option value="" selected>Open this select menu</option>
+                            <option value="bar_default" selected>Bar - Default</option>
                             <option value="WindRose">WindRose</option>
                             <option value="2">Two</option>
                             <option value="3">Three</option>
@@ -34,6 +52,8 @@
                                 let value = event.target.value
                                 if(value == 'WindRose'){
                                     await show_windrose_form()
+                                }if(value == 'bar_default'){
+                                    await default_bar_chart()
                                 }
                             }
                         </script>
@@ -110,6 +130,22 @@
 </div> 
 <script>
     //var uniqueColors = ['red','blue','green','purple','orange','cyan','pink','magenta','yellow','brown','teal','olive','navy','lime','maroon','gold'];
+    var weatherData = {
+        'WSPD': ['Wind Speed',`${window.location.origin}/media/icons/WSPD.png`],
+        'WDIR': ['Wind Direction',`${window.location.origin}/media/icons/WDIR.jpg`],
+        'ATMP': ['Air Temperature',`${window.location.origin}/media/icons/ATMP.jpg`],
+        'HUMD': ['Relative Humidity',`${window.location.origin}/media/icons/HUMD.jpg`],
+        'RAIN': ['Rainfall',`${window.location.origin}/media/icons/RAIN.png`],
+        'SRAD': ['Solar Radiation',`${window.location.origin}/media/icons/SRAD.png`],
+        'BPRS': ['Barometric Pressure',`${window.location.origin}/media/icons/BPRS.png`],
+        'WDCH': ['Wind Chill',`${window.location.origin}/media/icons/WDCH.png`],
+        'DWPT': ['Dew Point Temperature',`${window.location.origin}/media/icons/DWPT.png`],
+        'P12': ['Parameter 12',`${window.location.origin}/media/icons/default.png`],
+        'P13': ['Parameter 13',`${window.location.origin}/media/icons/default.png`],
+        'P14': ['Parameter 14',`${window.location.origin}/media/icons/default.png`],
+        'P15': ['Parameter 15',`${window.location.origin}/media/icons/default.png`],
+        'P16': ['Parameter 16',`${window.location.origin}/media/icons/default.png`],
+    };    
     var rs485_live_chart = null
     var currently_showring_chart = null
     var current_rs485_frame = null
@@ -128,6 +164,7 @@
                     rs_485_chart_data.labels.push(`${minutes}:${seconds}`)
                 }else{
                     if(i == currently_showring_chart){
+                        $('#currently_showing_param_value_rs485').text(stream[i])
                         let obj = {
                             label:currently_showring_chart,
                             borderColor:'red',
@@ -168,7 +205,8 @@
                 var key = rs485keys[index];           
                 var value = stream[key];
                 if(key != 'RTC'){                                        
-                    if(rs485_live_chart.data.datasets[0] && key == currently_showring_chart){                         
+                    if(rs485_live_chart.data.datasets[0] && key == currently_showring_chart){
+                        $('#currently_showing_param_value_rs485').text(value)
                         rs485_live_chart.data.datasets[0].data.push(value)
                         if(rs485_live_chart.data.datasets[0].data.length > 5){
                             rs485_live_chart.data.datasets[0].data.shift()
@@ -238,7 +276,7 @@
             let select_element_rs485 = $('#parameters_select_rs485')
             select_element_rs485.html('')
             for(i in frame){
-                if(i != 'RTC' && frame[i] != 0.0){
+                if(i != 'RTC'){
                     let option_el = $(`<option value='${i}'>${i}</option>`)
                     select_element_rs485.append(option_el)
                 }
@@ -248,6 +286,8 @@
     }
     async function parameters_select_rs485_changed(event){
         currently_showring_chart = event.target.value
+        $('#currently_showing_header_rs485').text(weatherData[currently_showring_chart][0])
+        $('#currently_showing_param_icon_rs485').attr('src',weatherData[currently_showring_chart][1])
         rs485_live_chart = null
         rs_485_chart_data = {
             labels: [],
@@ -322,5 +362,6 @@
         });
         ColorElementValues.push('#000000')
         await get_windrose_chart_rs485(RangeElementValues,ColorElementValues)
+        $('#windrose_form_container').addClass('d-none')
     }
 </script>

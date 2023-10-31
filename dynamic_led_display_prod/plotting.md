@@ -34,8 +34,6 @@ plt.show()
 
 Depending on your specific goals and the insights you want to convey, you can combine multiple types of plots or create more complex visualizations. The choice of visualization type should be guided by the questions you want to answer and the story you want to tell with your data.
 
-
-
 Certainly! To create a plot that visualizes temperature (ATMP) and humidity (HUMD) over time, you can use the following code as a starting point. Make sure you have the necessary Python libraries installed, such as pandas and matplotlib.
 
 ```python
@@ -62,8 +60,6 @@ plt.show()
 ```
 
 This code will generate a plot that shows how temperature and humidity values change over time, with temperature represented in blue and humidity in green. You can further customize the plot's appearance, such as adding titles, legends, and adjusting colors, to make it more informative and visually appealing.
-
-
 
 Certainly! To create a bar chart that compares values between different records or devices, you can use the following code as a starting point. In this example, we'll create a bar chart to compare WSPD (wind speed) values for different records. You can adjust the code to compare values for different devices or other variables as needed.
 
@@ -98,9 +94,6 @@ In this code:
 - We add grid lines to make the chart more readable.
 
 You can modify the code to compare different variables or devices by selecting the appropriate data in the `data_to_compare` variable.
-
-
-
 
 If you want to include only the numeric columns with decimal values (e.g., Decimal('13.04300000')), you can use the `select_dtypes` method to filter columns with the 'decimal' data type. To ensure you're selecting columns with decimal values, you should first convert them to a decimal data type using the `to_numeric` method.
 
@@ -143,8 +136,6 @@ In this code:
 
 This code ensures that only columns with decimal values are included in the calculation of the mean and the creation of the bar chart.
 
-
-
 To create a scatter plot between two values, 'ATMP' (Temperature) and 'HUMD' (Humidity), you can use the following code. This code assumes you have a DataFrame named 'df' with the relevant data:
 
 ```python
@@ -170,8 +161,6 @@ In this code:
 - We add labels to the axes, a title, and a grid for better readability.
 
 This scatter plot will help you visualize the relationship or distribution between temperature (ATMP) and humidity (HUMD) in your data. Each point represents a data record, and its position on the plot indicates both temperature and humidity values.
-
-
 
 To create a box plot for the distribution of numerical values like 'WSPD', 'ATMP', or 'HUMD,' you can use the following code. This code assumes you have a DataFrame named 'df' with the relevant data:
 
