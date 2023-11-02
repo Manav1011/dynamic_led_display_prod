@@ -8,8 +8,8 @@
     <title>CONSUMER</title>
     <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
     <script src="{% static 'js/jquery-ui.js' %}"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href='{% static "css/bootstrap.min.css" %}'>
+    <script src="{% static 'js/sb-admin-2.min.js' %}" async></script>   
     <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>    
     <link rel="stylesheet" href="{% static 'css/jquery-ui.css' %}">        
     <link rel="stylesheet" href="{% static '/css/w3.css' %}">
@@ -26,12 +26,67 @@
     var CurrentSetTimeout = null
 </script>
 <style>
+    .clock {
+      width: 100%;
+      height: 100%;
+      background:white;
+      background-size: cover;      
+      border-radius: 50%;
+      position: relative;
+  }
+  
+  .hr,
+  .min,
+  .sec {
+      width: 5%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -100%);
+      transform-origin: bottom;
+      z-index: 2;
+      border-radius: 2em;
+  }
+  
+  .pin {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 1em;
+      height: 1em;
+      background: black;
+      border: 2px solid #ffffff;
+      border-radius: 10em;
+      margin: auto;
+      z-index: 10;
+  }
+  
+  /* Different length of different hands of clock */        
+  .hr {
+      height: 30%;
+      background-color: #ff0000;
+  }
+  
+  .min {
+      height: 45%;
+      background-color: #ff9900;
+  }
+  
+  .sec {
+      height: 60%;
+      background-color: #99ff00;
+      transform-origin: 50% 85%;
+  }
+  </style>
+<style>
     /* For WebKit browsers */
 
 </style>
-<body style="background:black">
+<body style="background:black; margin:0 !important; padding:0 !important;">
     <div class="main">
-        <div id="led-panel-container" style="width: 5.08cm;height: 4.23cm;margin: 0 !important;padding: 0 !important;position: fixed;left: 0;"></div>
+        <div id="led-panel-container" style="color:white;width: 5.08cm;height: 4.23cm;margin: 0 !important;padding: 0 !important;position: fixed;left: 0;"></div>
     </div>
     <script>
         $('.ui-resizable-handle').remove() 
@@ -73,7 +128,6 @@
         }
     </script>
     <script>        
-
         async function displayProgram(PanelPrograms,currentProgramIndex = 0) {   
             const programDisplay = $("#led-panel-container");
             if (currentProgramIndex >= PanelPrograms.length) {
@@ -112,76 +166,65 @@
             StartPanelConsumer();
         };
     </script>
-    <script>        
-        async function showTime12Hours() {
-            const timeZone = 'Asia/Kolkata';            
-            const date = new Date();
-            const options = {
-              timeZone,
-              timeZoneName: 'short', // To display the timezone abbreviation
-            };
+    <script> 
+        async function showTime(){
+            var date = new Date();
+            var h = date.getHours(); // 0 - 23
+            var m = date.getMinutes(); // 0 - 59
+            var s = date.getSeconds(); // 0 - 59
+            var session = "AM";
             
-            const dateOptions = {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-              timeZone:timeZone,
-            };
+            if(h == 0){
+                h = 12;
+            }
             
-            const timeOptions = {
-              hour: '2-digit',
-              minute: '2-digit',
-              second: '2-digit',
-              timeZone:timeZone,
-            };
+            if(h > 12){
+                h = h - 12;
+                session = "PM";
+            }
             
-            const dateFormat = date.toLocaleDateString('en-US', dateOptions);
-            const timeFormat = date.toLocaleTimeString('en-US', timeOptions);
-            const timeZoneString = new Intl.DateTimeFormat('en-US', options).formatToParts(date).find(part => part.type === 'timeZoneName').value;            
-                        
-            $('.12-hourClock').html(`${dateFormat}<br>${timeFormat}<br>${timeZoneString}`);
-
-            setTimeout(showTime12Hours, 1000);
+            h = (h < 10) ? "0" + h : h;
+            m = (m < 10) ? "0" + m : m;
+            s = (s < 10) ? "0" + s : s;
+            
+            var time = h + ":" + m + ":" + s + " " + session;
+            $('#clock_output_inner_div').text(time);
+            setTimeout(showTime, 1000);
+            
         }
-        
-        async function showTime24Hours() {
-            const timeZone = 'Asia/Kolkata';            
-            const date = new Date();
-            const options = {
-              timeZone,
-              timeZoneName: 'short', // To display the timezone abbreviation
-            };
-            
-            const dateOptions = {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-              timeZone:timeZone
-            };
-            
-            const timeOptions = {
-              hour: '2-digit',
-              minute: '2-digit',
-              second: '2-digit',
-              timeZone:timeZone,
-              hour12: false, // Set hour12 to false for 24-hour format
-            };
-            
-            const dateFormat = date.toLocaleDateString('en-US', dateOptions);
-            const timeFormat = date.toLocaleTimeString('en-US', timeOptions);
-            const timeZoneString = new Intl.DateTimeFormat('en-US', options).formatToParts(date).find(part => part.type === 'timeZoneName').value;            
-            
-            $('.24-hourClock').html(`${dateFormat}<br>${timeFormat}<br>${timeZoneString}`);
-
-            setTimeout(showTime24Hours, 1000);
-        }
-        
-
-        function toggleTimeFormat() {
-            is12HourFormat = !is12HourFormat;
-        }
-        showTime12Hours()
-        showTime24Hours()
+        showTime();               
 </script>
+<script>
+        
+    async function updateClock() {
+        const hrs = document.querySelectorAll('.hr');
+        const mins = document.querySelectorAll('.min');
+        const secs = document.querySelectorAll('.sec');
+      const day = new Date();
+      const hour = day.getHours();
+      const minutes = day.getMinutes();
+      const seconds = day.getSeconds();
+
+      const hrRotation = (30 * hour) + (0.5 * minutes);
+      const minRotation = 6 * minutes;
+      const secRotation = 6 * seconds;
+
+      hrs.forEach(hr => {
+        hr.style.transform = `translate(-50%, -100%) rotate(${hrRotation}deg)`;
+      });
+
+      mins.forEach(min => {
+        min.style.transform = `translate(-50%, -100%) rotate(${minRotation}deg)`;
+      });
+
+      secs.forEach(sec => {
+        sec.style.transform = `translate(-50%, -85%) rotate(${secRotation}deg)`;
+      });
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+
+  </script>
 </body>
 </html>

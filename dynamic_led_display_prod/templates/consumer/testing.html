@@ -1,50 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
-	<!-- Load plotly.js into the DOM -->
-	<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
 </head>
-
 <body>
-	<div id='myDiv'><!-- Plotly chart will be drawn inside this DIV --></div>
+  <style>
+    .clock {
+      width: 40vw;
+      height: 40vw;
+      background-image: linear-gradient(
+          70deg, black, white);
+      background-size: cover;
+      box-shadow: 0 3em 5.8em;
+      border-radius: 50%;
+      position: relative;
+  }
+  
+  .hr,
+  .min,
+  .sec {
+      width: 1%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -100%);
+      transform-origin: bottom;
+      z-index: 2;
+      border-radius: 2em;
+  }
+  
+  .pin {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 1em;
+      height: 1em;
+      background: rgb(38, 0, 255);
+      border: 2px solid #ffffff;
+      border-radius: 10em;
+      margin: auto;
+      z-index: 10;
+  }
+  
+  /* Different length of different hands of clock */        
+  .hr {
+      height: 25%;
+      background-color: #ff0000;
+  }
+  
+  .min {
+      height: 30%;
+      background-color: #ff9900;
+  }
+  
+  .sec {
+      height: 40%;
+      background-color: #99ff00;
+      transform-origin: 50% 85%;
+  }
+  </style>
 </body>
-
+<div class="clock">
+  <div class="hr"></div>
+  <div class="min"></div>
+  <div class="sec"></div>
+  <div class="pin"></div>
+</div>
 <script>
-
-    var data = [{
-        r: [77.5, 72.5, 70.0, 45.0,],
-        theta: ["North", "East", "South","West"],
-        name: "11-14 m/s",
-        marker: {color: "rgb(106,81,163)"},
-        type: "barpolar"
-      }, {
-        r: [57.5, 50.0, 45.0, 35.0],
-        theta: ["North", "East", "South","West"],
-        name: "8-11 m/s",
-        marker: {color: "rgb(158,154,200)"},
-        type: "barpolar"
-      }, {
-        r: [40.0, 30.0, 30.0, 40.0],
-        theta: ["North", "East", "South","West"],
-        name: "5-8 m/s",
-        marker: {color: "rgb(203,201,226)"},
-        type: "barpolar"
-      }, {
-        r: [20.0, 7.5, 15.0, 12.5],
-        theta: ["North", "East", "South","West"],
-        name: "< 5 m/s",
-        marker: {color: "rgb(242,240,247)"},
-        type: "barpolar"
-      }]
-    var layout = {
-        title: "Wind Speed Distribution in Laurel, NE",
-        font: {size: 16},
-        legend: {font: {size: 16}},
-        polar: {
-          barmode: "overlay",
-          bargap: 0,
-          radialaxis: {ticksuffix: "%", angle: 45, dtick: 20},
-          angularaxis: {direction: "clockwise"}
-        }
-      }
-    
-    Plotly.newPlot("myDiv", data, layout)
+  // Selecting all of the css classes 
+  // on which we want to apply functionalities
+  const hr = document.querySelector('.hr')
+  const min = document.querySelector('.min')
+  const sec = document.querySelector('.sec')
+  
+  // Setting up the period of working
+  setInterval(() => {
+  
+      // Extracting the current time 
+      // from DATE() function
+      let day = new Date()
+      let hour = day.getHours()
+      let minutes = day.getMinutes()
+      let seconds = day.getSeconds()
+  
+      // Formula that is explained above for 
+      // the rotation of different hands
+      let hrrotation = (30 * hour) + (0.5 * minutes);
+      let minrotation = 6 * minutes;
+      let secrotation = 6 * seconds;
+  
+      hr.style.transform =
+          `translate(-50%,-100%) rotate(${hrrotation}deg)`
+      min.style.transform =
+          `translate(-50%,-100%) rotate(${minrotation}deg)`
+      sec.style.transform =
+          `translate(-50%,-85%) rotate(${secrotation}deg)`
+  });
 </script>
+</html>

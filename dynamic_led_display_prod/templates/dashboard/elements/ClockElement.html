@@ -1,71 +1,15 @@
-    <script>        
-        async function showTime12Hours() {
-            const timeZone = 'Asia/Kolkata';            
-            const date = new Date();
-            const options = {
-              timeZone,
-              timeZoneName: 'short', // To display the timezone abbreviation
-            };
-            
-            const dateOptions = {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            };
-            
-            const timeOptions = {
-              hour: '2-digit',
-              minute: '2-digit',
-              second: '2-digit',
-            };
-            
-            const dateFormat = date.toLocaleDateString('en-US', dateOptions);
-            const timeFormat = date.toLocaleTimeString('en-US', timeOptions);
-            const timeZoneString = new Intl.DateTimeFormat('en-US', options).formatToParts(date).find(part => part.type === 'timeZoneName').value;            
-                        
-            $('.12-hourClock').html(`${dateFormat}<br>${timeFormat}<br>${timeZoneString}`);
-
-            setTimeout(showTime12Hours, 1000);
-        }
-        
-        async function showTime24Hours() {
-            const timeZone = 'Asia/Kolkata';            
-            const date = new Date();
-            const options = {
-              timeZone,
-              timeZoneName: 'short', // To display the timezone abbreviation
-            };
-            
-            const dateOptions = {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            };
-            
-            const timeOptions = {
-              hour: '2-digit',
-              minute: '2-digit',
-              second: '2-digit',
-              hour12: false, // Set hour12 to false for 24-hour format
-            };
-            
-            const dateFormat = date.toLocaleDateString('en-US', dateOptions);
-            const timeFormat = date.toLocaleTimeString('en-US', timeOptions);
-            const timeZoneString = new Intl.DateTimeFormat('en-US', options).formatToParts(date).find(part => part.type === 'timeZoneName').value;            
-            
-            $('.24-hourClock').html(`${dateFormat}<br>${timeFormat}<br>${timeZoneString}`);
-
-            setTimeout(showTime24Hours, 1000);
-        }
-        
-
-        function toggleTimeFormat() {
-            is12HourFormat = !is12HourFormat;
-        }
-        showTime12Hours()
-        showTime24Hours()
-</script>
-<div class="col-lg-6 mb-4" id="clock_element_container">
+{% load static %}
+    <style>
+        @font-face{
+            font-family:'digital-7';
+            src: url('{% static "assets/digital-7.ttf" %}');
+           }
+    </style>
+    <script>
+        var selectedClockElement = null
+        var TwelveHourFormatOn = true
+    </script>
+    <div class="col-lg-6 mb-4" id="clock_element_container">
     <div class="card shadow-custom mb-4">
         <!-- Card Header - Dropdown -->
         <div
@@ -104,7 +48,32 @@
                     </script>
                   </select>
             </div>
-            <div class="card-header dropdown">
+            <div class="card-header dropdown bg-warning" id="add_clock_element_into_view">
+                <div class="input-group">
+                    <select class="form-select" aria-label="Default select example" id="select_clock_element_into_view">
+                        <option selected>Select Element</option>
+                        <option value="time">Time</option>
+                        <option value="date">Date</option>
+                        <option value="timezone">Timezone</option>
+                    </select>
+                    <button class="input-group-text btn btn-outline-danger" onclick="add_clock_element_into_view(event)">Add</button>
+                    <script>
+                        async function add_clock_element_into_view(event){
+                            let element = $('#select_clock_element_into_view').val()
+                            console.log(element)
+                            $('.clock_element_output_container #clock_element_output').html('')
+                            if(element == 'time'){
+                                $('.clock_element_output_container #clock_element_output').append($(`<div class="12hourformattime" id="clock_output_inner_div"></div>`))
+                            }else if(element == 'date'){                                
+                                $('.clock_element_output_container #clock_element_output').append($(`<div class="" id="date_output_inner_div"></div>`))
+                            }else if(element == 'timezone'){
+                                $('.clock_element_output_container #clock_element_output').append($(`<div class="" id="timezone_output_inner_div"></div>`))
+                            }
+                        }
+                    </script>
+                </div>   
+            </div>
+            <div class="card-header dropdown">               
                 <select class="form-control form-select" aria-label="Default select example" oninput="clock_hour_format_changed(event)">
                     <option selected value="default">Select Format</option>
                     <option value="12_hour_format">12 Hour</option>
@@ -112,12 +81,12 @@
                     <script>
                         async function clock_hour_format_changed(event){
                             if(event.target.value !== 'default'){
-                                if(event.target.value == '12_hour_format'){
-                                    $('#clock_output_inner_div').removeClass('24-hourClock')
-                                    $('#clock_output_inner_div').addClass('12-hourClock')
+                                if($('#clock_output_inner_div').hasClass('12hourformattime')){
+                                    $('#clock_output_inner_div').addClass('24hourformattime')
+                                    $('#clock_output_inner_div').removeClass('12hourformattime')
                                 }else{
-                                    $('#clock_output_inner_div').addClass('24-hourClock')
-                                    $('#clock_output_inner_div').removeClass('12-hourClock')
+                                    $('#clock_output_inner_div').removeClass('24hourformattime')
+                                    $('#clock_output_inner_div').addClass('12hourformattime')
                                 }
                             }
                         }
@@ -129,13 +98,16 @@
             <div class="row mb-3">
                 <div class="col">
                     <div class="card clock_element_output_container article">
-                        <div class="card-body clock_element_output element"style="color: #17D4FE;font-size: 30px;font-family: Orbitron;letter-spacing: 7px;" id="clock_element_output">
-                            <div class="12-hourClock" id="clock_output_inner_div"></div>
-                        </div>
+                        <div class="card-body clock_element_output element" style="color: #17D4FE;font-size: 30px;font-family: 'digital-7', sans-serif;letter-spacing: 7px;" id="clock_element_output"></div>
                     </div>
                 </div>
               </div>
         </div>
+        <script>
+            //async function clock_element_selected(el){
+            //   $(el).toggleClass('add_border_clock')
+            //}
+        </script>
         <div class="card-footer clock_element_footer" style="display: hidden;">            
             <div class="form-group">
                 <label for="program_select">Active Programs</label>
@@ -166,11 +138,52 @@
         }                
     </script>
     
-</div>    
+</div>   
+<script>        
+    async function showTime() {
+        var date = new Date();
+        var h = date.getHours(); // 0 - 23
+        var m = date.getMinutes(); // 0 - 59
+        var s = date.getSeconds(); // 0 - 59
+        var day = date.getDate(); // 1 - 31
+        var month = date.getMonth() + 1; // 0 - 11 (January is 0, so we add 1)
+        var year = date.getFullYear();
+
+        var options = { timeZoneName: 'short' };
+        var fullTimezone = date.toLocaleString('en-US', options);
+
+        var session = (h >= 12) ? "PM" : "AM";
+        var formattedHour12 = (h % 12) || 12; // Convert to 12-hour format
+        var formattedHour24 = h;
+
+        m = (m < 10) ? "0" + m : m;
+        s = (s < 10) ? "0" + s : s;
+
+        var time12Hour = formattedHour12 + ":" + m + ":" + s + " " + session;
+        var time24Hour = formattedHour24 + ":" + m + ":" + s;
+        
+        // Insert time into the clock div
+        $('.12hourformattime').text(time12Hour);
+        $('.24hourformattime').text(time24Hour);
+
+        // Format the date as "MM/DD/YYYY"
+        var formattedDate = (month < 10 ? '0' : '') + month + '/' + (day < 10 ? '0' : '') + day + '/' + year;
+
+        // Insert the date into the date div
+        $('#date_output_inner_div').text(formattedDate);
+
+        var timezone = fullTimezone.split(' ')[3]; // Split the string and take the second part
+        $('#timezone_output_inner_div').text(timezone);
+
+        setTimeout(showTime, 1000);
+    }
+    
+    showTime();
+</script> 
 <script>
     // Get the font selection dropdown item links
-    async function changeClockElementFontColor(event){                        
-        $('#clock_element_container .clock_element_output').css('color', event.target.value);
+    async function changeClockElementFontColor(event){                                
+            $('#clock_element_output').css('color', event.target.value);
     }
     let ClockfontLinks = document.querySelectorAll('#clock_element_container .font-dropdown-item');
     

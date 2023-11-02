@@ -1,3 +1,7 @@
+.clock_element_output_container .add_border_clock{
+    border: 1px solid;
+}
+
 .element:hover{
     border:1px solid white !important;
 }
