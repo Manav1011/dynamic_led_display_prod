@@ -1,19 +1,9 @@
-# import serial
-# import re
-# import asyncio
-# import websockets
-# import json
+import serial
+import re
+import asyncio
+import websockets
+import json
 
-# logs = {
-#     'client':'provider',
-#     'RTC':'',
-#     'AvgeSpeed':'',
-#     'AvgeTemp':'',
-#     'AvgeHum':'',
-#     'AvgeSr':''
-# }
-# data = []
-# RTCpattern = r"RTCTime:\s+(\d+:\d+:\d+)\s+(\d+/\d+/\d+)"
 
 async def receive_messages(websocket):
     try:
@@ -55,6 +45,7 @@ async def read_serial_port(port_name, baud_rate=115200,websocket = None):
                     print(e)
 
     except serial.SerialException as e:
+        exit()
         print(f"Error: {e}")
     finally:
         if ser is not None and ser.is_open:
