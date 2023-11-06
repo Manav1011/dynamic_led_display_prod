@@ -18,12 +18,12 @@
     }
 }
 
-#windrose_chart_container_rs485 img{
+#chart_container_rs485 img{
     object-fit: cover;
     transition: transform 0.5s; 
 }
 
-#windrose_chart_container_rs485 img:hover{
+#chart_container_rs485 img:hover{
     -ms-transform: scale(2); /* IE 9 */
     -webkit-transform: scale(2); /* Safari 3-8 */
     transform: scale(2); 

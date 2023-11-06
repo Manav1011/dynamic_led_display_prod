@@ -55,11 +55,12 @@
                     }
                     async function setImageLink(image_link){                        
                         let image_element = $('#image_element_output_element')
+                        $('#image-container-div').removeClass('d-none')                        
                         image_element.attr('src',`${window.location.origin}${image_link}`)
                         await image_link_added()
                     }
                 </script>            
-                <div class="row mb-3">
+                <div class="row mb-3 d-none" id="image-container-div">
                     <div class="col d-flex justify-content-center align-items-center">
                         <div class="card image_element_output_container article" style="max-width: 300px; max-height:300px;">
                             <div class="card-body image_element_output element" id="image_element_output">

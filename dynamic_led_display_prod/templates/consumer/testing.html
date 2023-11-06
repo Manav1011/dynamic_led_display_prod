@@ -1,104 +1,70 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
+  <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'js/jquery-ui.js' %}"></script>
+    <link rel="stylesheet" href='{% static "css/bootstrap.min.css" %}'>
+    <script src="{% static 'js/sb-admin-2.min.js' %}" async></script>   
+    <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>    
+    <link rel="stylesheet" href="{% static 'css/jquery-ui.css' %}">        
+    <link rel="stylesheet" href="{% static '/css/w3.css' %}">
 </head>
+<style>
+  tr td th table{
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .table-group-divider-custom{
+    border-top: calc(var(--bs-border-width) * 2) solid white;
+  }
+</style>
 <body>
-  <style>
-    .clock {
-      width: 40vw;
-      height: 40vw;
-      background-image: linear-gradient(
-          70deg, black, white);
-      background-size: cover;
-      box-shadow: 0 3em 5.8em;
-      border-radius: 50%;
-      position: relative;
-  }
-  
-  .hr,
-  .min,
-  .sec {
-      width: 1%;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -100%);
-      transform-origin: bottom;
-      z-index: 2;
-      border-radius: 2em;
-  }
-  
-  .pin {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      width: 1em;
-      height: 1em;
-      background: rgb(38, 0, 255);
-      border: 2px solid #ffffff;
-      border-radius: 10em;
-      margin: auto;
-      z-index: 10;
-  }
-  
-  /* Different length of different hands of clock */        
-  .hr {
-      height: 25%;
-      background-color: #ff0000;
-  }
-  
-  .min {
-      height: 30%;
-      background-color: #ff9900;
-  }
-  
-  .sec {
-      height: 40%;
-      background-color: #99ff00;
-      transform-origin: 50% 85%;
-  }
-  </style>
+  <div style="width: 5.08cm; height: 4.23cm; max-width: 5.08cm; max-height: 4.23cm; overflow: hidden; background: black; color:white">
+    <div id="table_element_output_div" style="line-height: 1.5;background-color: black; color: black;">
+      <table class="">
+        <thead>
+          <tr style="color: red;">          
+            <th scope="col" style="padding:0 !important; width:10% !important; max-width: 10% !important; text-align:center;"><img style="width: 100%; height: 100%;" src="{% static 'assets/gifs/AARTI-IND-LOGO-unnamed-unscreen.gif' %}" alt=""></th>
+            <th scope="col" colspan="2" style="font-weight: 1000; font-size:86%; text-align:center;">AARTI IND LTD</th>
+            <th scope="col" style="font-weight: 1000; font-size:55%;text-align:center;" id="TableElementRTC">2023-11-06 13:30:19</th>
+          </tr>
+          <tr class="table-group-divider-custom" style="color: cyan;">          
+            <th scope="col" colspan="4" style="text-align:center; font-size: 75%; font-weight: 1000;">WEATHER MONITORING SYSTEM</th>
+          </tr>
+        </thead>
+        <tbody style="font-size: 92%; font-weight: 1000;">
+          <tr class="table-group-divider-custom" style="color: cyan;">          
+              <td style="font-size:60%; font-weight: 1000;" scope="col" colspan="2">PARAMETER</td>
+              <td style="text-align:center; font-size: 60%; font-weight: 1000;" scope="col">VALUE</td>
+              <td style="text-align:center; font-size: 60%; font-weight: 1000;" scope="col">AVG</td>      
+          </tr>
+          <tr class="table-group-divider-custom">                        
+            <td colspan="2" style="color: red;">WSPD(km/h)</td>
+            <td style="text-align:center; color:green;">Otto</td>
+            <td style="text-align:center; color:green;">@mdo</td>
+          </tr>
+          <tr class="table-group-divider-custom">                        
+            <td colspan="2" style="color: red;">WDIR(deg)</td>
+            <td style="text-align:center; color:green;">Otto</td>
+            <td style="text-align:center; color:green;">@mdo</td>
+          </tr>
+          <tr class="table-group-divider-custom">                        
+            <td colspan="2" style="color: red;">ATMP(degC)</td>
+            <td style="text-align:center; color:green;">Otto</td>
+            <td style="text-align:center; color:green;">@mdo</td>
+          </tr>
+          <tr class="table-group-divider-custom">                        
+              <td colspan="2" style="color: red;">HUMD(Per)</td>
+              <td style="text-align:center; color:green;">Otto</td>
+              <td style="text-align:center; color:green;">@mdo</td>
+            </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </body>
-<div class="clock">
-  <div class="hr"></div>
-  <div class="min"></div>
-  <div class="sec"></div>
-  <div class="pin"></div>
-</div>
-<script>
-  // Selecting all of the css classes 
-  // on which we want to apply functionalities
-  const hr = document.querySelector('.hr')
-  const min = document.querySelector('.min')
-  const sec = document.querySelector('.sec')
-  
-  // Setting up the period of working
-  setInterval(() => {
-  
-      // Extracting the current time 
-      // from DATE() function
-      let day = new Date()
-      let hour = day.getHours()
-      let minutes = day.getMinutes()
-      let seconds = day.getSeconds()
-  
-      // Formula that is explained above for 
-      // the rotation of different hands
-      let hrrotation = (30 * hour) + (0.5 * minutes);
-      let minrotation = 6 * minutes;
-      let secrotation = 6 * seconds;
-  
-      hr.style.transform =
-          `translate(-50%,-100%) rotate(${hrrotation}deg)`
-      min.style.transform =
-          `translate(-50%,-100%) rotate(${minrotation}deg)`
-      sec.style.transform =
-          `translate(-50%,-85%) rotate(${secrotation}deg)`
-  });
-</script>
 </html>

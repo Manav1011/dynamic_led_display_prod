@@ -46,6 +46,7 @@ def get_private_ipv4_address():
 private_ip_address = get_private_ipv4_address()
 ALLOWED_HOSTS.add(private_ip_address)
 
+ALLOWED_HOSTS.add('9f77-2409-40c1-10bc-48eb-aad9-3b76-7628-bcf1.ngrok-free.app')
 ALLOWED_HOSTS = list(ALLOWED_HOSTS)
 # Application definition
 
@@ -161,6 +162,34 @@ CHANNEL_LAYERS = {
         "BACKEND": "channels.layers.InMemoryChannelLayer"
     }
 }
+
+CORS_ALLOW_ALL_ORIGINS=True
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://9f77-2409-40c1-10bc-48eb-aad9-3b76-7628-bcf1.ngrok-free.app",
+]
+
+CORS_ALLOW_METHODS = [
+'DELETE',
+'GET',
+'OPTIONS',
+'PATCH',
+'POST',
+'PUT',
+]
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/

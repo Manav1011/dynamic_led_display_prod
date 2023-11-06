@@ -18,6 +18,7 @@ from matplotlib import cm
 from scipy.stats import circmean
 from matplotlib.colors import ListedColormap
 import base64
+import matplotlib.dates as mdates
 
 
 class SerialConsumer(AsyncWebsocketConsumer):
@@ -47,11 +48,22 @@ class SerialConsumer(AsyncWebsocketConsumer):
                 colors = text_data['colors']
                 image_base64,df_html = await self.get_windrose(device,values,colors)
                 await self.send(json.dumps({
-                    'action':'windrose_graph_received',
+                    'action':'graph_received',
                     'device':'rs485',
                     'image_base64':image_base64,
                     'df_html':df_html
                 }))
+                
+            if action == 'get_line_chart':
+                params = text_data['params']
+                image_base64,df_html = await self.get_line_chart(device,params)
+                await self.send(json.dumps({
+                    'action':'graph_received',
+                    'device':'rs485',
+                    'image_base64':image_base64,
+                    'df_html':df_html
+                }))
+                
 
         if text_data['client'] == 'producer' and text_data.get('device') and text_data.get('action'):
             device = text_data['device']
@@ -101,7 +113,34 @@ class SerialConsumer(AsyncWebsocketConsumer):
         plt.savefig(image_data, format="png")
         image_data.seek(0)
         image_base64 = base64.b64encode(image_data.read()).decode('utf-8')
+        plt.clf()
+        return image_base64,table_html
 
+    @database_sync_to_async
+    def get_line_chart(self,device,params):
+        params.append('RTC')
+        line_chart_objs = SerialCommunication.objects.filter(device=device).values(*params)        
+        df_params = pd.DataFrame(line_chart_objs)
+        RTC_DF = df_params['RTC']
+        del df_params['RTC']     
+        FLOAT_DF = df_params.apply(pd.to_numeric,errors='coerce', downcast='float').round(3)
+        summary_df = FLOAT_DF.describe()
+        table_html = summary_df.to_html(classes='table table-bordered table-striped text-center', escape=False, index=True,justify='center').replace('\n','')
+        for i in params:
+            if i != 'RTC':
+                plt.plot(RTC_DF, FLOAT_DF[i],label=i)
+        plt.gcf().autofmt_xdate()
+        date_format = mdates.DateFormatter("%Y-%m-%d %H:%M:%S")
+        plt.gca().xaxis.set_major_formatter(date_format)
+        plt.xlabel('Time')
+        plt.ylabel('Values')
+        plt.title('Line Chart of Parameters Over Time')
+        plt.legend()
+        line_data = io.BytesIO()        
+        plt.savefig(line_data, format="png")
+        line_data.seek(0)
+        image_base64 = base64.b64encode(line_data.read()).decode('utf-8')
+        plt.clf()
         return image_base64,table_html
 
 
