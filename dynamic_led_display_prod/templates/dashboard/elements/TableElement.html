@@ -8,31 +8,143 @@
             </div>
             <!-- Card Body -->
             <div class="card-body">
-                <table class="table">
-                    <thead>
-                      <tr>
-                        <th scope="col" colspan="1" style="max-width: 10px;max-height: 10px;"><img style="width: 100%; height: 100%;" src="{% static 'assets/gifs/AARTI IND LOGO unnamed.gif' %}" alt=""></th>
-                        <th scope="col" colspan="2" style="text-align: center;">First</th>                        
-                      </tr>
-                    </thead>
-                    <tbody class="table-group-divider">
-                      <tr>                        
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@mdo</td>
-                      </tr>
-                      <tr>                        
-                        <td>Jacob</td>
-                        <td>Thornton</td>
-                        <td>@fat</td>
-                      </tr>
-                      <tr>                        
-                        <td>Larry the Bird</td>
-                        <td>@twitter</td>
-                        <td>@short</td>
-                      </tr>
-                    </tbody>
-                  </table>
+              <div class="col-xl-12 col-lg-12 mt-4 chart_forms" id="states_form_container">
+                <div class="card shadow mb-4 text-center">
+                    <!-- Card Header - Dropdown -->
+                    <!-- Card Body -->
+                    <div class="card-body">
+                        <div class="input-group mb-3 align-items-center justify-content-center states_data_checkboxed">                            
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlinecheckboxDWPT" value="DWPT" oninput="states_element_checkboxes(this)">
+                                <label class="form-check-label" for="inlineCheckbox1">DWPT</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlinecheckboxWDCH" value="WDCH" oninput="states_element_checkboxes(this)">
+                                <label class="form-check-label" for="inlineCheckbox2">WDCH</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlinecheckboxBPRS" value="BPRS" oninput="states_element_checkboxes(this)">
+                                <label class="form-check-label" for="inlineCheckbox2">BPRS</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlinecheckboxHUMD" value="HUMD" oninput="states_element_checkboxes(this)">
+                                <label class="form-check-label" for="inlineCheckbox2">HUMD</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlinecheckboxSRAD" value="SRAD" oninput="states_element_checkboxes(this)">
+                                <label class="form-check-label" for="inlineCheckbox2">SRAD</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlinecheckboxATMP" value="ATMP" oninput="states_element_checkboxes(this)">
+                                <label class="form-check-label" for="inlineCheckbox2">ATMP</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlinecheckboxWSPD" value="WSPD" oninput="states_element_checkboxes(this)">
+                                <label class="form-check-label" for="inlineCheckbox2">WSPD</label>
+                            </div>
+                        </div>  
+                        <button class="btn btn-outline-dark d-block w-100" onclick="get_states_element()">Send</button>
+                        <script>                          
+                          async function states_element_checkboxes(el){
+                              if($('.states_data_checkboxed input[type="checkbox"]:checked').length > 4){
+                                $(el).prop('checked',false)
+                                alert("Select only up to 4 params at a time")
+                              }
+                          }
+                        </script>                        
+                        <script>                            
+                        async function get_states_element(){
+                            let SelectedParams = $('.states_data_checkboxed input[type="checkbox"]:checked')
+                            if($('.states_data_checkboxed input[type="checkbox"]:checked').length < 4){
+                                const values = SelectedParams.map((index, el) => {
+                                    return $(el).val();
+                                }).get();
+                                if(ws_program_and_elements){
+                                    console.log('here')
+                                        ws_program_and_elements.send(JSON.stringify({
+                                            client:'dashboard',
+                                            page:'controller',
+                                            action:'get_states',
+                                            'element_name':'table_element', 
+                                            values:values                                            
+                                    }))
+                                }
+                            }else{
+                                alert("Select only up to 4 params at a time")
+                            }
+                        }
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <!-- Started -->
+            <div class="col-xl-12 col-lg-12 mt-4 chart_forms" id="states_form_container">
+                <div class="card shadow mb-4">
+                    <!-- Card Header - Dropdown -->
+                    <!-- Card Body -->
+                    <div class="card-body">
+                        <style>
+                        .table_element_output tr td th table{
+                            margin: 0 !important;
+                            padding: 0 !important;
+                        }
+                        .table-group-divider-custom{
+                            border-top: calc(var(--bs-border-width) * 2) solid white;
+                        }
+                        </style>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <div class="card table_element_output_container article align-items-center" >
+                                    <div class="card-body table_element_output element" id="clock_element_output">
+                                        <div id="table_element_output_div" style="font-size:15px; width: 5.08cm; height: 4.23cm; max-width: 5.08cm; max-height: 4.23cm; overflow: hidden; line-height: 1.5;background-color: black; color: black;">
+                                            <table class="">
+                                              <thead>
+                                                <tr style="color: red;">          
+                                                  <th scope="col" style="padding:0 !important; width:10% !important; max-width: 10% !important; text-align:center;"><img style="width: 100%; height: 100%;" src="{% static 'assets/gifs/AARTI-IND-LOGO-unnamed-unscreen.gif' %}" alt=""></th>
+                                                  <th scope="col" colspan="2" style="font-weight: 1000; font-size:86% !important; text-align:center;">AARTI IND LTD</th>
+                                                  <th scope="col" style="font-weight: 1000; font-size:55% !important;text-align:center;" id="TableElementRTC">2023-11-06 13:30:19</th>
+                                                </tr>
+                                                <tr class="table-group-divider-custom" style="color: cyan;">          
+                                                  <th scope="col" colspan="4" style="text-align:center; font-size: 75% !important; font-weight: 1000;">WEATHER MONITORING SYSTEM</th>
+                                                </tr>
+                                              </thead>
+                                              <tbody style="font-size: 92% !important; font-weight: 1000;">
+                                                <tr class="table-group-divider-custom" style="color: cyan;">          
+                                                    <td style="font-size:60% !important; font-weight: 1000;" scope="col" colspan="2">PARAMETER</td>
+                                                    <td style="text-align:center; font-size: 60% !important; font-weight: 1000;" scope="col">VALUE</td>
+                                                    <td style="text-align:center; font-size: 60% !important; font-weight: 1000;" scope="col">AVG</td>      
+                                                </tr>
+                                                <tr class="table-group-divider-custom">                        
+                                                  <td colspan="2" style="color: red;">WSPD(km/h)</td>
+                                                  <td style="text-align:center; color:green;">Otto</td>
+                                                  <td style="text-align:center; color:green;">@mdo</td>
+                                                </tr>
+                                                <tr class="table-group-divider-custom">                        
+                                                  <td colspan="2" style="color: red;">WDIR(deg)</td>
+                                                  <td style="text-align:center; color:green;">Otto</td>
+                                                  <td style="text-align:center; color:green;">@mdo</td>
+                                                </tr>
+                                                <tr class="table-group-divider-custom">                        
+                                                  <td colspan="2" style="color: red;">ATMP(degC)</td>
+                                                  <td style="text-align:center; color:green;">Otto</td>
+                                                  <td style="text-align:center; color:green;">@mdo</td>
+                                                </tr>
+                                                <tr class="table-group-divider-custom">                        
+                                                    <td colspan="2" style="color: red;">HUMD(Per)</td>
+                                                    <td style="text-align:center; color:green;">Otto</td>
+                                                    <td style="text-align:center; color:green;">@mdo</td>
+                                                  </tr>
+                                              </tbody>
+                                            </table>     
+                                        </div>                                     
+                                    </div>
+                                </div>
+                            </div>
+                          </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Ended -->
             </div>            
         </div>
 </div>            

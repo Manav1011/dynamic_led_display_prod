@@ -18,7 +18,7 @@ class PorgramsAndElements(AsyncWebsocketConsumer):
 
     async def receive(self,text_data=None,bytes_data=None):        
         if text_data:
-            text_data = json.loads(text_data)
+            text_data = json.loads(text_data)            
             if text_data.get('action'):
                 if text_data['action'] == 'get_programs':
                     programs = await self.get_active_programs()            
@@ -100,6 +100,16 @@ class PorgramsAndElements(AsyncWebsocketConsumer):
                                 'image_link':file_link
                             }))
 
+                if text_data['action'] == 'get_states':                    
+                    element_name = text_data.get('element_name') 
+                    if element_name == 'table_element' and text_data.get('values'):
+                        params = text_data['values']                    
+                        if(file_link):
+                            await self.send(json.dumps({
+                                'action':'get_image_link',
+                                'element_name':element_name,
+                                'image_link':file_link
+                        }))
 
 
                 if text_data['action'] == 'delete_program' and text_data.get('program_name'):
@@ -188,6 +198,16 @@ class PorgramsAndElements(AsyncWebsocketConsumer):
                                 'error':False
                         }))            
 
+    @database_sync_to_async
+    def get_states_for_table_element(self,selected_program,new_running_time):
+        program_obj = Programs.objects.get(program_name=selected_program)
+        if program_obj:
+            program_obj.running_time = new_running_time
+            program_obj.save()
+            return True
+        else:
+            return False
+        
     @database_sync_to_async
     def update_program_running_time(self,selected_program,new_running_time):
         program_obj = Programs.objects.get(program_name=selected_program)

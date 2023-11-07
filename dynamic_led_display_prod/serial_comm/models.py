@@ -23,3 +23,31 @@ class SerialCommunication(models.Model):
     def __str__(self) -> str:
         return_str = f"{self.device} => {self.RTC} : {self.WSPD} | {self.WDIR} | {self.ATMP} | {self.HUMD} | {self.RAIN} | {self.SRAD} | {self.BPRS} | {self.WDCH} | {self.DWPT} | {self.P12} | {self.P13} | {self.P14} | {self.P15} | {self.P16}"
         return return_str
+
+class States(models.Model):
+    param = models.CharField(max_length=255)
+    count = models.IntegerField()
+    mean = models.FloatField()
+    min = models.FloatField()
+    max = models.FloatField()
+    std = models.FloatField()
+    date = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return_str = f"{self.param} => count | {self.count}, mean | {self.mean}, min| {self.min}, max | {self.max}, std | {self.std} day | {self.date}"
+        return return_str
+    
+class StatesWeekly(models.Model):
+    param = models.CharField(max_length=255)
+    count = models.IntegerField()
+    mean = models.FloatField()
+    min = models.FloatField()
+    max = models.FloatField()
+    std = models.FloatField()
+    date = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return_str = f"{self.param} => count | {self.count}, mean | {self.mean}, min| {self.min}, max | {self.max}, std | {self.std} day | {self.date}"
+        return return_str

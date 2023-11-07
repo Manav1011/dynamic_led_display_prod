@@ -1,6 +1,6 @@
 from django.contrib import admin
 from datetime import datetime
-from .models import SerialCommunication
+from .models import SerialCommunication,States,StatesWeekly
 from django.http import HttpResponse
 import csv
 import xlsxwriter
@@ -64,4 +64,16 @@ class SerialCommunicationAdmin(admin.ModelAdmin,Actions):
     )
 
     actions = ["export_as_csv","export_as_excel","sort_ascending","sort_descending"]
-# admin.site.register(RS232)
+    
+
+class DateAdminDaily(admin.ModelAdmin,Actions):
+    date_hierarchy = 'date'  # Specify the DateField you want to filter by date
+    actions = ["export_as_csv","export_as_excel","sort_ascending","sort_descending"]
+
+class DateAdminWeekly(admin.ModelAdmin,Actions):
+    date_hierarchy = 'date'  # Specify the DateField you want to filter by date
+    actions = ["export_as_csv","export_as_excel","sort_ascending","sort_descending"]
+
+admin.site.register(States, DateAdminDaily)
+admin.site.register(StatesWeekly, DateAdminWeekly)
+

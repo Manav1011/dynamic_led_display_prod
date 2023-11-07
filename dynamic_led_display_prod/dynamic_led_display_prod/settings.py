@@ -65,7 +65,12 @@ INSTALLED_APPS = [
     'CustomUser',
     'serial_comm',
     'rangefilter',
-    'controller'
+    'controller',
+    'django_crontab',
+]
+CRONJOBS = [
+    ('0 0 * * *', 'serial_comm.cron.fill_daily_states'),
+    ('0 1 * * 0', 'serial_comm.cron.fill_weekly_states'),
 ]
 
 MIDDLEWARE = [
@@ -177,6 +182,13 @@ CORS_ALLOW_METHODS = [
 'POST',
 'PUT',
 ]
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
+        'LOCATION': '127.0.0.1:11211',  # Adjust this to match your Memcached server's address and port
+    }
+}
 
 CORS_ALLOW_HEADERS = [
     'accept',

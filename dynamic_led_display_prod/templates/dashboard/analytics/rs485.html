@@ -309,7 +309,7 @@
                
         if ("WebSocket" in window) {
            // Let us open a web socket
-           ws_serial_communcation_rs485 = new WebSocket(`ws://${window.location.host}/serial_communication/`);
+           ws_serial_communcation_rs485 = new WebSocket(`ws://${window.location.host}/ws/serial_communication/`);
             
            ws_serial_communcation_rs485.onopen = async function() {
             ws_serial_communcation_rs485.send(JSON.stringify({
