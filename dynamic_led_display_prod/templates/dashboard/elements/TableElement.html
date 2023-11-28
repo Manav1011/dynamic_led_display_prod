@@ -53,9 +53,16 @@
                           }
                         </script>                        
                         <script>                            
+                        ParamObjs = {
+                            WSPD:'km/h',
+                            WDIR:'deg',
+                            ATMP:'degC',
+                            HUMD:'perc',
+                            
+                        }
                         async function get_states_element(){
                             let SelectedParams = $('.states_data_checkboxed input[type="checkbox"]:checked')
-                            if($('.states_data_checkboxed input[type="checkbox"]:checked').length < 4){
+                            if($('.states_data_checkboxed input[type="checkbox"]:checked').length <= 4){
                                 const values = SelectedParams.map((index, el) => {
                                     return $(el).val();
                                 }).get();
@@ -70,7 +77,7 @@
                                     }))
                                 }
                             }else{
-                                alert("Select only up to 4 params at a time")
+                                alert("Select Up to 4 parameters")
                             }
                         }
                         </script>
@@ -108,7 +115,7 @@
                                                   <th scope="col" colspan="4" style="text-align:center; font-size: 75% !important; font-weight: 1000;">WEATHER MONITORING SYSTEM</th>
                                                 </tr>
                                               </thead>
-                                              <tbody style="font-size: 92% !important; font-weight: 1000;">
+                                              <tbody style="font-size: 92% !important; font-weight: 1000;" class="table_element_body_container">
                                                 <tr class="table-group-divider-custom" style="color: cyan;">          
                                                     <td style="font-size:60% !important; font-weight: 1000;" scope="col" colspan="2">PARAMETER</td>
                                                     <td style="text-align:center; font-size: 60% !important; font-weight: 1000;" scope="col">VALUE</td>
@@ -119,21 +126,6 @@
                                                   <td style="text-align:center; color:green;">Otto</td>
                                                   <td style="text-align:center; color:green;">@mdo</td>
                                                 </tr>
-                                                <tr class="table-group-divider-custom">                        
-                                                  <td colspan="2" style="color: red;">WDIR(deg)</td>
-                                                  <td style="text-align:center; color:green;">Otto</td>
-                                                  <td style="text-align:center; color:green;">@mdo</td>
-                                                </tr>
-                                                <tr class="table-group-divider-custom">                        
-                                                  <td colspan="2" style="color: red;">ATMP(degC)</td>
-                                                  <td style="text-align:center; color:green;">Otto</td>
-                                                  <td style="text-align:center; color:green;">@mdo</td>
-                                                </tr>
-                                                <tr class="table-group-divider-custom">                        
-                                                    <td colspan="2" style="color: red;">HUMD(Per)</td>
-                                                    <td style="text-align:center; color:green;">Otto</td>
-                                                    <td style="text-align:center; color:green;">@mdo</td>
-                                                  </tr>
                                               </tbody>
                                             </table>     
                                         </div>                                     

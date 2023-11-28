@@ -26,12 +26,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 SECRET_KEY = os.environ['SECRET']
+SSL_CERTIFICATE_PATH = os.path.join(BASE_DIR, "localhost.crt")
+SSL_KEY_PATH = os.path.join(BASE_DIR, "localhost.key")
+
+SSL_CERTIFICATE = SSL_CERTIFICATE_PATH
+SSL_KEY = SSL_KEY_PATH
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 # add the currently connected IP address
-ALLOWED_HOSTS = set()
+ALLOWED_HOSTS = {'dynamicled.prod.live','9f77-2409-40c1-10bc-48eb-aad9-3b76-7628-bcf1.ngrok-free.app','127.0.0.1'}
 import socket
 def get_private_ipv4_address():
     try:        
@@ -46,7 +51,6 @@ def get_private_ipv4_address():
 private_ip_address = get_private_ipv4_address()
 ALLOWED_HOSTS.add(private_ip_address)
 
-ALLOWED_HOSTS.add('9f77-2409-40c1-10bc-48eb-aad9-3b76-7628-bcf1.ngrok-free.app')
 ALLOWED_HOSTS = list(ALLOWED_HOSTS)
 # Application definition
 
@@ -67,6 +71,7 @@ INSTALLED_APPS = [
     'rangefilter',
     'controller',
     'django_crontab',
+    'sslserver'
 ]
 CRONJOBS = [
     ('0 0 * * *', 'serial_comm.cron.fill_daily_states'),
@@ -220,6 +225,13 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
+
+EMAIL_BACKEND ='django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST='smtp.gmail.com'
+EMAIL_USE_TLS=True
+EMAIL_PORT=587
+EMAIL_HOST_USER=os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD=os.getenv('EMAIL_HOST_PASSWORD')
 
 LOGIN_URL = '/auth/login'
 LOGIN_REDIRECT_URL = ''

@@ -149,7 +149,7 @@
     <script>
         async function StartPanelConsumer(){
             if ("WebSocket" in window) {
-                PanelConsumer = new WebSocket(`ws://${window.location.host}/ws/panel_changed_events/`);
+                PanelConsumer = new WebSocket(`wss://${window.location.host}/ws/panel_changed_events/`);
                 PanelConsumer.onopen = async function() {  
                     PanelConsumer.send(JSON.stringify({            
                         client:'consumer',
