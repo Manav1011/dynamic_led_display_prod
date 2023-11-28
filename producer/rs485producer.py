@@ -6,6 +6,8 @@ import struct
 import datetime
 import time
 import math
+from scipy.stats import circmean
+import pandas as pd
 
 
 minutes_data = []
@@ -33,6 +35,24 @@ def get_pairs(s, n):
     else:
         yield False
 
+def find_averages(dict_to_store,stored_list):
+    df = pd.DataFrame(stored_list)
+    dict_to_store['RTC'] = stored_list[-1]['RTC']
+    dict_to_store["WSPD"] = df['WSPD'].mean()
+    dict_to_store["WDIR"] = round(circmean(df['WDIR'], high=360, low=0),3)
+    dict_to_store["ATMP"] = df['ATMP'].mean()
+    dict_to_store["RAIN"] = df['RAIN'].sum()
+    dict_to_store["SRAD"] = df['SRAD'].mean()
+    dict_to_store["BPRS"] = df['BPRS'].mean()
+    dict_to_store["WDCH"] = df['WDCH'].mean()
+    dict_to_store["DWPT"] = df['DWPT'].mean()
+    dict_to_store["P12"] = df['P12'].mean()
+    dict_to_store["P13"] = df['P13'].mean()
+    dict_to_store["P14"] = df['P14'].mean()
+    dict_to_store["P15"] = df['P15'].mean()
+    dict_to_store["P16"] = df['P16'].mean()
+    return dict_to_store
+
 def update_dict_with_values(dict_to_stream,values_list):      
     dict_to_stream["RTC"] = datetime.datetime.now().isoformat()    
     for key, value in dict_to_stream.items():        
@@ -48,11 +68,12 @@ def send_avgs(data_list):
 
 async def read_serial_port(serial_port,websocket = None):
     global minutes_data
-    time_to_send = 5
+    time_to_send = 60
     baud_rate = 9600
     data_bits = 8
     parity = 'N'
     stop_bits = 1
+    stored_list = []
     
     ser = serial.Serial(port=serial_port, baudrate=baud_rate, bytesize=data_bits,parity=parity, stopbits=stop_bits, timeout=1)
     slave_address = 1
@@ -60,6 +81,7 @@ async def read_serial_port(serial_port,websocket = None):
     try:
         while True:
             dict_to_stream = {"RTC":None,"WSPD":None,"WDIR":None,"ATMP":None,"HUMD":None,"RAIN":None,"SRAD":None,"BPRS":None,"WDCH":None,"DWPT":None,"P12":None,"P13":None,"P14":None,"P15":None,"P16":None}
+            dict_to_store = {"RTC":None,"WSPD":None,"WDIR":None,"ATMP":None,"HUMD":None,"RAIN":None,"SRAD":None,"BPRS":None,"WDCH":None,"DWPT":None,"P12":None,"P13":None,"P14":None,"P15":None,"P16":None}
             ser.write(modbus_request)
             response = ser.read(7 + 2 * 32)[3:-2]
             hex_response = response.hex()              
@@ -78,13 +100,17 @@ async def read_serial_port(serial_port,websocket = None):
                     FINAL.append('{:.3f}'.format(struct.unpack('!f', bytes.fromhex(CDAB_STR))[0]))            
             if(FINAL):
                 dict_to_stream = update_dict_with_values(dict_to_stream,FINAL)
+                stored_list.append(dict_to_stream)
                 # print(dict_to_stream)
                 # minutes_data.append(dict_to_stream)                
                 await send_messages(websocket,data={'client':'producer','device':'rs485','action':'stream','frame':dict_to_stream})
                 time_to_send-=1                
-                if time_to_send == 0:     
-                    # send_avgs(minutes_data)          
-                    await send_messages(websocket,data={'client':'producer','device':'rs485','action':'store','frame':dict_to_stream})
+                if time_to_send == 0:                         
+                    dict_to_store = find_averages(dict_to_store=dict_to_store,stored_list=stored_list)
+                    print(dict_to_store)
+                    # send_avgs(minutes_data)
+                    await send_messages(websocket,data={'client':'producer','device':'rs485','action':'store','frame':dict_to_store})
+                    stored_list = []
                     time_to_send = 60
 
     except KeyboardInterrupt:
@@ -96,7 +122,7 @@ async def read_serial_port(serial_port,websocket = None):
 
 if __name__ == "__main__":    
     async def connect_to_websocket():
-        async with websockets.connect(f"ws://192.168.29.18:8000/serial_communication/") as websocket:
+        async with websockets.connect(f"ws://192.168.29.18:8000/ws/serial_communication/") as websocket:
             print("WebSocket connection established")
             await websocket.send(json.dumps({
                 'client':'producer',
