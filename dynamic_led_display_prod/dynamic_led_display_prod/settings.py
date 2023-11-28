@@ -176,7 +176,7 @@ CHANNEL_LAYERS = {
 CORS_ALLOW_ALL_ORIGINS=True
 
 CSRF_TRUSTED_ORIGINS = [
-    "http://9f77-2409-40c1-10bc-48eb-aad9-3b76-7628-bcf1.ngrok-free.app",
+    "http://9f77-2409-40c1-10bc-48eb-aad9-3b76-7628-bcf1.ngrok-free.app","https://dynamicled.prod.live",
 ]
 
 CORS_ALLOW_METHODS = [
@@ -217,6 +217,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 
+STATIC_ROOT = 'staticfiles/'
 # Base url to serve media files
 MEDIA_URL = '/media/'
 

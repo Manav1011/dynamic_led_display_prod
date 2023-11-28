@@ -6,12 +6,12 @@
       class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
     >
       <h6 class="m-0 font-weight-bold text-primary">RS485</h6>
-      <select
+      <!-- <select
         class="form-select w-50 485_param_select d-none"
         aria-label="parameters_select"
         id="parameters_select_rs485"
         oninput="parameters_select_rs485_changed(event)"
-      ></select>
+      ></select> -->
     </div>
     <!-- Card Body -->
     <div class="rs485-body">
@@ -78,8 +78,15 @@
                 role="group"
                 aria-label="Basic mixed styles example"
               >
-                <select
-                  class="form-select col-12 text-center btn-outline-danger"
+              <div class="d-flex" style="justify-content: space-evenly; flex-wrap: wrap;">
+                <button type="button" class="btn btn-outline-dark" data-toggle="collapse" data-target="#windrosecollapse" aria-expanded="false" aria-controls="windrosecollapse">Windrose</button>
+                <button type="button" class="btn btn-outline-dark" data-toggle="collapse" data-target="#linecollapse" aria-expanded="false" aria-controls="linecollapse">Line</button>
+                <button type="button" class="btn btn-outline-dark" data-toggle="collapse" data-target="#areacollapse" aria-expanded="false" aria-controls="areacollapse">Area</button>
+                <button type="button" class="btn btn-outline-dark">Three</button>
+              </div>
+                <!-- <select
+                  class="form-select col-12 text-center"
+                  style="border: 1px solid lightgray;"
                   aria-label="Default select example"
                   onchange="states_config_changed(event)"
                   autocomplete="off"
@@ -87,9 +94,9 @@
                   <option value="line_chart" selected>
                     Select Visulization Format
                   </option>
-                  <option value="line_chart">Line</option>
-                  <option value="WindRose">WindRose - WSPDxWDIR</option>
-                  <option value="2">Two</option>
+                  <option value="line_chart"><button></button></option>
+                  <option value="WindRose">WindRose</option>
+                  <option value="2">Area</option>
                   <option value="3">Three</option>
                 </select>
                 <script>
@@ -103,220 +110,277 @@
                       await show_line_form();
                     }
                   }
-                </script>
+                </script> -->
                 <!-- <button type="button" class="col-12 btn btn-outline-danger" onclick="get_windrose_chart_rs485()">Wind Rose</button> -->
               </div>
             </div>
-            <div
-              class="col-xl-12 col-lg-12 mt-4 d-none chart_forms"
-              id="windrose_form_container"
-            >
-              <div class="card shadow mb-4 text-center">
-                <!-- Card Header - Dropdown -->
-                <!-- Card Body -->
-                <div class="card-body">
-                  <form
-                    id="windrose_customization"
-                    onsubmit="windrose_form_submitted(event)"
-                  >
-                    <div class="mb-3" id="wind_range_count_container">
-                      <div
-                        class="input-group mb-3"
-                        id="add_windrose_range_container"
-                      >
+            <div class="collapse" id="areacollapse">
+              <div class="d-flex my-3" style="flex-direction: column;">
+                <div class="d-flex" style="justify-content: space-evenly;">
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="areachartparam" id="HUMD" value="HUMD">
+                    <label class="form-check-label" for="flexRadioDefault1">
+                        HUMD
+                    </label>
+                    </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="areachartparam" id="SRAD" value="SRAD">
+                    <label class="form-check-label" for="flexRadioDefault2">
+                      SRAD
+                    </label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="areachartparam" id="BPRS" value="BPRS">
+                  <label class="form-check-label" for="flexRadioDefault2">
+                    BPRS
+                  </label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="areachartparam" id="DWPT" value="DWPT">
+                <label class="form-check-label" for="flexRadioDefault2">
+                  DWPT
+                </label>
+            </div>
+                </div>
+                <button class="btn btn-outline-dark d-block w-100" onclick="get_the_area_chart()" >
+                        Get The Chart
+                </button>
+              </div>
+            </div>
+            <div class="collapse" id="linecollapse">
+              <div class="col-xl-12 col-lg-12 mt-4 chart_forms" id="line_form_container" >
+                <div class="card shadow mb-4 text-center">
+                  <!-- Card Header - Dropdown -->
+                  <!-- Card Body -->
+                  <div class="card-body">
+                    <div
+                      class="input-group mb-3 align-items-center justify-content-center line_chart_checkboxed"
+                    >
+                      <div class="form-check form-check-inline">
                         <input
-                          type="number"
-                          class="form-control"
-                          min="0"
-                          max="8"
-                          step="1"
-                          placeholder="Specify Number Of Range Elements"
-                          aria-describedby="basic-addon2"
-                          id="range_element_count"
-                          required
+                          class="form-check-input"
+                          type="checkbox"
+                          id="inlinecheckboxAll"
+                          value="select_all"
+                          onclick="line_chart_checkboxes(this)"
                         />
-                        <span
-                          class="btn btn-danger"
-                          id="range-count-btn"
-                          onclick="add_range_elements()"
-                          >Add</span
+                        <label class="form-check-label" for="inlineCheckbox1"
+                          >Select All</label
+                        >
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          id="inlinecheckboxDWPT"
+                          value="DWPT"
+                          onclick="line_chart_checkboxes(this)"
+                        />
+                        <label class="form-check-label" for="inlineCheckbox1"
+                          >DWPT</label
+                        >
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          id="inlinecheckboxWDCH"
+                          value="WDCH"
+                          onclick="line_chart_checkboxes(this)"
+                        />
+                        <label class="form-check-label" for="inlineCheckbox2"
+                          >WDCH</label
+                        >
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          id="inlinecheckboxBPRS"
+                          value="BPRS"
+                          onclick="line_chart_checkboxes(this)"
+                        />
+                        <label class="form-check-label" for="inlineCheckbox2"
+                          >BPRS</label
+                        >
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          id="inlinecheckboxHUMD"
+                          value="HUMD"
+                          onclick="line_chart_checkboxes(this)"
+                        />
+                        <label class="form-check-label" for="inlineCheckbox2"
+                          >HUMD</label
+                        >
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          id="inlinecheckboxSRAD"
+                          value="SRAD"
+                          onclick="line_chart_checkboxes(this)"
+                        />
+                        <label class="form-check-label" for="inlineCheckbox2"
+                          >SRAD</label
+                        >
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          id="inlinecheckboxATMP"
+                          value="ATMP"
+                          onclick="line_chart_checkboxes(this)"
+                        />
+                        <label class="form-check-label" for="inlineCheckbox2"
+                          >ATMP</label
+                        >
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          id="inlinecheckboxWSPD"
+                          value="WSPD"
+                          onclick="line_chart_checkboxes(this)"
+                        />
+                        <label class="form-check-label" for="inlineCheckbox2"
+                          >WSPD</label
                         >
                       </div>
                     </div>
-                    <div class="mb-3" id="wind_range_el_container"></div>
-                    <div class="mb-3 d-none" id="get_windrose_button">
-                      <button type="submit" class="btn btn-primary w-100">
-                        Get Windrose
-                      </button>
-                    </div>
-                  </form>
+                    <button
+                      class="btn btn-outline-dark d-block w-100"
+                      onclick="get_the_line_chart()"
+                    >
+                      Get The Chart
+                    </button>
+                    <script>
+                      async function line_chart_checkboxes(el) {
+                        if (el.value == "select_all") {
+                          if ($(el).prop("checked") == false) {
+                            $(
+                              '.line_chart_checkboxed input[type="checkbox"]'
+                            ).prop("checked", false);
+                          } else {
+                            $(
+                              '.line_chart_checkboxed input[type="checkbox"]'
+                            ).prop("checked", true);
+                          }
+                        }
+                      }
+                      async function get_the_line_chart() {
+                        selected_params = [];
+                        $('.line_chart_checkboxed input[type="checkbox"]').each(
+                          (i, el) => {
+                            if ($(el).prop("checked")) {
+                              if ($(el).val() !== "select_all") {
+                                selected_params.push($(el).val());
+                              }
+                            }
+                          }
+                        );
+                        if (ws_serial_communcation_rs485) {
+                          ws_serial_communcation_rs485.send(
+                            JSON.stringify({
+                              client: "consumer",
+                              action: "get_line_chart",
+                              device: "rs485",
+                              params: selected_params,
+                            })
+                          );
+                          $("#chart_container_rs485")
+                            .find("img")
+                            .attr(
+                              "src",
+                              `${window.location.origin}/media/loading.gif`
+                            );
+                          $("#stats_df_container_rs485")
+                            .find("img")
+                            .attr(
+                              "src",
+                              `${window.location.origin}/media/loading.gif`
+                            );
+                            $('#linecollapse').collapse('hide')
+                        }
+                      }
+                      async function get_the_area_chart() {
+                        let areaChartParam = $('input[name="areachartparam"]:checked').val();                        
+                        if (ws_serial_communcation_rs485) {
+                          ws_serial_communcation_rs485.send(
+                            JSON.stringify({
+                              client: "consumer",
+                              action: "get_area_chart",
+                              device: "rs485",
+                              value: areaChartParam,
+                            })
+                          );
+                          $("#chart_container_rs485")
+                            .find("img")
+                            .attr(
+                              "src",
+                              `${window.location.origin}/media/loading.gif`
+                            );
+                          $("#stats_df_container_rs485")
+                            .find("img")
+                            .attr(
+                              "src",
+                              `${window.location.origin}/media/loading.gif`
+                            );
+                            $('#areacollapse').collapse('hide')
+                        }
+                      }
+                    </script>
+                  </div>
                 </div>
               </div>
             </div>
-            <div
-              class="col-xl-12 col-lg-12 mt-4 d-none chart_forms"
-              id="line_form_container"
-            >
-              <div class="card shadow mb-4 text-center">
-                <!-- Card Header - Dropdown -->
-                <!-- Card Body -->
-                <div class="card-body">
-                  <div
-                    class="input-group mb-3 align-items-center justify-content-center line_chart_checkboxed"
-                  >
-                    <div class="form-check form-check-inline">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="inlinecheckboxAll"
-                        value="select_all"
-                        onclick="line_chart_checkboxes(this)"
-                      />
-                      <label class="form-check-label" for="inlineCheckbox1"
-                        >Select All</label
-                      >
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="inlinecheckboxDWPT"
-                        value="DWPT"
-                        onclick="line_chart_checkboxes(this)"
-                      />
-                      <label class="form-check-label" for="inlineCheckbox1"
-                        >DWPT</label
-                      >
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="inlinecheckboxWDCH"
-                        value="WDCH"
-                        onclick="line_chart_checkboxes(this)"
-                      />
-                      <label class="form-check-label" for="inlineCheckbox2"
-                        >WDCH</label
-                      >
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="inlinecheckboxBPRS"
-                        value="BPRS"
-                        onclick="line_chart_checkboxes(this)"
-                      />
-                      <label class="form-check-label" for="inlineCheckbox2"
-                        >BPRS</label
-                      >
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="inlinecheckboxHUMD"
-                        value="HUMD"
-                        onclick="line_chart_checkboxes(this)"
-                      />
-                      <label class="form-check-label" for="inlineCheckbox2"
-                        >HUMD</label
-                      >
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="inlinecheckboxSRAD"
-                        value="SRAD"
-                        onclick="line_chart_checkboxes(this)"
-                      />
-                      <label class="form-check-label" for="inlineCheckbox2"
-                        >SRAD</label
-                      >
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="inlinecheckboxATMP"
-                        value="ATMP"
-                        onclick="line_chart_checkboxes(this)"
-                      />
-                      <label class="form-check-label" for="inlineCheckbox2"
-                        >ATMP</label
-                      >
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="inlinecheckboxWSPD"
-                        value="WSPD"
-                        onclick="line_chart_checkboxes(this)"
-                      />
-                      <label class="form-check-label" for="inlineCheckbox2"
-                        >WSPD</label
-                      >
-                    </div>
+            <div class="collapse" id="windrosecollapse">
+              <div class="col-xl-12 col-lg-12 mt-4 chart_forms" id="windrose_form_container">
+                <div class="card shadow mb-4 text-center">
+                  <!-- Card Header - Dropdown -->
+                  <!-- Card Body -->
+                  <div class="card-body">
+                    <form
+                      id="windrose_customization"
+                      onsubmit="windrose_form_submitted(event)"
+                    >
+                      <div class="mb-3" id="wind_range_count_container">
+                        <div
+                          class="input-group mb-3"
+                          id="add_windrose_range_container"
+                        >
+                          <input
+                            type="number"
+                            class="form-control"
+                            min="0"
+                            max="8"
+                            step="1"
+                            placeholder="Specify Number Of Range Elements"
+                            aria-describedby="basic-addon2"
+                            id="range_element_count"
+                            required
+                          />
+                          <span
+                            class="btn btn-danger"
+                            id="range-count-btn"
+                            onclick="add_range_elements()"
+                            >Add</span
+                          >
+                        </div>
+                      </div>
+                      <div class="mb-3" id="wind_range_el_container"></div>
+                      <div class="mb-3 d-none" id="get_windrose_button">
+                        <button type="submit" class="btn btn-primary w-100">
+                          Get Windrose
+                        </button>
+                      </div>
+                    </form>
                   </div>
-                  <button
-                    class="btn btn-outline-dark d-block w-100"
-                    onclick="get_the_line_chart()"
-                  >
-                    Get The Chart
-                  </button>
-                  <script>
-                    async function line_chart_checkboxes(el) {
-                      if (el.value == "select_all") {
-                        if ($(el).prop("checked") == false) {
-                          $(
-                            '.line_chart_checkboxed input[type="checkbox"]'
-                          ).prop("checked", false);
-                        } else {
-                          $(
-                            '.line_chart_checkboxed input[type="checkbox"]'
-                          ).prop("checked", true);
-                        }
-                      }
-                    }
-                    async function get_the_line_chart() {
-                      selected_params = [];
-                      $('.line_chart_checkboxed input[type="checkbox"]').each(
-                        (i, el) => {
-                          if ($(el).prop("checked")) {
-                            if ($(el).val() !== "select_all") {
-                              selected_params.push($(el).val());
-                            }
-                          }
-                        }
-                      );
-                      if (ws_serial_communcation_rs485) {
-                        ws_serial_communcation_rs485.send(
-                          JSON.stringify({
-                            client: "consumer",
-                            action: "get_line_chart",
-                            device: "rs485",
-                            params: selected_params,
-                          })
-                        );
-                        $("#chart_container_rs485")
-                          .find("img")
-                          .attr(
-                            "src",
-                            `${window.location.origin}/media/loading.gif`
-                          );
-                        $("#stats_df_container_rs485")
-                          .find("img")
-                          .attr(
-                            "src",
-                            `${window.location.origin}/media/loading.gif`
-                          );
-                        $("#line_form_container").addClass("d-none");
-                      }
-                    }
-                  </script>
                 </div>
               </div>
             </div>
@@ -364,8 +428,8 @@
             <!-- Plot -->
             <script>
               async function show_windrose_form() {
-                $("#windrose_form_container").removeClass("d-none");
-                await get_windrose_chart_rs485(false, false);
+                // $("#windrose_form_container").removeClass("d-none");
+                // await get_windrose_chart_rs485(false, false);
               }
               async function show_line_form() {
                 $("#line_form_container").removeClass("d-none");
@@ -383,12 +447,9 @@
                     })
                   );
                 }
-                $("#chart_container_rs485")
-                  .find("img")
-                  .attr("src", `${window.location.origin}/media/loading.gif`);
-                $("#stats_df_container_rs485")
-                  .find("img")
-                  .attr("src", `${window.location.origin}/media/loading.gif`);
+                $("#chart_container_rs485").find("img").attr("src", `${window.location.origin}/media/loading.gif`);
+                $("#stats_df_container_rs485").find("img").attr("src", `${window.location.origin}/media/loading.gif`);
+                $('#windrosecollapse').collapse('hide');
               }
             </script>
           </div>
@@ -584,21 +645,6 @@
       current_rs485_frame = Object.keys(frame);
     }
   }
-  async function parameters_select_rs485_changed(event) {
-    currently_showring_chart = event.target.value;
-    $("#currently_showing_header_rs485").text(
-      weatherData[currently_showring_chart][0]
-    );
-    $("#currently_showing_param_icon_rs485").attr(
-      "src",
-      weatherData[currently_showring_chart][1]
-    );
-    rs485_live_chart = null;
-    rs_485_chart_data = {
-      labels: [],
-      datasets: [],
-    };
-  }
 </script>
 <script>
   async function add_range_elements() {
@@ -669,6 +715,6 @@
     });
     ColorElementValues.push("#000000");
     await get_windrose_chart_rs485(RangeElementValues, ColorElementValues);
-    $("#windrose_form_container").addClass("d-none");
+    // $("#windrose_form_container").addClass("d-none");
   }
 </script>

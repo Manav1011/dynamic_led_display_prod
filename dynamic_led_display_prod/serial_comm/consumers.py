@@ -63,6 +63,15 @@ class SerialConsumer(AsyncWebsocketConsumer):
                     'image_base64':image_base64,
                     'df_html':df_html
                 }))
+            if action == 'get_area_chart':
+                value = text_data['value']
+                image_base64,df_html = await self.get_area_chart(device,value)
+                await self.send(json.dumps({
+                    'action':'graph_received',
+                    'device':'rs485',
+                    'image_base64':image_base64,
+                    'df_html':df_html
+                }))
                 
 
         if text_data['client'] == 'producer' and text_data.get('device') and text_data.get('action'):
@@ -142,6 +151,31 @@ class SerialConsumer(AsyncWebsocketConsumer):
         image_base64 = base64.b64encode(line_data.read()).decode('utf-8')
         plt.clf()
         return image_base64,table_html
+    
+    @database_sync_to_async
+    def get_area_chart(self,device,value):
+        params = [value,'RTC']        
+        line_chart_objs = SerialCommunication.objects.filter(device=device).values(*params)        
+        df_params = pd.DataFrame(line_chart_objs)                
+        # del df_params['RTC']     
+        FLOAT_DF = df_params[value].apply(pd.to_numeric,errors='coerce', downcast='float').round(3)
+        summary_df = pd.DataFrame(FLOAT_DF).describe()        
+        table_html = summary_df.to_html(classes='table table-bordered table-striped text-center', escape=False, index=True,justify='center').replace('\n','')
+        df_params.set_index('RTC', inplace=True)
+        plt.figure(figsize=(10, 6))
+        plt.fill_between(df_params.index, FLOAT_DF, color='skyblue', alpha=0.4, label='Humidity Area')
+        plt.plot(df_params.index, FLOAT_DF, color='blue', label='Humidity Line', marker='o')
+        plt.title('Humidity Over Time')
+        plt.xlabel('Time')
+        plt.ylabel('Humidity (%)')
+        plt.legend()
+        plt.grid(True)
+        area_data = io.BytesIO()        
+        plt.savefig(area_data, format="png")
+        area_data.seek(0)
+        image_base64 = base64.b64encode(area_data.read()).decode('utf-8')
+        plt.clf()
+        return image_base64,table_html
 
 
     @database_sync_to_async
@@ -149,6 +183,8 @@ class SerialConsumer(AsyncWebsocketConsumer):
         frame_obj = SerialCommunication(device=device)
         for key, value in frame.items():
             if key != 'RTC':
+                 if value == None:
+                     value = 0.0
                  setattr(frame_obj, key, float(value))  # Set the attribute using setattr
             else:
                  setattr(frame_obj, key, datetime.datetime.fromisoformat(value))
