@@ -79,10 +79,9 @@
                 aria-label="Basic mixed styles example"
               >
               <div class="d-flex" style="justify-content: space-evenly; flex-wrap: wrap;">
-                <button type="button" class="btn btn-outline-dark" data-toggle="collapse" data-target="#windrosecollapse" aria-expanded="false" aria-controls="windrosecollapse">Windrose</button>
-                <button type="button" class="btn btn-outline-dark" data-toggle="collapse" data-target="#linecollapse" aria-expanded="false" aria-controls="linecollapse">Line</button>
-                <button type="button" class="btn btn-outline-dark" data-toggle="collapse" data-target="#areacollapse" aria-expanded="false" aria-controls="areacollapse">Area</button>
-                <button type="button" class="btn btn-outline-dark">Three</button>
+                <button type="button" class="col-3 btn btn-outline-dark" data-toggle="collapse" data-target="#windrosecollapse" aria-expanded="false" aria-controls="windrosecollapse">Windrose</button>
+                <button type="button" class="col-3 btn btn-outline-dark" data-toggle="collapse" data-target="#linecollapse" aria-expanded="false" aria-controls="linecollapse">Line</button>
+                <button type="button" class="col-3  btn btn-outline-dark" data-toggle="collapse" data-target="#areacollapse" aria-expanded="false" aria-controls="areacollapse">Area</button>                
               </div>
                 <!-- <select
                   class="form-select col-12 text-center"
@@ -311,6 +310,7 @@
                       async function get_the_area_chart() {
                         let areaChartParam = $('input[name="areachartparam"]:checked').val();                        
                         if (ws_serial_communcation_rs485) {
+                          console.log(ws_serial_communcation_rs485)
                           ws_serial_communcation_rs485.send(
                             JSON.stringify({
                               client: "consumer",
@@ -572,9 +572,9 @@
     if ("WebSocket" in window) {
       // Let us open a web socket
       ws_serial_communcation_rs485 = new WebSocket(
-        `wss://${window.location.host}/ws/serial_communication/`
+        `wss://${window.location.host}/ws/serial_communication/consumer/`
       );
-
+      window.rs485_data_socket = ws_serial_communcation_rs485
       ws_serial_communcation_rs485.onopen = async function () {
         ws_serial_communcation_rs485.send(
           JSON.stringify({

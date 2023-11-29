@@ -27,14 +27,25 @@ class SerialConsumer(AsyncWebsocketConsumer):
         'rs232':{}
     }    
     async def connect(self):
+        self.client = self.scope["url_route"]["kwargs"]["client"]
+        if self.client == 'consumer':
+            await self.channel_layer.group_add('consumers', self.channel_name)
         await self.accept()
     
-    async def disconnect(self,close_code):        
+    async def disconnect(self,close_code): 
+        await self.channel_layer.group_discard('consumers', self.channel_name)       
         self.send(json.dumps(close_code))
 
     async def receive(self,text_data):
         text_data = json.loads(text_data)  
-        print(text_data)
+        # print(text_data)
+        if text_data['client'] == 'panel' and text_data.get('device') and text_data.get('action'):
+            device = text_data['device']
+            action = text_data['action']
+            if action == 'connection':
+                SerialConsumer.entities[device]['panel'] = self             
+                print(SerialConsumer.entities) 
+
         if text_data['client'] == 'consumer' and text_data.get('device') and text_data.get('action'):
             device = text_data['device']
             action = text_data['action']
@@ -83,19 +94,28 @@ class SerialConsumer(AsyncWebsocketConsumer):
                 print(SerialConsumer.entities)
 
             if action == 'stream' and text_data.get('frame') and text_data.get('device'):
-                try:
-                    if SerialConsumer.entities[device]['consumer']:
-                        await SerialConsumer.entities[device]['consumer'].send(json.dumps({
-                            'device':text_data['device'],
-                            'action':'stream',
-                            'frame':text_data['frame']
-                        }))
-                except Exception as e:
+                try:                    
+                    if SerialConsumer.entities[device]['consumer'] and SerialConsumer.entities[device]['panel']:
+                        print('here')
+                        await self.channel_layer.group_send(
+                            'consumers', {"type": "send.frame.stream", "frame_obj": {'device':text_data['device'],'action':'stream','frame':text_data['frame']}}
+                        )
+                        # await SerialConsumer.entities[device]['consumer'].send(json.dumps({
+                        #     'device':text_data['device'],
+                        #     'action':'stream',
+                        #     'frame':text_data['frame']
+                        # }))
+                except Exception as e:      
+                    print(e)              
                     pass
             if action == 'store' and text_data.get('frame') and text_data.get('device'):
-                print(text_data['frame'])
+                # print(text_data['frame'])
                 # Store the stream into database
                 await self.store_stream_into_db(text_data['device'],text_data['frame'])
+            
+    async def send_frame_stream(self, event):        
+        text_data = event['frame_obj']        
+        await self.send(json.dumps(text_data))
 
     @database_sync_to_async
     def get_windrose(self,device,values=False,colors=False):
@@ -154,7 +174,7 @@ class SerialConsumer(AsyncWebsocketConsumer):
     
     @database_sync_to_async
     def get_area_chart(self,device,value):
-        params = [value,'RTC']        
+        params = [value,'RTC']
         line_chart_objs = SerialCommunication.objects.filter(device=device).values(*params)        
         df_params = pd.DataFrame(line_chart_objs)                
         # del df_params['RTC']     

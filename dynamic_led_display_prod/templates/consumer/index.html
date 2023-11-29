@@ -100,7 +100,7 @@
 <body style="background:black; margin:0 !important; padding:0 !important;">
     <div class="main">
         <div id="led-panel-container" style="color:white;width: 5.08cm;height: 4.23cm;margin: 0 !important;padding: 0 !important;position: fixed;left: 0;">
-            <div id="table_element_output_div" style="line-height: 1.5;background-color: black; color: black;">
+            <!-- <div id="table_element_output_div" style="line-height: 1.5;background-color: black; color: black;">
                 <table class="">
                   <thead>
                     <tr style="color: red;">          
@@ -140,13 +140,40 @@
                       </tr>
                   </tbody>
                 </table>
-              </div>
+              </div> -->
         </div>
     </div>
     <script>
         $('.ui-resizable-handle').remove() 
     </script>
     <script>
+        async function SerialCommunicationRS485() {
+            if ("WebSocket" in window) {
+            // Let us open a web socket
+            ws_serial_communcation_rs485 = new WebSocket(
+                `wss://${window.location.host}/ws/serial_communication/consumer/`
+            );
+            window.rs485_data_socket = ws_serial_communcation_rs485
+            ws_serial_communcation_rs485.onopen = async function () {
+                ws_serial_communcation_rs485.send(
+                JSON.stringify({
+                    client: "panel",
+                    device: "rs485",
+                    action: "connection",
+                })
+                );
+            };
+
+            ws_serial_communcation_rs485.onmessage = async function (evt) {
+                let received_msg = JSON.parse(evt.data);        
+                // console.log(received_msg)
+      };
+
+      ws_serial_communcation_rs485.onclose = async function () {};
+    } else {
+      alert("WebSocket NOT supported by your Browser!");
+    }
+  }
         async function StartPanelConsumer(){
             if ("WebSocket" in window) {
                 PanelConsumer = new WebSocket(`wss://${window.location.host}/ws/panel_changed_events/`);
@@ -183,7 +210,7 @@
         }
     </script>
     <script>        
-        async function displayProgram(PanelPrograms,currentProgramIndex = 0) {   
+        async function displayProgram(PanelPrograms,currentProgramIndex = 0) { 
             const programDisplay = $("#led-panel-container");
             if (currentProgramIndex >= PanelPrograms.length) {
                 currentProgramIndex = 0;
@@ -196,21 +223,26 @@
             program_element.css('top','-5px')
             program_element.css('margin-top','2px')
             program_element.css('left','0')            
-            programDisplay.html(program_element)            
-            
-            if(PanelPrograms.length > 1){
+            if(program_element.ready(async () => {
+                if(program_element.find($('#date_output_inner_div')).length || program_element.find($('#clock_output_inner_div')).length){                    
+                    program_element = await updateElementTime(program_element)
+                    program.fields.panel_code = program_element.prop('outerHTML')
+                }
+            }))            
+            programDisplay.html(program_element)
+            // if(PanelPrograms.length > 1){
                 CurrentSetTimeout = setTimeout(() => {                
                     currentProgramIndex++;
                     displayProgram(PanelPrograms,currentProgramIndex);
                 }, program.fields.running_time * 1000);
-            }
+            //}
         }        
     </script>
     <script>
-        setInterval(function() {
+        setInterval(async function() {
         if (PanelConsumer === null || PanelConsumer.readyState === WebSocket.CLOSED) {
             console.log('Trying to connect');
-            // StartPanelConsumer();
+            await StartPanelConsumer();
         } else {
             console.log('Connected');
         }
@@ -218,10 +250,36 @@
     </script>
     <script>
         window.onload = function() {
-            // StartPanelConsumer();
+            StartPanelConsumer();
+            SerialCommunicationRS485()
         };
     </script>
     <script> 
+        async function updateElementTime(program_element){
+            var date = new Date();
+            var h = date.getHours(); // 0 - 23
+            var m = date.getMinutes(); // 0 - 59
+            var s = date.getSeconds(); // 0 - 59
+            var session = "AM";
+            
+            if(h == 0){
+                h = 12;
+            }
+            
+            if(h > 12){
+                h = h - 12;
+                session = "PM";
+            }
+            
+            h = (h < 10) ? "0" + h : h;
+            m = (m < 10) ? "0" + m : m;
+            s = (s < 10) ? "0" + s : s;
+            year = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`            
+            program_element.find($('#date_output_inner_div')).text(year)
+            var time = h + ":" + m + ":" + s + " " + session;            
+            program_element.find($('#clock_output_inner_div')).text(time)
+            return program_element            
+        }
         async function showTime(){
             var date = new Date();
             var h = date.getHours(); // 0 - 23
@@ -241,7 +299,8 @@
             h = (h < 10) ? "0" + h : h;
             m = (m < 10) ? "0" + m : m;
             s = (s < 10) ? "0" + s : s;
-            
+            year = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`
+            $('#date_output_inner_div').text(year);
             var time = h + ":" + m + ":" + s + " " + session;
             $('#clock_output_inner_div').text(time);
             setTimeout(showTime, 1000);
@@ -251,34 +310,34 @@
 </script>
 <script>
         
-    async function updateClock() {
-        const hrs = document.querySelectorAll('.hr');
-        const mins = document.querySelectorAll('.min');
-        const secs = document.querySelectorAll('.sec');
-      const day = new Date();
-      const hour = day.getHours();
-      const minutes = day.getMinutes();
-      const seconds = day.getSeconds();
+    // async function updateClock() {
+    //     const hrs = document.querySelectorAll('.hr');
+    //     const mins = document.querySelectorAll('.min');
+    //     const secs = document.querySelectorAll('.sec');
+    //   const day = new Date();
+    //   const hour = day.getHours();
+    //   const minutes = day.getMinutes();
+    //   const seconds = day.getSeconds();
 
-      const hrRotation = (30 * hour) + (0.5 * minutes);
-      const minRotation = 6 * minutes;
-      const secRotation = 6 * seconds;
+    //   const hrRotation = (30 * hour) + (0.5 * minutes);
+    //   const minRotation = 6 * minutes;
+    //   const secRotation = 6 * seconds;
 
-      hrs.forEach(hr => {
-        hr.style.transform = `translate(-50%, -100%) rotate(${hrRotation}deg)`;
-      });
+    //   hrs.forEach(hr => {
+    //     hr.style.transform = `translate(-50%, -100%) rotate(${hrRotation}deg)`;
+    //   });
 
-      mins.forEach(min => {
-        min.style.transform = `translate(-50%, -100%) rotate(${minRotation}deg)`;
-      });
+    //   mins.forEach(min => {
+    //     min.style.transform = `translate(-50%, -100%) rotate(${minRotation}deg)`;
+    //   });
 
-      secs.forEach(sec => {
-        sec.style.transform = `translate(-50%, -85%) rotate(${secRotation}deg)`;
-      });
-    }
+    //   secs.forEach(sec => {
+    //     sec.style.transform = `translate(-50%, -85%) rotate(${secRotation}deg)`;
+    //   });
+    // }
 
-    updateClock();
-    setInterval(updateClock, 1000);
+    // updateClock();
+    // setInterval(updateClock, 1000);
 
   </script>
 </body>
