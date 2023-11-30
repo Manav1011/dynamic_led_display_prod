@@ -4,7 +4,8 @@ import asyncio
 import numpy as np
 import pandas as pd
 from channels.db import database_sync_to_async
-from .models import SerialCommunication
+from .serializers import DailyAverageSerializer
+from .models import SerialCommunication,States
 import matplotlib.pyplot as plt
 import datetime
 from django.core.files.storage import FileSystemStorage
@@ -95,10 +96,11 @@ class SerialConsumer(AsyncWebsocketConsumer):
 
             if action == 'stream' and text_data.get('frame') and text_data.get('device'):
                 try:                    
-                    if SerialConsumer.entities[device]['consumer'] and SerialConsumer.entities[device]['panel']:
-                        print('here')
+                    if SerialConsumer.entities[device]['consumer'] and SerialConsumer.entities[device]['panel']:                        
+                        today = datetime.datetime.today()                                                
+                        averages = await self.get_averages(today)
                         await self.channel_layer.group_send(
-                            'consumers', {"type": "send.frame.stream", "frame_obj": {'device':text_data['device'],'action':'stream','frame':text_data['frame']}}
+                            'consumers', {"type": "send.frame.stream", "frame_obj": {'device':text_data['device'],'action':'stream','frame':text_data['frame'],'averages':averages}}
                         )
                         # await SerialConsumer.entities[device]['consumer'].send(json.dumps({
                         #     'device':text_data['device'],
@@ -106,14 +108,19 @@ class SerialConsumer(AsyncWebsocketConsumer):
                         #     'frame':text_data['frame']
                         # }))
                 except Exception as e:      
-                    print(e)              
-                    pass
+                    print(e)                                  
             if action == 'store' and text_data.get('frame') and text_data.get('device'):
                 # print(text_data['frame'])
                 # Store the stream into database
                 await self.store_stream_into_db(text_data['device'],text_data['frame'])
             
-    async def send_frame_stream(self, event):        
+    @database_sync_to_async
+    def get_averages(self,today):
+        Averages = States.objects.filter(date=today).values('param', 'mean')
+        average_serialized = DailyAverageSerializer(Averages,many=True)
+        return average_serialized.data
+    
+    async def send_frame_stream(self, event): 
         text_data = event['frame_obj']        
         await self.send(json.dumps(text_data))
 
@@ -184,10 +191,10 @@ class SerialConsumer(AsyncWebsocketConsumer):
         df_params.set_index('RTC', inplace=True)
         plt.figure(figsize=(10, 6))
         plt.fill_between(df_params.index, FLOAT_DF, color='skyblue', alpha=0.4, label='Humidity Area')
-        plt.plot(df_params.index, FLOAT_DF, color='blue', label='Humidity Line', marker='o')
-        plt.title('Humidity Over Time')
+        plt.plot(df_params.index, FLOAT_DF, color='blue', label=f'{value} Line', marker='o')
+        plt.title(f'{value} Over Time')
         plt.xlabel('Time')
-        plt.ylabel('Humidity (%)')
+        plt.ylabel(f'{value}')
         plt.legend()
         plt.grid(True)
         area_data = io.BytesIO()        

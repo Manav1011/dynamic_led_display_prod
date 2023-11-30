@@ -55,7 +55,7 @@ def fill_daily_states():
     # For RAIN we'll find arithmetic mean for now
     RAIN_DF = df['RAIN'].describe()
     RAIN_COUNT= RAIN_DF['count']
-    RAIN_MEAN = RAIN_DF['mean']
+    RAIN_MEAN = df['RAIN'].sum()
     RAIN_MIN= RAIN_DF['min']
     RAIN_MAX= RAIN_DF['max']
     RAIN_STD= RAIN_DF['std']

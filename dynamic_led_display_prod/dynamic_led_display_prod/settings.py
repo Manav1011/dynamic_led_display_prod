@@ -74,7 +74,7 @@ INSTALLED_APPS = [
     'sslserver'
 ]
 CRONJOBS = [
-    ('0 0 * * *', 'serial_comm.cron.fill_daily_states'),
+    ('13 19 * * *', 'serial_comm.cron.fill_daily_states'),
     ('0 1 * * 0', 'serial_comm.cron.fill_weekly_states'),
 ]
 

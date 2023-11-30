@@ -358,7 +358,7 @@
     window.onload = () => {
         PorgramsAndElements()
         PanelChangedEevents()
-        // SerialCommunicationRS485()
+        SerialCommunicationRS485()
         //WebSocketTestRS232();
         //WebSocketTestRS485();
     };    
@@ -405,7 +405,7 @@ async function SerialCommunicationRS485() {
     if ("WebSocket" in window) {
       // Let us open a web socket
       ws_serial_communcation_rs485 = new WebSocket(
-        `wss://${window.location.host}/ws/serial_communication/`
+        `wss://${window.location.host}/ws/serial_communication/consumer/`
       );
       window.rs485_data_socket = ws_serial_communcation_rs485
       ws_serial_communcation_rs485.onopen = async function () {
@@ -420,7 +420,14 @@ async function SerialCommunicationRS485() {
 
       ws_serial_communcation_rs485.onmessage = async function (evt) {
         let received_msg = JSON.parse(evt.data);        
-        console.log(received_msg)
+        for(let i in received_msg.frame){
+            let value = parseFloat(received_msg.frame[i]).toFixed(2)
+            $(`.${i}_table_val`).text(value)
+        }  
+        received_msg.averages.forEach((e,i) => {
+            let value = parseFloat(e['mean']).toFixed(2)
+            $(`.${e['param']}_table_avg`).text(value)
+        })        
       };
 
       ws_serial_communcation_rs485.onclose = async function () {};

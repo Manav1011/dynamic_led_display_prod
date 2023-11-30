@@ -15,35 +15,36 @@
                     <div class="card-body">
                         <div class="input-group mb-3 align-items-center justify-content-center states_data_checkboxed">                            
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="inlinecheckboxDWPT" value="DWPT" oninput="states_element_checkboxes(this)">
+                                <input class="form-check-input" type="checkbox" id="inlinecheckboxDWPT" value="DWPT" oninput="states_element_checkboxes(this)" unit="Kmph">
                                 <label class="form-check-label" for="inlineCheckbox1">DWPT</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="inlinecheckboxWDCH" value="WDCH" oninput="states_element_checkboxes(this)">
+                                <input class="form-check-input" type="checkbox" id="inlinecheckboxWDCH" value="WDCH" oninput="states_element_checkboxes(this)" unit="degC">
                                 <label class="form-check-label" for="inlineCheckbox2">WDCH</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="inlinecheckboxBPRS" value="BPRS" oninput="states_element_checkboxes(this)">
+                                <input class="form-check-input" type="checkbox" id="inlinecheckboxBPRS" value="BPRS" oninput="states_element_checkboxes(this)" unit="mBa">
                                 <label class="form-check-label" for="inlineCheckbox2">BPRS</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="inlinecheckboxHUMD" value="HUMD" oninput="states_element_checkboxes(this)">
+                                <input class="form-check-input" type="checkbox" id="inlinecheckboxHUMD" value="HUMD" oninput="states_element_checkboxes(this)" unit="Per">
                                 <label class="form-check-label" for="inlineCheckbox2">HUMD</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="inlinecheckboxSRAD" value="SRAD" oninput="states_element_checkboxes(this)">
+                                <input class="form-check-input" type="checkbox" id="inlinecheckboxSRAD" value="SRAD" oninput="states_element_checkboxes(this)" unit="pm²">
                                 <label class="form-check-label" for="inlineCheckbox2">SRAD</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="inlinecheckboxATMP" value="ATMP" oninput="states_element_checkboxes(this)">
+                                <input class="form-check-input" type="checkbox" id="inlinecheckboxATMP" value="ATMP" oninput="states_element_checkboxes(this)" unit="degC">
                                 <label class="form-check-label" for="inlineCheckbox2">ATMP</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="inlinecheckboxWSPD" value="WSPD" oninput="states_element_checkboxes(this)">
+                                <input class="form-check-input" type="checkbox" id="inlinecheckboxWSPD" value="WSPD" oninput="states_element_checkboxes(this)" unit="Kmph">
                                 <label class="form-check-label" for="inlineCheckbox2">WSPD</label>
                             </div>
                         </div>  
-                        <button class="btn btn-outline-dark d-block w-100" onclick="get_states_element()">Send</button>
+                        <button class="btn btn-outline-success d-block w-100 mb-3" onclick="get_states_element()">Send</button>
+                        <button class="btn btn-outline-warning d-block w-100 mb-3" onclick="clear_the_tabel()">Clear</button>
                         <script>                          
                           async function states_element_checkboxes(el){
                               if($('.states_data_checkboxed input[type="checkbox"]:checked').length > 4){
@@ -62,23 +63,30 @@
                         }
                         async function get_states_element(){
                             let SelectedParams = $('.states_data_checkboxed input[type="checkbox"]:checked')
+                                                        
                             if($('.states_data_checkboxed input[type="checkbox"]:checked').length <= 4){
                                 const values = SelectedParams.map((index, el) => {
-                                    return $(el).val();
+                                    return $(el);
                                 }).get();
-                                if(ws_program_and_elements){
-                                    console.log('here')
-                                        ws_program_and_elements.send(JSON.stringify({
-                                            client:'dashboard',
-                                            page:'controller',
-                                            action:'get_states',
-                                            'element_name':'table_element', 
-                                            values:values                                            
-                                    }))
-                                }
+                                values.forEach((e,i) => {
+                                    let paramTemplate = `<tr class="table-group-divider-custom table_prams"><td colspan="2" style="color: red;font-size:12px;">${e.val()}(${e.attr('unit')})</td><td style="text-align:center; color:green; font-size:13px;" class="${e.val()}_table_val"></td><td style="text-align:center; color:green;" class="${e.val()}_table_avg"></td></tr>`
+                                    let paramEl = $(paramTemplate)
+                                    if($('.table_element_output_container .table_prams').length <4){
+                                        $('.table_element_output_container .table_element_body_container').append(paramEl)
+                                        $('#table_element_container .table_element_footer').show()
+                                    }else{
+                                        alert("Table is full")
+                                        return false                                        
+                                    }
+                                })
+                                
                             }else{
                                 alert("Select Up to 4 parameters")
                             }
+                        }
+                        async function clear_the_tabel(){
+                            $('.table_element_output_container .table_prams').remove()
+                            $('#table_element_container .table_element_footer').hide()
                         }
                         </script>
                     </div>
@@ -101,15 +109,15 @@
                         </style>
                         <div class="row mb-3">
                             <div class="col">
-                                <div class="card table_element_output_container article align-items-center" >
-                                    <div class="card-body table_element_output element" id="clock_element_output">
+                                <div class="card table_element_output_container article align-items-center">
+                                    <div class="card-body table_element_output element" id="table_element_output">
                                         <div id="table_element_output_div" style="font-size:15px; width: 5.08cm; height: 4.23cm; max-width: 5.08cm; max-height: 4.23cm; overflow: hidden; line-height: 1.5;background-color: black; color: black;">
                                             <table class="">
                                               <thead>
                                                 <tr style="color: red;">          
                                                   <th scope="col" style="padding:0 !important; width:10% !important; max-width: 10% !important; text-align:center;"><img style="width: 100%; height: 100%;" src="{% static 'assets/gifs/AARTI-IND-LOGO-unnamed-unscreen.gif' %}" alt=""></th>
-                                                  <th scope="col" colspan="2" style="font-weight: 1000; font-size:86% !important; text-align:center;">AARTI IND LTD</th>
-                                                  <th scope="col" style="font-weight: 1000; font-size:55% !important;text-align:center;" id="TableElementRTC">2023-11-06 13:30:19</th>
+                                                  <th scope="col" colspan="2" style="width:60% ;font-weight: 1000; font-size:86% !important; text-align:center;">AARTI IND LTD</th>
+                                                  <th scope="col" style="font-weight: 1000; font-size:55% !important;text-align:center;" id="TableElementRTC"></th>
                                                 </tr>
                                                 <tr class="table-group-divider-custom" style="color: cyan;">          
                                                   <th scope="col" colspan="4" style="text-align:center; font-size: 75% !important; font-weight: 1000;">WEATHER MONITORING SYSTEM</th>
@@ -121,11 +129,6 @@
                                                     <td style="text-align:center; font-size: 60% !important; font-weight: 1000;" scope="col">VALUE</td>
                                                     <td style="text-align:center; font-size: 60% !important; font-weight: 1000;" scope="col">AVG</td>      
                                                 </tr>
-                                                <tr class="table-group-divider-custom">                        
-                                                  <td colspan="2" style="color: red;">WSPD(km/h)</td>
-                                                  <td style="text-align:center; color:green;">Otto</td>
-                                                  <td style="text-align:center; color:green;">@mdo</td>
-                                                </tr>
                                               </tbody>
                                             </table>     
                                         </div>                                     
@@ -134,9 +137,69 @@
                             </div>
                           </div>
                     </div>
+                    <div class="card-footer table_element_footer" style="display: hidden;">
+                        <script>
+                            $(document).ready(function () {
+                                // Select the element with class "text_element_footer" and hide it
+                                $(this).find('.table_element_footer').hide();
+                            });
+                        </script>
+                        <div class="form-group">
+                            <label for="program_select">Active Programs</label>
+                            <div class="send_program_view row " style="justify-content: space-around; gap:10px;">
+                                <select class="col-sm-7 col-md-7 col-lg-7 form-control program_footer" id="">
+                                </select>
+                                <button class="col-sm-3 col-md-3 col-lg-3 btn btn-outline-primary" onclick="table_element_program_value_changed(event)">Send</button>
+                            </div>
+                        </div>        
+                    </div>  
                 </div>
             </div>
             <!-- Ended -->
             </div>            
         </div>
+        <script>
+            setInterval(() => {
+                var date = new Date();
+                var h = date.getHours(); // 0 - 23
+                var m = date.getMinutes(); // 0 - 59
+                var s = date.getSeconds(); // 0 - 59
+                var session = "AM";
+                
+                if(h == 0){
+                    h = 12;
+                }
+                
+                if(h > 12){
+                    h = h - 12;
+                    session = "PM";
+                }
+                
+                h = (h < 10) ? "0" + h : h;
+                m = (m < 10) ? "0" + m : m;
+                s = (s < 10) ? "0" + s : s;
+                let year = `${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()} `                
+                let time = h + ":" + m + ":" + s + " ";
+                $('#TableElementRTC').text(year + time);
+            }, 1000);                    
+        </script>
+        <script>
+            async function table_element_program_value_changed(event){
+                let program_name = $(event.target).parent().find('select').val()                                
+                let element_html = $('.table_element_output_container').html()
+                console.log(element_html)
+                if (program_name != 'default'){
+                    if(ws_program_and_elements){
+                        ws_program_and_elements.send(JSON.stringify({
+                            client:'dashboard',
+                            page:'controller',
+                            action:'add_element',                                
+                            'element_name':'table_element',
+                            'program_name':program_name,
+                            'element_html':element_html
+                        }))
+                    }
+                }
+            } 
+        </script>
 </div>            

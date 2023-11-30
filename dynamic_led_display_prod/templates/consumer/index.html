@@ -166,8 +166,15 @@
 
             ws_serial_communcation_rs485.onmessage = async function (evt) {
                 let received_msg = JSON.parse(evt.data);        
-                // console.log(received_msg)
-      };
+                for(let i in received_msg.frame){
+                    let value = parseFloat(received_msg.frame[i]).toFixed(2)                    
+                    $(`.${i}_table_val`).text(value)
+                }
+                received_msg.averages.forEach((e,i) => {
+                    let value = parseFloat(e['mean']).toFixed(2)                    
+                    $(`.${e['param']}_table_avg`).text(value)
+                })
+            };
 
       ws_serial_communcation_rs485.onclose = async function () {};
     } else {
@@ -195,9 +202,17 @@
                         }))
                     }
                     if(received_msg.action == 'configs_changed' && received_msg.program_data){
+                        ElementsArray = []
+                        RunningTime = []
                         PanelPrograms = JSON.parse(received_msg.program_data)
+                        console.log(PanelPrograms)
+                        PanelPrograms.forEach((e,i) => {
+                            let el = $(e.fields.panel_code)
+                            ElementsArray.push(el)
+                            RunningTime.push(e.fields.running_time)
+                        })                    
                         clearTimeout(CurrentSetTimeout);
-                        await displayProgram(PanelPrograms)                        
+                        await displayProgram(ElementsArray,RunningTime) 
                     }
                 };
                 PanelConsumer.onclose = async function() {
@@ -210,48 +225,51 @@
         }
     </script>
     <script>        
-        async function displayProgram(PanelPrograms,currentProgramIndex = 0) { 
-            const programDisplay = $("#led-panel-container");
-            if (currentProgramIndex >= PanelPrograms.length) {
+        async function displayProgram(ElementsArray,RunningTime,currentProgramIndex = 0) { 
+            let programDisplay = $("#led-panel-container");
+            if (currentProgramIndex >= ElementsArray.length) {
                 currentProgramIndex = 0;
             }
-
-            const program = PanelPrograms[currentProgramIndex];
-            let program_element = $(program.fields.panel_code)
+            let running_time = RunningTime[currentProgramIndex]
+            let program_element = ElementsArray[currentProgramIndex];            
+            // console.log(program_element)
             program_element.css('border','none')
             program_element.css('position','fixed')
             program_element.css('top','-5px')
             program_element.css('margin-top','2px')
-            program_element.css('left','0')            
-            if(program_element.ready(async () => {
-                if(program_element.find($('#date_output_inner_div')).length || program_element.find($('#clock_output_inner_div')).length){                    
-                    program_element = await updateElementTime(program_element)
-                    program.fields.panel_code = program_element.prop('outerHTML')
+            program_element.css('height','4.23cm')
+            program_element.css('width','5.08cm')            
+            program_element.css('left','0')                        
+            if(program_element.ready(() => {                                
+                if(program_element.find(program_element.find('.card-body #date_output_inner_div').length) || program_element.find('.card-body #clock_output_inner_div').length){
+                console.log('here')
+                program_element = updateElementTime(program_element)                                        
                 }
-            }))            
+            }))
             programDisplay.html(program_element)
-            // if(PanelPrograms.length > 1){
+            if(PanelPrograms.length > 1){
                 CurrentSetTimeout = setTimeout(() => {                
                     currentProgramIndex++;
-                    displayProgram(PanelPrograms,currentProgramIndex);
-                }, program.fields.running_time * 1000);
-            //}
+                    displayProgram(ElementsArray,RunningTime,currentProgramIndex);
+                }, running_time * 1000);
+            }
         }        
     </script>
     <script>
-        setInterval(async function() {
+        setInterval(function() {
         if (PanelConsumer === null || PanelConsumer.readyState === WebSocket.CLOSED) {
             console.log('Trying to connect');
-            await StartPanelConsumer();
+            StartPanelConsumer();
+            SerialCommunicationRS485()
         } else {
             console.log('Connected');
         }
     }, 5000);
     </script>
     <script>
-        window.onload = function() {
-            StartPanelConsumer();
-            SerialCommunicationRS485()
+        window.onload =async function() {
+            await StartPanelConsumer();
+            await SerialCommunicationRS485()
         };
     </script>
     <script> 

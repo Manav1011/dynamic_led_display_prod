@@ -504,7 +504,8 @@
           rs_485_chart_data.labels.push(`${minutes}:${seconds}`);
         } else {
           if (i == currently_showring_chart) {
-            $("#currently_showing_param_value_rs485").text(stream[i]);
+            let value = parseFloat(stream[i]).toFixed(2)
+            $("#currently_showing_param_value_rs485").text(value);
             let obj = {
               label: currently_showring_chart,
               borderColor: "red",
@@ -549,6 +550,7 @@
             rs485_live_chart.data.datasets[0] &&
             key == currently_showring_chart
           ) {
+            value = parseFloat(value).toFixed(2)
             $("#currently_showing_param_value_rs485").text(value);
             rs485_live_chart.data.datasets[0].data.push(value);
             if (rs485_live_chart.data.datasets[0].data.length > 5) {

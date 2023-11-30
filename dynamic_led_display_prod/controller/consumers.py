@@ -103,14 +103,8 @@ class PorgramsAndElements(AsyncWebsocketConsumer):
                 if text_data['action'] == 'get_states':                    
                     element_name = text_data.get('element_name') 
                     if element_name == 'table_element' and text_data.get('values'):
-                        params = text_data['values']                    
-                        if(file_link):
-                            await self.send(json.dumps({
-                                'action':'get_image_link',
-                                'element_name':element_name,
-                                'image_link':file_link
-                        }))
-
+                        params = text_data['values']
+                        print(params)
 
                 if text_data['action'] == 'delete_program' and text_data.get('program_name'):
                     result  = await self.delete_program(text_data['program_name'])
