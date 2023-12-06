@@ -122,7 +122,7 @@ async def read_serial_port(serial_port,websocket = None):
 
 if __name__ == "__main__":    
     async def connect_to_websocket():
-        async with websockets.connect(f"ws://192.168.29.18:8000/ws/serial_communication/") as websocket:
+        async with websockets.connect(f"wss://192.168.29.18:8000/ws/serial_communication/") as websocket:
             print("WebSocket connection established")
             await websocket.send(json.dumps({
                 'client':'producer',

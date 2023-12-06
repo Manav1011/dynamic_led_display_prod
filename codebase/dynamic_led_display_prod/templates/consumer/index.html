@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONSUMER</title>
+    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'js/jquery-ui.js' %}"></script>
+    <link rel="stylesheet" href='{% static "css/bootstrap.min.css" %}'>
+    <script src="{% static 'js/sb-admin-2.min.js' %}" async></script>   
+    <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>    
+    <link rel="stylesheet" href="{% static 'css/jquery-ui.css' %}">        
+    <link rel="stylesheet" href="{% static '/css/w3.css' %}">
+</head>
+<style>
+    @font-face{
+        font-family:'digital-7';
+        src: url('{% static "assets/digital-7.ttf" %}');
+    }    
+    body{
+        line-height: normal !important;
+    }    
+</style>
+<script>
+    // Globals
+    var PanelConsumer = null
+    var PanelPrograms = null    
+    var CurrentSetTimeout = null
+</script>
+<style>
+    .clock {
+      width: 100%;
+      height: 100%;
+      background:white;
+      background-size: cover;      
+      border-radius: 50%;
+      position: relative;
+  }
+  
+  .hr,
+  .min,
+  .sec {
+      width: 5%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -100%);
+      transform-origin: bottom;
+      z-index: 2;
+      border-radius: 2em;
+  }
+  
+  .pin {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 1em;
+      height: 1em;
+      background: black;
+      border: 2px solid #ffffff;
+      border-radius: 10em;
+      margin: auto;
+      z-index: 10;
+  }
+  
+  /* Different length of different hands of clock */        
+  .hr {
+      height: 30%;
+      background-color: #ff0000;
+  }
+  
+  .min {
+      height: 45%;
+      background-color: #ff9900;
+  }
+  
+  .sec {
+      height: 60%;
+      background-color: #99ff00;
+      transform-origin: 50% 85%;
+  }
+  </style>
+<style>
+    /* For WebKit browsers */
+
+</style>
+<style>
+    #table_element_output_div tr td th table{
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    .table-group-divider-custom{
+    border-top: calc(var(--bs-border-width) * 2) solid white;
+  }
+  </style>
+<body style="background:black; margin:0 !important; padding:0 !important;">
+    <div class="main">
+        <div id="led-panel-container" style="color:white;width: 5.08cm;height: 4.23cm;margin: 0 !important;padding: 0 !important;position: fixed;left: 0;">
+            <!-- <div id="table_element_output_div" style="line-height: 1.5;background-color: black; color: black;">
+                <table class="">
+                  <thead>
+                    <tr style="color: red;">          
+                      <th scope="col" style="padding:0 !important; width:10% !important; max-width: 10% !important; text-align:center;"><img style="width: 100%; height: 100%;" src="{% static 'assets/gifs/AARTI-IND-LOGO-unnamed-unscreen.gif' %}" alt=""></th>
+                      <th scope="col" colspan="2" style="font-weight: 1000; font-size:86%; text-align:center;">AARTI IND LTD</th>
+                      <th scope="col" style="font-weight: 1000; font-size:55%;text-align:center;">2023-11-06 13:30:19</th>
+                    </tr>
+                    <tr class="table-group-divider-custom" style="color: cyan;">          
+                      <th scope="col" colspan="4" style="text-align:center; font-size: 75%; font-weight: 1000;">WEATHER MONITORING SYSTEM</th>
+                    </tr>
+                  </thead>
+                  <tbody style="font-size: 92%; font-weight: 1000;">
+                    <tr class="table-group-divider-custom" style="color: cyan;">          
+                        <td style="font-size:60%; font-weight: 1000;" scope="col" colspan="2">PARAMETER</td>
+                        <td style="text-align:center; font-size: 60%; font-weight: 1000;" scope="col">VALUE</td>
+                        <td style="text-align:center; font-size: 60%; font-weight: 1000;" scope="col">AVG</td>      
+                    </tr>
+                    <tr class="table-group-divider-custom">                        
+                      <td colspan="2" style="color: red;">WSPD(km/h)</td>
+                      <td style="text-align:center; color:green;">Otto</td>
+                      <td style="text-align:center; color:green;">@mdo</td>
+                    </tr>
+                    <tr class="table-group-divider-custom">                        
+                      <td colspan="2" style="color: red;">WDIR(deg)</td>
+                      <td style="text-align:center; color:green;">Otto</td>
+                      <td style="text-align:center; color:green;">@mdo</td>
+                    </tr>
+                    <tr class="table-group-divider-custom">                        
+                      <td colspan="2" style="color: red;">ATMP(degC)</td>
+                      <td style="text-align:center; color:green;">Otto</td>
+                      <td style="text-align:center; color:green;">@mdo</td>
+                    </tr>
+                    <tr class="table-group-divider-custom">                        
+                        <td colspan="2" style="color: red;">HUMD(Per)</td>
+                        <td style="text-align:center; color:green;">Otto</td>
+                        <td style="text-align:center; color:green;">@mdo</td>
+                      </tr>
+                  </tbody>
+                </table>
+              </div> -->
+        </div>
+    </div>
+    <script>
+        $('.ui-resizable-handle').remove() 
+    </script>
+    <script>
+        async function SerialCommunicationRS485() {
+            if ("WebSocket" in window) {
+            // Let us open a web socket
+            ws_serial_communcation_rs485 = new WebSocket(
+                `wss://${window.location.host}/ws/serial_communication/consumer/`
+            );
+            window.rs485_data_socket = ws_serial_communcation_rs485
+            ws_serial_communcation_rs485.onopen = async function () {
+                ws_serial_communcation_rs485.send(
+                JSON.stringify({
+                    client: "panel",
+                    device: "rs485",
+                    action: "connection",
+                })
+                );
+            };
+
+            ws_serial_communcation_rs485.onmessage = async function (evt) {
+                let received_msg = JSON.parse(evt.data);        
+                for(let i in received_msg.frame){
+                    let value = parseFloat(received_msg.frame[i]).toFixed(2)                    
+                    $(`.${i}_table_val`).text(value)
+                }
+                received_msg.averages.forEach((e,i) => {
+                    let value = parseFloat(e['mean']).toFixed(2)                    
+                    $(`.${e['param']}_table_avg`).text(value)
+                })
+            };
+
+      ws_serial_communcation_rs485.onclose = async function () {};
+    } else {
+      alert("WebSocket NOT supported by your Browser!");
+    }
+  }
+        async function StartPanelConsumer(){
+            if ("WebSocket" in window) {
+                PanelConsumer = new WebSocket(`wss://${window.location.host}/ws/panel_changed_events/`);
+                PanelConsumer.onopen = async function() {  
+                    PanelConsumer.send(JSON.stringify({            
+                        client:'consumer',
+                        page:'consumer',
+                        action:'connection'
+                    }));
+                };
+                PanelConsumer.onmessage = async function (evt) { 
+                    let received_msg = JSON.parse(evt.data);
+                    console.log(received_msg)
+                    if(received_msg.action == 'connected'){
+                        PanelConsumer.send(JSON.stringify({
+                            client:'consumer',
+                            page:'consumer',
+                            action:'get_panel_configs'
+                        }))
+                    }
+                    if(received_msg.action == 'configs_changed' && received_msg.program_data){
+                        ElementsArray = []
+                        RunningTime = []
+                        PanelPrograms = JSON.parse(received_msg.program_data)
+                        console.log(PanelPrograms)
+                        PanelPrograms.forEach((e,i) => {
+                            let el = $(e.fields.panel_code)
+                            ElementsArray.push(el)
+                            RunningTime.push(e.fields.running_time)
+                        })                    
+                        clearTimeout(CurrentSetTimeout);
+                        await displayProgram(ElementsArray,RunningTime) 
+                    }
+                };
+                PanelConsumer.onclose = async function() {
+                    PanelConsumer = null
+                    console.log("Connection Closed")                     
+                };
+            }else {                  
+                alert("WebSocket NOT supported by your Browser!");
+             }
+        }
+    </script>
+    <script>        
+        async function displayProgram(ElementsArray,RunningTime,currentProgramIndex = 0) { 
+            let programDisplay = $("#led-panel-container");
+            if (currentProgramIndex >= ElementsArray.length) {
+                currentProgramIndex = 0;
+            }
+            let running_time = RunningTime[currentProgramIndex]
+            let program_element = ElementsArray[currentProgramIndex];            
+            // console.log(program_element)
+            program_element.css('border','none')
+            program_element.css('position','fixed')
+            program_element.css('top','-5px')
+            program_element.css('margin-top','2px')
+            program_element.css('height','4.23cm')
+            program_element.css('width','5.08cm')            
+            program_element.css('left','0')                        
+            program_element.prop('muted',true)
+            program_element.prop('autoplay',true)
+            if(program_element.ready(() => {                                
+                if(program_element.find(program_element.find('.card-body #date_output_inner_div').length) || program_element.find('.card-body #clock_output_inner_div').length){
+                console.log('here')
+                program_element = updateElementTime(program_element)                                        
+                }
+            }))
+            programDisplay.html(program_element)
+            let videoElement = program_element.find('video');
+            if(videoElement.length > 0){
+                videoElement.get(0).play();
+            }
+            if(PanelPrograms.length > 1){
+                CurrentSetTimeout = setTimeout(() => {                
+                    currentProgramIndex++;
+                    displayProgram(ElementsArray,RunningTime,currentProgramIndex);
+                }, running_time * 1000);
+            }
+        }        
+    </script>
+    <script>
+        setInterval(function() {
+        if (PanelConsumer === null || PanelConsumer.readyState === WebSocket.CLOSED) {
+            console.log('Trying to connect');
+            StartPanelConsumer();
+            SerialCommunicationRS485()
+        } else {
+            console.log('Connected');
+        }
+    }, 5000);
+    </script>
+    <script>
+        window.onload =async function() {
+            await StartPanelConsumer();
+            await SerialCommunicationRS485()
+        };
+    </script>
+    <script> 
+        async function updateElementTime(program_element){
+            var date = new Date();
+            var h = date.getHours(); // 0 - 23
+            var m = date.getMinutes(); // 0 - 59
+            var s = date.getSeconds(); // 0 - 59
+            var session = "AM";
+            
+            if(h == 0){
+                h = 12;
+            }
+            
+            if(h > 12){
+                h = h - 12;
+                session = "PM";
+            }
+            
+            h = (h < 10) ? "0" + h : h;
+            m = (m < 10) ? "0" + m : m;
+            s = (s < 10) ? "0" + s : s;
+            year = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`            
+            program_element.find($('#date_output_inner_div')).text(year)
+            var time = h + ":" + m + ":" + s + " " + session;            
+            program_element.find($('#clock_output_inner_div')).text(time)
+            return program_element            
+        }
+        async function showTime(){
+            var date = new Date();
+            var h = date.getHours(); // 0 - 23
+            var m = date.getMinutes(); // 0 - 59
+            var s = date.getSeconds(); // 0 - 59
+            var session = "AM";
+            
+            if(h == 0){
+                h = 12;
+            }
+            
+            if(h > 12){
+                h = h - 12;
+                session = "PM";
+            }
+            
+            h = (h < 10) ? "0" + h : h;
+            m = (m < 10) ? "0" + m : m;
+            s = (s < 10) ? "0" + s : s;
+            year = `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`
+            $('#date_output_inner_div').text(year);
+            var time = h + ":" + m + ":" + s + " " + session;
+            $('#clock_output_inner_div').text(time);
+            setTimeout(showTime, 1000);
+            
+        }
+        showTime();               
+</script>
+<script>
+        
+    // async function updateClock() {
+    //     const hrs = document.querySelectorAll('.hr');
+    //     const mins = document.querySelectorAll('.min');
+    //     const secs = document.querySelectorAll('.sec');
+    //   const day = new Date();
+    //   const hour = day.getHours();
+    //   const minutes = day.getMinutes();
+    //   const seconds = day.getSeconds();
+
+    //   const hrRotation = (30 * hour) + (0.5 * minutes);
+    //   const minRotation = 6 * minutes;
+    //   const secRotation = 6 * seconds;
+
+    //   hrs.forEach(hr => {
+    //     hr.style.transform = `translate(-50%, -100%) rotate(${hrRotation}deg)`;
+    //   });
+
+    //   mins.forEach(min => {
+    //     min.style.transform = `translate(-50%, -100%) rotate(${minRotation}deg)`;
+    //   });
+
+    //   secs.forEach(sec => {
+    //     sec.style.transform = `translate(-50%, -85%) rotate(${secRotation}deg)`;
+    //   });
+    // }
+
+    // updateClock();
+    // setInterval(updateClock, 1000);
+
+  </script>
+</body>
+</html>

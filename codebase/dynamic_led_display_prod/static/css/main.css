@@ -1,0 +1,31 @@
+.clock_element_output_container .add_border_clock{
+    border: 1px solid;
+}
+
+.element:hover{
+    border:1px solid white !important;
+}
+.shadow-custom{
+    box-shadow: 0 .15rem 1.75rem 0 rgba(58,59,69,.15)!important;
+}
+
+@keyframes moveLeftToRight {
+    0% {
+        left: 100%; /* Start from the right edge */
+    }
+    100% {
+        left: -100%; /* Move to the left edge */
+    }
+}
+
+#chart_container_rs485 img{
+    object-fit: cover;
+    transition: transform 0.5s; 
+}
+
+#chart_container_rs485 img:hover{
+    -ms-transform: scale(2); /* IE 9 */
+    -webkit-transform: scale(2); /* Safari 3-8 */
+    transform: scale(2); 
+    z-index: 1;    
+}

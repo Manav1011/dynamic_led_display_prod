@@ -1,0 +1,122 @@
+<style>
+    html,body{
+        font-size: 1rem;
+    }
+</style>
+<div class="col-lg-12 mb-4 card">                
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">SELECTED PROGRAM - <span id="currently_selected_program">None</span></h6>
+    </div>
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <select class="form-control form-select" aria-label="Default select example" oninput="program_animation_changed(event)">
+            <option selected value="default">Select Animation</option>
+            <option selected value="none">None</option>
+            <option value="w3-animate-top">Top</option>            
+            <option value="w3-animate-bottom">Bottom</option>
+            <option value="w3-animate-left">Left</option>  
+            <option value="w3-animate-right">Right</option>
+            <option value="w3-animate-opacity">Fade-IN</option>
+            <option value="w3-animate-fading">Fading</option>
+            <option value="w3-animate-zoom">Zoom</option>
+            <option value="w3-spin">Spin</option>
+            <script>
+                async function program_animation_changed(event){
+                    let selected_program = $('#currently_selected_program').text()
+                    if(selected_program.length > 0 && selected_program!= 'None' && selected_program != 'default'){
+                        if(ws_program_and_elements){
+                            ws_program_and_elements.send(JSON.stringify({
+                                client:'dashboard',
+                                page:'controller',
+                                action:'program_animation_changed',
+                                'selected_program':selected_program,
+                                new_animation:event.target.value
+                            }))
+                        }
+                    }
+                }
+            </script>
+          </select>
+    </div>
+    <div class="panel-div card-body d-flex" style="justify-content:center;">
+        <div class="panel_body" style="line-height:normal;width: 5.28cm;height: 4.23cm;font-size:1rem !important;background-color:black;">                             
+        </div>
+    </div>
+    </div>
+<script>
+    async function add_to_panel(elements,program_code=false,program_name=false,animation=false){        
+            let program_element = $(program_code)      
+            console.log('animation',animation)      
+            if(animation){
+                program_element.addClass(animation)
+            }
+            let panel_div = $('.panel_body')    
+            panel_div.html(program_element)        
+            if(elements){
+                elements.forEach((i) => {                    
+                    let newElement = $(i.fields.code)        
+                    newElement.resizable({
+                        containment: ".panel_body",
+                        stop: function(event, ui) {
+                            elementHTML = ui.helper.prop('outerHTML')
+                            if(ws_program_and_elements){
+                                ws_program_and_elements.send(JSON.stringify({
+                                    client:'dashboard',
+                                    page:'controller',
+                                    action:'update_element',                
+                                    'element_id':i.pk,
+                                    'element_code':elementHTML,
+                                    'selected_program':program_name
+                                }))
+                            }
+                          }
+                });
+                        newElement.draggable({ 
+                            containment: ".panel_body" ,
+                            stop: function(event, ui) {
+                                elementHTML = ui.helper.prop('outerHTML')
+                                if(ws_program_and_elements){
+                                    ws_program_and_elements.send(JSON.stringify({
+                                        client:'dashboard',
+                                        page:'controller',
+                                        action:'update_element',                
+                                        'element_id':i.pk,
+                                        'element_code':elementHTML,
+                                        'selected_program':program_name
+                                    }))
+                                }
+                            }
+                        });                    
+                    newElement.attr('data-element-id',i.pk)
+                   // newElement.hover(function() {                        
+                   //     $(this).css('border', '1px solid');
+                   // }, function() {                        
+                   //     $(this).css('border', 'none');
+                   // });                    
+                    newElement.css('padding','0')                    
+                    newElement.css('background','none')
+                    program_element.append(newElement)
+                    if(ws_panel_changed_events){
+                        ws_panel_changed_events.send(JSON.stringify({
+                            client:'dashboard',
+                            page:'controller',
+                            action:'update_program',
+                            program_code:program_element.prop('outerHTML'),
+                            'selected_program':program_name
+                        }))
+                    }
+                })  
+            }else{
+                console.log(program_code)
+                if(ws_panel_changed_events){
+                    ws_panel_changed_events.send(JSON.stringify({
+                        client:'dashboard',
+                        page:'controller',
+                        action:'update_program',
+                        program_code:program_element.prop('outerHTML'),
+                        'selected_program':program_name
+                    }))
+                }
+            }
+
+        }
+    </script>

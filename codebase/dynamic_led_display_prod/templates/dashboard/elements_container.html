@@ -1,0 +1,85 @@
+<div class="col-lg-12 mb-4">
+    <div class="card shadow-custom mb-4">
+        <!-- Card Header - Dropdown -->        
+        <div class="card-header py-3 flex-row align-items-center justify-content-between program-running-time-div d-none">
+            <h6 class="m-0 font-weight-bold text-primary">Running Time</h6>
+            <h6 class="m-0 font-weight-bold text-primary"> 
+                <i class="btn btn-sm btn-outline-success mr-2 bi bi-dash decrement-sequence" onclick="program_running_sequence_changed(event)"></i><span id="program_running_time"></span><i class="bi bi-plus ml-2 btn btn-sm btn-outline-danger increment-sequence" onclick="program_running_sequence_changed(event)"></i> <span class="ml-2">Seconds</span>
+                <script>
+                    async function program_running_sequence_changed(event){
+                        let selected_program = $('#currently_selected_program').text()
+                        let sequence_val = parseInt($('#program_running_time').text()) 
+                        if (event.target.classList.contains("decrement-sequence")) {
+                            if(sequence_val > 1){
+                                sequence_val-=1
+                                $('#program_running_time').text(sequence_val)
+                                if(program_running_time){
+                                    program_running_time[selected_program] = sequence_val
+                                }
+                                if(ws_program_and_elements){
+                                    ws_program_and_elements.send(JSON.stringify({
+                                        client:'dashboard',
+                                        page:'controller',
+                                        action:'program_sequence_changed',
+                                        'selected_program':selected_program,
+                                        new_running_time:sequence_val
+                                    }))
+                                }
+                            }
+                        }
+                        if (event.target.classList.contains("increment-sequence")) {                            
+                            sequence_val+=1
+                            $('#program_running_time').text(sequence_val)
+                            if(program_running_time){
+                                    program_running_time[selected_program] = sequence_val
+                                }
+                            if(ws_program_and_elements){
+                                ws_program_and_elements.send(JSON.stringify({
+                                    client:'dashboard',
+                                    page:'controller',
+                                    action:'program_sequence_changed',
+                                    'selected_program':selected_program,
+                                    new_running_time:sequence_val
+                                }))
+                            }
+                        }
+                    }
+                </script>
+            </h6>                        
+        </div>
+        
+        <!-- Card Body -->
+        <div class="card-body" id="elements_container">
+        
+        </div>
+    </div>
+</div>
+<script>
+    async function elemetfontsizechanged(event){
+        let element_id = parseInt(event.target.getAttribute('data-element-id'))
+        var element_content = $(`.program_boundry > [data-element-id="${element_id}"]`);                
+        let value = event.target.value
+        //let element_content = $(event.target.parentNode.parentNode).find(`.element${element_id} .text_element_output`)        
+        element_content.css('font-size', `${value}cm`);
+    }
+    async function elemetfontweightchanged(event){        
+        let element_id = parseInt(event.target.getAttribute('data-element-id'))
+        var element_content = $(`.program_boundry > [data-element-id="${element_id}"]`);        
+        let value = event.target.value        
+        //let element_content = $(event.target.parentNode.parentNode).find(`.element${element_id} .text_element_output`)        
+        element_content.css('font-weight', `${value}`);
+    }
+    async function updateElementOverall(element_id,program_name){        
+        var el = $(`.program_boundry > [data-element-id="${element_id}"]`);
+        if(ws_program_and_elements){
+            ws_program_and_elements.send(JSON.stringify({
+                client:'dashboard',
+                page:'controller',
+                action:'update_element',                
+                'element_id':element_id,
+                'element_code':el.prop('outerHTML'),
+                'selected_program':program_name
+            }))
+        }
+    }
+</script>

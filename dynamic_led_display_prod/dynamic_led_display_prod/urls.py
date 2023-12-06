@@ -20,6 +20,9 @@ from . import views
 from django.conf.urls.static import static
 from django.conf import settings
 from django.views.static import serve
+import threading
+from serial_comm.management.scripts.producer import connect_to_websocket
+import asyncio
 
 
 
@@ -33,3 +36,14 @@ urlpatterns = [
     re_path(r"^media/(?P<path>.*)$", serve, {"document_root": settings.MEDIA_ROOT}),
     re_path(r"^static/(?P<path>.*)$", serve, {"document_root": settings.STATIC_ROOT}),
 ]
+
+def run_the_producer():
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(connect_to_websocket())
+
+
+# thread = threading.Thread(target=run_the_producer)
+# thread.start()
+# thread.join()
+# asyncio.get_event_loop().run_until_complete(connect_to_websocket())
