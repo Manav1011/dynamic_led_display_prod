@@ -1,2 +1,0 @@
-we'll have to use windows task manager as a alternative for cron jobs
-also have to find an alternative for nginx installation for windows
