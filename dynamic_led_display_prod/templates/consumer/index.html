@@ -241,12 +241,15 @@
             program_element.css('width','5.08cm')            
             program_element.css('left','0')                        
             if(program_element.ready(() => {                                
-                if(program_element.find(program_element.find('.card-body #date_output_inner_div').length) || program_element.find('.card-body #clock_output_inner_div').length){
-                console.log('here')
+                if(program_element.find(program_element.find('.card-body #date_output_inner_div').length) || program_element.find('.card-body #clock_output_inner_div').length){                
                 program_element = updateElementTime(program_element)                                        
                 }
             }))
             programDisplay.html(program_element)
+            let videoElement = program_element.find('video');
+            if(videoElement.length > 0){
+                videoElement.get(0).play();
+            }
             if(PanelPrograms.length > 1){
                 CurrentSetTimeout = setTimeout(() => {                
                     currentProgramIndex++;

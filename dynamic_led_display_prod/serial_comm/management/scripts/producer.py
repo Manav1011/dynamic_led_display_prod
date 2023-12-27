@@ -67,7 +67,9 @@ def update_dict_with_values(dict_to_stream,values_list):
 def send_avgs(data_list):
     print(data_list)
 
+rain_only = 0
 async def read_serial_port(serial_port,websocket = None):
+    global rain_only
     global minutes_data
     time_to_send = 5
     time_to_store = 60
@@ -88,7 +90,7 @@ async def read_serial_port(serial_port,websocket = None):
                 await send_messages(websocket,data={'client':'producer','device':'rs485','action':'stream','frame':dict_to_stream})
                 time_to_send = 5
             time_to_store-=1                
-            if time_to_store == 0:                         
+            if time_to_store == 0:                
                 dict_to_store = find_averages(dict_to_store=dict_to_store,stored_list=stored_list)
                 # send_avgs(minutes_data)
                 await send_messages(websocket,data={'client':'producer','device':'rs485','action':'store','frame':dict_to_store})
@@ -101,7 +103,6 @@ async def read_serial_port(serial_port,websocket = None):
 
     finally:
         pass
-
 
 # if __name__ == "__main__":
 async def connect_to_websocket():

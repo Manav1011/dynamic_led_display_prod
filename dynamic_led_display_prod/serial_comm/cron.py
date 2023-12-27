@@ -4,7 +4,7 @@ import pandas as pd
 from scipy.stats import circmean
 
 # Function will be running every day and insert new averages per day
-def fill_daily_states():
+def fill_daily_states():    
     today = date.today()    
     objs = list(SerialCommunication.objects.filter(RTC__date = today).values())
     if(not objs):        

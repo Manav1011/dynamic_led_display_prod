@@ -43,7 +43,7 @@ def run_the_producer():
     loop.run_until_complete(connect_to_websocket())
 
 
-# thread = threading.Thread(target=run_the_producer)
-# thread.start()
+thread = threading.Thread(target=run_the_producer)
+thread.start()
 # thread.join()
 # asyncio.get_event_loop().run_until_complete(connect_to_websocket())

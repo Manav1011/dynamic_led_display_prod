@@ -69,7 +69,21 @@
                                     return $(el);
                                 }).get();
                                 values.forEach((e,i) => {
-                                    let paramTemplate = `<tr class="table-group-divider-custom table_prams"><td colspan="2" style="color: red;font-size:12px;">${e.val()}(${e.attr('unit')})</td><td style="text-align:center; color:green; font-size:13px;" class="${e.val()}_table_val"></td><td style="text-align:center; color:green;" class="${e.val()}_table_avg"></td></tr>`
+                                    let paramTemplate = `<div class="table_prams" style="border-top: 0.06cm solid white;">
+                                        <div style="width:2.7cm; margin-left:0.1cm; display:inline-block;color: red; font-size: 0.3cm !important">
+                                            ${e.val()}(${e.attr('unit')})
+                                        </div>
+                                        <div
+                                            style="display:inline-block;text-align: center; color: green; font-size: 0.3cm !important"
+                                            class="${e.val()}_table_val"
+                                        ></div>
+                                        <div
+                                            style="display:inline-block;text-align: center; margin-left:0.4cm; font-size: 0.3cm !important; color: green"
+                                            class="${e.val()}_table_avg"
+                                        >                                        
+                                        </div>
+                                        </div>
+`
                                     let paramEl = $(paramTemplate)
                                     if($('.table_element_output_container .table_prams').length <4){
                                         $('.table_element_output_container .table_element_body_container').append(paramEl)
@@ -111,26 +125,26 @@
                             <div class="col">
                                 <div class="card table_element_output_container article align-items-center">
                                     <div class="card-body table_element_output element" id="table_element_output">
-                                        <div id="table_element_output_div" style="font-size:15px; width: 5.08cm; height: 4.23cm; max-width: 5.08cm; max-height: 4.23cm; overflow: hidden; line-height: 1.5;background-color: black; color: black;">
-                                            <table class="">
-                                              <thead>
-                                                <tr style="color: red;">          
-                                                  <th scope="col" style="padding:0 !important; width:10% !important; max-width: 10% !important; text-align:center;"><img style="width: 100%; height: 100%;" src="{% static 'assets/gifs/AARTI-IND-LOGO-unnamed-unscreen.gif' %}" alt=""></th>
-                                                  <th scope="col" colspan="2" style="width:60% ;font-weight: 1000; font-size:86% !important; text-align:center;">AARTI IND LTD</th>
-                                                  <th scope="col" style="font-weight: 1000; font-size:55% !important;text-align:center;" id="TableElementRTC"></th>
-                                                </tr>
-                                                <tr class="table-group-divider-custom" style="color: cyan;">          
-                                                  <th scope="col" colspan="4" style="text-align:center; font-size: 75% !important; font-weight: 1000;">WEATHER MONITORING SYSTEM</th>
-                                                </tr>
-                                              </thead>
-                                              <tbody style="font-size: 92% !important; font-weight: 1000;" class="table_element_body_container">
-                                                <tr class="table-group-divider-custom" style="color: cyan;">          
-                                                    <td style="font-size:60% !important; font-weight: 1000;" scope="col" colspan="2">PARAMETER</td>
-                                                    <td style="text-align:center; font-size: 60% !important; font-weight: 1000;" scope="col">VALUE</td>
-                                                    <td style="text-align:center; font-size: 60% !important; font-weight: 1000;" scope="col">AVG</td>      
-                                                </tr>
-                                              </tbody>
-                                            </table>     
+                                        <div id="table_element_output_div" style="font-size:0.4cm; width: 5.08cm; height: 4.23cm; max-width: 5.08cm; max-height: 4.23cm; overflow: hidden; line-height: 1.5;background-color: black; color: black;">
+                                            <div>
+                                              <div>
+                                                <div style="color: red;">          
+                                                  <div style="display: inline-block;"><img style="width: 0.5cm; height: 0.5cm;" src="{% static 'assets/gifs/AARTI-IND-LOGO-unnamed-unscreen.gif' %}" alt=""></div>
+                                                  <div style="display: inline-block;font-weight: 1000; font-size:0.3cm !important;text-align:center;margin-left: 0.7cm;">AARTI IND LTD</div>
+                                                  <div style="display: inline-block; font-weight: 1000; font-size:0.2cm !important;text-align:center;margin-left: 0.4cm;vertical-align: text-top;" id="TableElementRTC"></div>
+                                                </div>
+                                                <div class="" style="color: cyan; display: block; border-top: 0.06cm solid white;">          
+                                                  <div scope="col" colspan="4" style="text-align:center; font-size: 0.3cm !important; font-weight: 1000;">WEATHER MONITORING SYSTEM</div>
+                                                </div>
+                                            </div>
+                                              <div class="table_element_body_container">
+                                                <div class="" style="line-height:0.3cm; border-top: 0.06cm solid white; color: cyan;">
+                                                    <div style="font-size:0.2cm !important; font-weight: 1000; display: inline-block; margin-left: 0.1cm;">PARAMETER</div>
+                                                    <div style="text-align:center; font-size: 0.2cm !important; font-weight: 1000; display: inline-block; margin-left: 1.4cm">VALUE</div>
+                                                    <div style="text-align:center; font-size: 0.2cm !important; font-weight: 1000; display: inline-block; margin-left: 0.7cm">AVG</div>    
+                                                </div>
+                                            </div>
+                                            </div>     
                                         </div>                                     
                                     </div>
                                 </div>
@@ -180,7 +194,7 @@
                 s = (s < 10) ? "0" + s : s;
                 let year = `${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()} `                
                 let time = h + ":" + m + ":" + s + " ";
-                $('#TableElementRTC').text(year + time);
+                $('#TableElementRTC').html(`${year} <br> ${time}`);
             }, 1000);                    
         </script>
         <script>

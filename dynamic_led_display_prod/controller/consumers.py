@@ -364,6 +364,7 @@ class PanelChangedConsumer(AsyncWebsocketConsumer):
                         'action':'configs_changed',
                         'program_data':program_data
             }))
+            
     @database_sync_to_async
     def handle_channel_join_leave_event(self,action,channel_name):
         panel_obj = Panel.objects.first()
