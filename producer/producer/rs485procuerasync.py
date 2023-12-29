@@ -87,9 +87,6 @@ async def read_and_print(aioserial_instance: aioserial.AioSerial, write_data: by
             await send_messages(websocket,
                                 data={'client': 'producer', 'device': 'rs485', 'action': 'stream',
                                       'frame': dict_to_stream})
-        # if b'\n' in data:
-        #     aioserial_instance.close()
-        #     break
 
 
 async def main():

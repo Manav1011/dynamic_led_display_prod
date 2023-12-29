@@ -91,8 +91,7 @@ try:
                 print(dict_to_stream)
                 time_to_store-=1                
                 if time_to_store == 1:  
-                    rain = dict_to_stream['RAIN']
-                    print(rain)            
+                    rain = dict_to_stream['RAIN']                                
                     dict_to_store = find_averages(dict_to_store=dict_to_store,stored_list=stored_list)
                     # send_avgs(minutes_data)
                     stored_list = []
