@@ -29,3 +29,16 @@
     transform: scale(2); 
     z-index: 1;    
 }
+
+body::-webkit-scrollbar {
+    width: 0em;
+}
+
+body::-webkit-scrollbar-thumb {
+    background-color: transparent; /* You can set a color here if you want a custom scrollbar thumb */
+}
+
+body {
+    overflow: hidden; /* Hide scrollbars */
+    scrollbar-width: thin; /* For Firefox */
+}

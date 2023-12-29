@@ -1,4 +1,8 @@
 {% load static %}
+<script>
+  // globals
+  var resetPlottingContainer = null;
+</script>
 <div class="col-lg-12 mb-4" id="container_rs485">
   <div class="card bg-light shadow mb-4">
     <!-- Card Header - Dropdown -->
@@ -17,7 +21,17 @@
     <div class="rs485-body">
       <div class="card-body">
         <div class="404_gif text-center">
-          <img src='{% static "assets/gifs/404.gif" %}' style="height:100%; width: 100%; max-width:500px;max-height: 500px;" alt="" srcset="" />
+          <img
+            src='{% static "assets/gifs/404.gif" %}'
+            style="
+              height: 100%;
+              width: 100%;
+              max-width: 500px;
+              max-height: 500px;
+            "
+            alt=""
+            srcset=""
+          />
         </div>
         <div class="485_content d-none">
           <div class="row">
@@ -37,116 +51,131 @@
                 </div>
               </div>
             </div>
-            <div class="col-lg-12 mb-4">
-              <!-- <div
-                class="card bg-light shadow mb-4"
-                id="currently_showing_params_rs485"
-              >                
-                <div class="card-body">
-                  <div class="card-header" id="currently_showing_header_rs485">
-                    Barometric Pressure
-                  </div>
-                  <div class="card-body">
-                    <div class="row" style="align-items: center; justify-content: center;">
-                      <div class="col-6">
-                        <img
-                          id="currently_showing_param_icon_rs485"
-                          src="media/icons/BPRS.png"
-                          alt=""
-                          style="width: 100%; height: auto; max-width: 300px!important;"
-                        />
-                      </div>
-                      <div class="col-6 text-center">
-                        <h1
-                          style="font-size: 3rem; font-weight: 1000"
-                          id="currently_showing_param_value_rs485"
-                        ></h1>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div> -->
-            </div>
-
             <!-- Plot -->
-            <div
-              class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
-            >
-              <div
-                class="btn-group row w-100"
-                role="group"
-                aria-label="Basic mixed styles example"
-              >
-              <div class="d-flex" style="justify-content: space-evenly; flex-wrap: wrap;">
-                <button type="button" class="col-3 btn btn-outline-dark" data-toggle="collapse" data-target="#windrosecollapse" aria-expanded="false" aria-controls="windrosecollapse">Windrose</button>
-                <button type="button" class="col-3 btn btn-outline-dark" data-toggle="collapse" data-target="#linecollapse" aria-expanded="false" aria-controls="linecollapse">Line</button>
-                <button type="button" class="col-3  btn btn-outline-dark" data-toggle="collapse" data-target="#areacollapse" aria-expanded="false" aria-controls="areacollapse">Area</button>                
-              </div>
-                <!-- <select
-                  class="form-select col-12 text-center"
-                  style="border: 1px solid lightgray;"
-                  aria-label="Default select example"
-                  onchange="states_config_changed(event)"
-                  autocomplete="off"
-                >
-                  <option value="line_chart" selected>
-                    Select Visulization Format
-                  </option>
-                  <option value="line_chart"><button></button></option>
-                  <option value="WindRose">WindRose</option>
-                  <option value="2">Area</option>
-                  <option value="3">Three</option>
-                </select>
-                <script>
-                  async function states_config_changed(event) {
-                    let value = event.target.value;
-                    $(".chart_forms").addClass("d-none");
-                    if (value == "WindRose") {
-                      await show_windrose_form();
-                    }
-                    if (value == "line_chart") {
-                      await show_line_form();
-                    }
+            <div id="plottingcontainer"> 
+              <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                  plottingcontainerinit = document.getElementById("plottingcontainer").innerHTML;
+                  resetPlottingContainer = () => {
+                    document.getElementById("plottingcontainer").innerHTML = plottingcontainerinit
                   }
-                </script> -->
-                <!-- <button type="button" class="col-12 btn btn-outline-danger" onclick="get_windrose_chart_rs485()">Wind Rose</button> -->
-              </div>
-            </div>
-            <div class="collapse" id="areacollapse">
-              <div class="d-flex my-3" style="flex-direction: column;">
-                <div class="d-flex" style="justify-content: space-evenly;">
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="areachartparam" id="HUMD" value="HUMD">
-                    <label class="form-check-label" for="flexRadioDefault1">
-                        HUMD
-                    </label>
+                });
+              </script>
+              <div class="card-header text-center py-3 d-flex flex-row align-items-center justify-content-between">
+                <div class="card border-secondary mb-3 w-100">
+                  <div class="card-header">Charts</div>
+                  <div class="card-body text-secondary">
+                    <div
+                      class="btn-group row w-100"
+                      role="group"
+                      aria-label="Basic mixed styles example"
+                    >
+                      <div
+                        class="d-flex"
+                        style="justify-content: space-evenly; flex-wrap: wrap"
+                      >
+                        <button
+                          type="button"
+                          class="col-3 btn btn-outline-dark"
+                          data-toggle="collapse"
+                          data-target="#windrosecollapse"
+                          aria-expanded="false"
+                          aria-controls="windrosecollapse"
+                        >
+                          Windrose
+                        </button>
+                        <button
+                          type="button"
+                          class="col-3 btn btn-outline-dark"
+                          data-toggle="collapse"
+                          data-target="#linecollapse"
+                          aria-expanded="false"
+                          aria-controls="linecollapse"
+                        >
+                          Line
+                        </button>
+                        <button
+                          type="button"
+                          class="col-3 btn btn-outline-dark"
+                          data-toggle="collapse"
+                          data-target="#areacollapse"
+                          aria-expanded="false"
+                          aria-controls="areacollapse"
+                        >
+                          Area
+                        </button>
+                      </div>
                     </div>
+                  </div>
+                  <div class="card-footer text-muted btn border-primary" onclick="resetPlottingContainer()">Reset</div>
+                </div>
+              </div>
+              <!-- Collapses -->
+            <div class="collapse" id="areacollapse">
+              <div class="d-flex my-3" style="flex-direction: column">
+                <div class="d-flex" style="justify-content: space-evenly">
                   <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="areachartparam" id="SRAD" value="SRAD">
+                    <input
+                      class="form-check-input"
+                      type="radio"
+                      name="areachartparam"
+                      id="HUMD"
+                      value="HUMD"
+                    />
+                    <label class="form-check-label" for="flexRadioDefault1">
+                      HUMD
+                    </label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input
+                      class="form-check-input"
+                      type="radio"
+                      name="areachartparam"
+                      id="SRAD"
+                      value="SRAD"
+                    />
                     <label class="form-check-label" for="flexRadioDefault2">
                       SRAD
                     </label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input
+                      class="form-check-input"
+                      type="radio"
+                      name="areachartparam"
+                      id="BPRS"
+                      value="BPRS"
+                    />
+                    <label class="form-check-label" for="flexRadioDefault2">
+                      BPRS
+                    </label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input
+                      class="form-check-input"
+                      type="radio"
+                      name="areachartparam"
+                      id="DWPT"
+                      value="DWPT"
+                    />
+                    <label class="form-check-label" for="flexRadioDefault2">
+                      DWPT
+                    </label>
+                  </div>
                 </div>
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="radio" name="areachartparam" id="BPRS" value="BPRS">
-                  <label class="form-check-label" for="flexRadioDefault2">
-                    BPRS
-                  </label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="areachartparam" id="DWPT" value="DWPT">
-                <label class="form-check-label" for="flexRadioDefault2">
-                  DWPT
-                </label>
-            </div>
-                </div>
-                <button class="btn btn-outline-dark d-block w-100" onclick="get_the_area_chart()" >
-                        Get The Chart
+                <button
+                  class="btn btn-outline-dark d-block w-100"
+                  onclick="get_the_area_chart()"
+                >
+                  Get The Chart
                 </button>
               </div>
             </div>
             <div class="collapse" id="linecollapse">
-              <div class="col-xl-12 col-lg-12 mt-4 chart_forms" id="line_form_container" >
+              <div
+                class="col-xl-12 col-lg-12 mt-4 chart_forms"
+                id="line_form_container"
+              >
                 <div class="card shadow mb-4 text-center">
                   <!-- Card Header - Dropdown -->
                   <!-- Card Body -->
@@ -303,13 +332,15 @@
                               "src",
                               `${window.location.origin}/media/loading.gif`
                             );
-                            $('#linecollapse').collapse('hide')
+                          $("#linecollapse").collapse("hide");
                         }
                       }
                       async function get_the_area_chart() {
-                        let areaChartParam = $('input[name="areachartparam"]:checked').val();                        
+                        let areaChartParam = $(
+                          'input[name="areachartparam"]:checked'
+                        ).val();
                         if (ws_serial_communcation_rs485) {
-                          console.log(ws_serial_communcation_rs485)
+                          console.log(ws_serial_communcation_rs485);
                           ws_serial_communcation_rs485.send(
                             JSON.stringify({
                               client: "consumer",
@@ -330,7 +361,7 @@
                               "src",
                               `${window.location.origin}/media/loading.gif`
                             );
-                            $('#areacollapse').collapse('hide')
+                          $("#areacollapse").collapse("hide");
                         }
                       }
                     </script>
@@ -338,8 +369,11 @@
                 </div>
               </div>
             </div>
-            <div class="collapse" id="windrosecollapse">
-              <div class="col-xl-12 col-lg-12 mt-4 chart_forms" id="windrose_form_container">
+            <div class="collapse" id="windrosecollapse" onload="windrosecollapse_loaded()" >
+              <div
+                class="col-xl-12 col-lg-12 mt-4 chart_forms"
+                id="windrose_form_container"
+              >
                 <div class="card shadow mb-4 text-center">
                   <!-- Card Header - Dropdown -->
                   <!-- Card Body -->
@@ -383,7 +417,12 @@
                 </div>
               </div>
             </div>
-            <div class="col-xl-6 col-lg-6">
+            <!-- Collapses -->
+            </div>
+
+            
+
+            <div class="col-xl-12 col-lg-12">
               <div class="card shadow mb-4">
                 <!-- Card Header - Dropdown -->
                 <!-- Card Body -->
@@ -403,7 +442,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-xl-6 col-lg-6">
+            <div class="col-xl-12 col-lg-12">
               <div class="card shadow mb-4">
                 <!-- Card Header - Dropdown -->
 
@@ -446,9 +485,13 @@
                     })
                   );
                 }
-                $("#chart_container_rs485").find("img").attr("src", `${window.location.origin}/media/loading.gif`);
-                $("#stats_df_container_rs485").find("img").attr("src", `${window.location.origin}/media/loading.gif`);
-                $('#windrosecollapse').collapse('hide');
+                $("#chart_container_rs485")
+                  .find("img")
+                  .attr("src", `${window.location.origin}/media/loading.gif`);
+                $("#stats_df_container_rs485")
+                  .find("img")
+                  .attr("src", `${window.location.origin}/media/loading.gif`);
+                $("#windrosecollapse").collapse("hide");
               }
             </script>
           </div>
@@ -485,21 +528,21 @@
     P16: ["Parameter 16", `${window.location.origin}/media/icons/default.png`],
   };
   var min_max = {
-    WSPD:[0,0],
-    WDIR:[0,0],
-    ATMP:[0,0],
-    HUMD:[0,0],
-    RAIN:[0,0],
-    SRAD:[0,0],
-    BPRS:[0,0],
-    WDCH:[0,0],
-    DWPT:[0,0],
-    P12:[0,0],
-    P13:[0,0],
-    P14:[0,0],
-    P15:[0,0],
-    P16:[0,0]
-  }
+    WSPD: [0, 0],
+    WDIR: [0, 0],
+    ATMP: [0, 0],
+    HUMD: [0, 0],
+    RAIN: [0, 0],
+    SRAD: [0, 0],
+    BPRS: [0, 0],
+    WDCH: [0, 0],
+    DWPT: [0, 0],
+    P12: [0, 0],
+    P13: [0, 0],
+    P14: [0, 0],
+    P15: [0, 0],
+    P16: [0, 0],
+  };
   var rs485_live_chart = null;
   var currently_showring_chart = null;
   var current_rs485_frame = null;
@@ -507,8 +550,8 @@
     labels: [],
     datasets: [],
   };
-  async function make_live_rs485_chart(stream) {       
-    // Set min max        
+  async function make_live_rs485_chart(stream) {
+    // Set min max
     if (rs485_live_chart == null) {
       currently_showring_chart =
         currently_showring_chart == null ? "BPRS" : currently_showring_chart;
@@ -522,17 +565,17 @@
         } else {
           if (i == currently_showring_chart) {
             // set min max
-            let value = parseFloat(stream[i]).toFixed(2)
-            min_max[currently_showring_chart][0] = value
-            min_max[currently_showring_chart][1] = value
-            let label = `${weatherData[currently_showring_chart][0]} Min : ${min_max[currently_showring_chart][0]} Max: ${min_max[currently_showring_chart][1]}`
+            let value = parseFloat(stream[i]).toFixed(2);
+            min_max[currently_showring_chart][0] = value;
+            min_max[currently_showring_chart][1] = value;
+            let label = `${weatherData[currently_showring_chart][0]} Min : ${min_max[currently_showring_chart][0]} Max: ${min_max[currently_showring_chart][1]}`;
             $("#currently_showing_param_value_rs485").text(value);
             let obj = {
               label: label,
-              borderColor: 'green',
+              borderColor: "green",
               data: [stream[i]],
-              fill: true,              
-              borderJoinStyle:'round'
+              fill: true,
+              borderJoinStyle: "round",
             };
             rs_485_chart_data.datasets.push(obj);
           }
@@ -572,16 +615,18 @@
             rs485_live_chart.data.datasets[0] &&
             key == currently_showring_chart
           ) {
-            if(min_max[currently_showring_chart][0] > value){
-              min_max[currently_showring_chart][0] = parseFloat(value).toFixed(2)
+            if (min_max[currently_showring_chart][0] > value) {
+              min_max[currently_showring_chart][0] =
+                parseFloat(value).toFixed(2);
             }
-            if(min_max[currently_showring_chart][1] < value){
-              min_max[currently_showring_chart][1] = parseFloat(value).toFixed(2)
+            if (min_max[currently_showring_chart][1] < value) {
+              min_max[currently_showring_chart][1] =
+                parseFloat(value).toFixed(2);
             }
-            value = parseFloat(value).toFixed(2)            
-            $("#currently_showing_param_value_rs485").text(value);                        
-            let label = `${weatherData[currently_showring_chart][0]} Min : ${min_max[currently_showring_chart][0]} Max: ${min_max[currently_showring_chart][1]}`
-            rs485_live_chart.data.datasets[0].label = label
+            value = parseFloat(value).toFixed(2);
+            $("#currently_showing_param_value_rs485").text(value);
+            let label = `${weatherData[currently_showring_chart][0]} Min : ${min_max[currently_showring_chart][0]} Max: ${min_max[currently_showring_chart][1]}`;
+            rs485_live_chart.data.datasets[0].label = label;
             rs485_live_chart.data.datasets[0].data.push(value);
             if (rs485_live_chart.data.datasets[0].data.length > 30) {
               rs485_live_chart.data.datasets[0].data.shift();
@@ -589,9 +634,9 @@
           }
         } else {
           let date = new Date(value);
-          let hour = date.getHours()
+          let hour = date.getHours();
           let minutes = date.getMinutes();
-          let seconds = date.getSeconds();          
+          let seconds = date.getSeconds();
           rs485_live_chart.data.labels.push(`${hour}:${minutes}:${seconds}`);
         }
       }
@@ -607,7 +652,7 @@
       ws_serial_communcation_rs485 = new WebSocket(
         `wss://${window.location.host}/ws/serial_communication/consumer/`
       );
-      window.rs485_data_socket = ws_serial_communcation_rs485
+      window.rs485_data_socket = ws_serial_communcation_rs485;
       ws_serial_communcation_rs485.onopen = async function () {
         ws_serial_communcation_rs485.send(
           JSON.stringify({
@@ -625,9 +670,9 @@
           received_msg.frame &&
           received_msg.device
         ) {
-            $('.485_param_select').removeClass('d-none')
-            $('.485_content').removeClass('d-none')
-            $('.404_gif').addClass('d-none')
+          $(".485_param_select").removeClass("d-none");
+          $(".485_content").removeClass("d-none");
+          $(".404_gif").addClass("d-none");
           let rs485_container = $(`#container_${received_msg.device}`);
           rs485_container.removeClass("d-none");
           await make_live_rs485_chart(received_msg.frame);
@@ -680,6 +725,13 @@
   }
 </script>
 <script>
+  function getRandomColor() {    
+    var randomColor = Math.floor(Math.random() * 16777215).toString(16);
+    while (randomColor.length < 6) {
+        randomColor = '0' + randomColor;
+    }    
+    return '#' + randomColor;
+}
   async function add_range_elements() {
     $("#add_windrose_range_container").hide();
     $("#get_windrose_button").removeClass("d-none");
@@ -699,7 +751,7 @@
                             <label for="exampleInputEmail1" class="form-label" id="wind_range_${i}_max_label">-</label>
                         </div>
                         <div class="col-4">
-                            <input type="color" class="form-control form-control-color" id="wind_range_${i}_color" value="#563d7c" title="Choose your color">
+                            <input type="color" class="form-control form-control-color" id="wind_range_${i}_color" value="${getRandomColor()}" title="Choose your color">
                         </div>
                     </div>                                        
                 </div>`;
@@ -750,14 +802,19 @@
     await get_windrose_chart_rs485(RangeElementValues, ColorElementValues);
     // $("#windrose_form_container").addClass("d-none");
   }
-  async function parameters_select_rs485_changed(event){
-        currently_showring_chart = event.target.value
-        $('#currently_showing_header_rs485').text(weatherData[currently_showring_chart][0])
-        $('#currently_showing_param_icon_rs485').attr('src',weatherData[currently_showring_chart][1])
-        rs485_live_chart = null
-        rs_485_chart_data = {
-            labels: [],
-            datasets: []
-        }; 
-    }
+  async function parameters_select_rs485_changed(event) {
+    currently_showring_chart = event.target.value;
+    $("#currently_showing_header_rs485").text(
+      weatherData[currently_showring_chart][0]
+    );
+    $("#currently_showing_param_icon_rs485").attr(
+      "src",
+      weatherData[currently_showring_chart][1]
+    );
+    rs485_live_chart = null;
+    rs_485_chart_data = {
+      labels: [],
+      datasets: [],
+    };
+  }
 </script>

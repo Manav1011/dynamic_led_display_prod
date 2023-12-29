@@ -129,7 +129,7 @@ class SerialConsumer(AsyncWebsocketConsumer):
         speed_dir_objs = SerialCommunication.objects.filter(device=device).values('WSPD','WDIR')
         df = pd.DataFrame(speed_dir_objs).apply(pd.to_numeric,errors='coerce', downcast='float').round(3)
         wdir_mean = round(circmean(df['WDIR'], high=360, low=0),3)
-        summary_df = df.describe().T
+        summary_df = df.describe().applymap(lambda x: f'{x:.2f}').T
         summary_df.loc['WDIR']['mean'] = wdir_mean
         summary_df = summary_df[['count','min','max','mean']].T
         table_html = summary_df.to_html(classes='table table-bordered table-striped text-center', escape=False, index=True,justify='center').replace('\n','')
@@ -160,7 +160,7 @@ class SerialConsumer(AsyncWebsocketConsumer):
         RTC_DF = df_params['RTC']
         del df_params['RTC']     
         FLOAT_DF = df_params.apply(pd.to_numeric,errors='coerce', downcast='float').round(3)
-        summary_df = FLOAT_DF.describe()
+        summary_df = FLOAT_DF.describe().applymap(lambda x: f'{x:.2f}')
         table_html = summary_df.to_html(classes='table table-bordered table-striped text-center', escape=False, index=True,justify='center').replace('\n','')
         for i in params:
             if i != 'RTC':
@@ -186,11 +186,11 @@ class SerialConsumer(AsyncWebsocketConsumer):
         df_params = pd.DataFrame(line_chart_objs)                
         # del df_params['RTC']     
         FLOAT_DF = df_params[value].apply(pd.to_numeric,errors='coerce', downcast='float').round(3)
-        summary_df = pd.DataFrame(FLOAT_DF).describe()        
+        summary_df = pd.DataFrame(FLOAT_DF).describe().applymap(lambda x: f'{x:.2f}')       
         table_html = summary_df.to_html(classes='table table-bordered table-striped text-center', escape=False, index=True,justify='center').replace('\n','')
         df_params.set_index('RTC', inplace=True)
         plt.figure(figsize=(10, 6))
-        plt.fill_between(df_params.index, FLOAT_DF, color='skyblue', alpha=0.4, label='Humidity Area')
+        plt.fill_between(df_params.index, FLOAT_DF, color='skyblue', alpha=0.4, label=f"{value} area")
         plt.plot(df_params.index, FLOAT_DF, color='blue', label=f'{value} Line', marker='o')
         plt.title(f'{value} Over Time')
         plt.xlabel('Time')

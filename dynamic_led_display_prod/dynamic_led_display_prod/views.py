@@ -15,6 +15,7 @@ def consumer(request):
     return render(request, 'consumer/index.html')
 
 def testing(request):
+    return render(request, 'consumer/testing.html')
     response = HttpResponse(content_type="text/event-stream")
     response["Cache-Control"] = "no-cache"
     response["Connection"] = "keep-alive"
