@@ -90,13 +90,13 @@ async def read_serial_port(serial_port,websocket = None):
                 await send_messages(websocket,data={'client':'producer','device':'rs485','action':'stream','frame':dict_to_stream})
                 time_to_send = 5
             time_to_store-=1                
-            if time_to_store == 0:                
+            if time_to_store == 0:
                 dict_to_store = find_averages(dict_to_store=dict_to_store,stored_list=stored_list)
                 # send_avgs(minutes_data)
                 await send_messages(websocket,data={'client':'producer','device':'rs485','action':'store','frame':dict_to_store})
                 stored_list = []
                 time_to_store = 60
-            await asyncio.sleep(1)
+                
 
     except KeyboardInterrupt:
         print("Exiting...")
@@ -104,10 +104,15 @@ async def read_serial_port(serial_port,websocket = None):
     finally:
         pass
 
+import netifaces as ni
+import os
+interface = ni.gateways()['default'][ni.AF_INET][1]
+local_ip = ni.ifaddresses(interface)[ni.AF_INET][0]['addr']
+os.environ['local_ip'] = local_ip
 # if __name__ == "__main__":
 async def connect_to_websocket():
     await asyncio.sleep(5)
-    async with websockets.connect(f"ws://192.168.29.18:8000/ws/serial_communication/producer/") as websocket:
+    async with websockets.connect(f"ws://{local_ip}:8000/ws/serial_communication/producer/") as websocket:
         print("WebSocket connection established")
         await websocket.send(json.dumps({
             'client':'producer',

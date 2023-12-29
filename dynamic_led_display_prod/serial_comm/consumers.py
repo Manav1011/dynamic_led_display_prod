@@ -38,7 +38,7 @@ class SerialConsumer(AsyncWebsocketConsumer):
         self.send(json.dumps(close_code))
 
     async def receive(self,text_data):
-        text_data = json.loads(text_data)  
+        text_data = json.loads(text_data)        
         # print(text_data)
         if text_data['client'] == 'panel' and text_data.get('device') and text_data.get('action'):
             device = text_data['device']

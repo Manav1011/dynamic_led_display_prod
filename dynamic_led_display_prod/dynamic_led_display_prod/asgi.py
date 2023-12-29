@@ -18,6 +18,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dynamic_led_display_prod.settin
 
 application = get_asgi_application()
 
+print(f"Local IP: {os.environ['local_ip']}")
 application = ProtocolTypeRouter({
     "http": application,
     "websocket": URLRouter((serial_urlpatterns + programs_and_elements_urlpatterns)) 

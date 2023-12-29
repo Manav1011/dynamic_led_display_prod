@@ -78,7 +78,18 @@ class PorgramsAndElements(AsyncWebsocketConsumer):
                             'error':False,
                             'message':'Element added successfully'
                         }))
-                        
+                        elements = await self.get_program_elements(selected_program=program_name)                        
+                        program_code = await self.get_program_code(program_name)
+                        if elements:
+                            await self.send(json.dumps({
+                                'action':'get_elements',
+                                'elements':elements,
+                                'program_name':program_name,
+                                'program_code':program_code,
+                                'error':False
+                                }))
+                        else:
+                            await self.send(json.dumps({'action':'get_elements','error':False,'elements':None}))                  
                     else:
                         await self.send(json.dumps({
                             'action':'add_element',

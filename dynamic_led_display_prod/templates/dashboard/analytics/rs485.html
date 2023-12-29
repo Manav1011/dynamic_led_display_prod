@@ -515,7 +515,7 @@
       for (let i in stream) {
         if (i == "RTC") {
           let date = new Date(stream[i]);
-          let hour = date.getMinutes();
+          let hour = date.getHours();
           let minutes = date.getMinutes();
           let seconds = date.getSeconds();
           rs_485_chart_data.labels.push(`${hour}:${minutes}:${seconds}`);
