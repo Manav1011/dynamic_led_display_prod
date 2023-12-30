@@ -21,14 +21,9 @@ from django.conf.urls.static import static
 from django.conf import settings
 from django.views.static import serve
 import threading
-# from serial_comm.management.scripts.producer import connect_to_websocket
+from serial_comm.management.scripts.producer import start_streaming
 import asyncio
-
-import netifaces as ni
-import os
-interface = ni.gateways()['default'][ni.AF_INET][1]
-local_ip = ni.ifaddresses(interface)[ni.AF_INET][0]['addr']
-os.environ['local_ip'] = local_ip
+import multiprocessing
 
 urlpatterns = [
     path('',views.analytics,name='analytics'),
@@ -42,8 +37,6 @@ urlpatterns = [
 ]
 
 
-
-# thread = threading.Thread(target=connect_to_websocket)
-# thread.start()
-# thread.join()
+# my_process = multiprocessing.Process(target=start_streaming)
+# my_process.start()
 # asyncio.get_event_loop().run_until_complete(connect_to_websocket())

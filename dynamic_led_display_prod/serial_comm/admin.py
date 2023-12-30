@@ -16,13 +16,17 @@ class Actions:
     def export_as_csv(self, request, queryset):
 
         meta = self.model._meta
-        field_names = [field.name for field in meta.fields]
-
+        field_names = [field.name for field in meta.fields]        
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
         writer = csv.writer(response)
-
-        writer.writerow(field_names)
+        units = {"WSPD":"Kmph","WDIR":"deg","ATMP":"degC","HUMD":"Per","RAIN":"mm","SRAD":"pm²","BPRS":"mBa","WDCH":"degC","DWPT":"degC"}
+        columns = field_names.copy()
+        for i,j in enumerate(columns):
+            if j in units:
+                columns[i] = f"{j} ({units[j]})"
+        print(field_names,columns)
+        writer.writerow(columns)
         for obj in queryset:
             row = writer.writerow([getattr(obj, field) for field in field_names])
 
@@ -39,9 +43,11 @@ class Actions:
         # Create an XLSX workbook and add a worksheet
         workbook = xlsxwriter.Workbook(response, {'in_memory': True})
         worksheet = workbook.add_worksheet()
-
+        units = {"WSPD":"Kmph","WDIR":"deg","ATMP":"degC","HUMD":"Per","RAIN":"mm","SRAD":"pm²","BPRS":"mBa","WDCH":"degC","DWPT":"degC"}
         # Write the column headers
         for col_num, field_name in enumerate(field_names):
+            if field_name in units:
+                field_name = f"{field_name} ({units[field_name]})"
             worksheet.write(0, col_num, field_name)
 
         # Write the data rows
