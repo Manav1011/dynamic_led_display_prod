@@ -59,6 +59,7 @@ def generate_random_values():
     return {
         'RTC': datetime.datetime.now().isoformat(),
         'WSPD': random.uniform(0.0, 10.0),
+        'HUMD': random.uniform(0.0, 10.0),
         'WDIR': random.uniform(0.0, 360.0),
         'ATMP': random.uniform(-10.0, 30.0),
         'RAIN': random.uniform(0.0, 5.0),

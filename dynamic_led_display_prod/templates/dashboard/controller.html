@@ -424,10 +424,10 @@ async function SerialCommunicationRS485() {
             let value = parseFloat(received_msg.frame[i]).toFixed(2)
             $(`.${i}_table_val`).text(value)
         }
-        received_msg.averages.forEach((e,i) => {
-            let value = parseFloat(e['mean']).toFixed(2)            
-            $(`.${e['param']}_table_avg`).text(value)
-        })        
+        for (const i in received_msg.averages) {
+                    let value = parseFloat(received_msg.averages[i]).toFixed(2)
+                    $(`.${i}_table_avg`).text(value)
+        }       
       };
 
       ws_serial_communcation_rs485.onclose = async function () {};

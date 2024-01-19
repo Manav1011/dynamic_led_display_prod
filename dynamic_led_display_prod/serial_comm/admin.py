@@ -1,6 +1,6 @@
 from django.contrib import admin
 from datetime import datetime
-from .models import SerialCommunication,States,StatesWeekly
+from .models import SerialCommunication,States,StatesWeekly,Averages
 from django.http import HttpResponse
 import csv
 import xlsxwriter
@@ -82,4 +82,5 @@ class DateAdminWeekly(admin.ModelAdmin,Actions):
 
 admin.site.register(States, DateAdminDaily)
 admin.site.register(StatesWeekly, DateAdminWeekly)
+admin.site.register(Averages)
 

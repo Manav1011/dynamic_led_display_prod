@@ -21,8 +21,9 @@ from django.conf.urls.static import static
 from django.conf import settings
 from django.views.static import serve
 import threading
-# from serial_comm.management.scripts.producer import start_streaming
+from serial_comm.management.scripts.producer import start_streaming
 import asyncio
+from serial_comm.views import set_yesterday_average
 import multiprocessing
 
 urlpatterns = [
@@ -32,6 +33,7 @@ urlpatterns = [
     path('auth/',include('CustomUser.urls')) ,
     path('consumer/',views.consumer,name='consumer'),
     path('testing/',views.testing,name='testing'),
+    path('set_yesterday_average/',set_yesterday_average,name='set_yesterday_average'),
     re_path(r"^media/(?P<path>.*)$", serve, {"document_root": settings.MEDIA_ROOT}),
     re_path(r"^static/(?P<path>.*)$", serve, {"document_root": settings.STATIC_ROOT}),
 ]

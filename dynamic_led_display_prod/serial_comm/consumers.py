@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from channels.db import database_sync_to_async
 from .serializers import DailyAverageSerializer
-from .models import SerialCommunication,States
+from .models import SerialCommunication,States,Averages
 import matplotlib.pyplot as plt
 import datetime
 from django.core.files.storage import FileSystemStorage
@@ -120,7 +120,7 @@ class SerialConsumer(AsyncWebsocketConsumer):
 
             if action == 'stream' and text_data.get('frame') and text_data.get('device'):
                 try:                    
-                    if SerialConsumer.entities[device]['consumer'] and SerialConsumer.entities[device]['panel']:                        
+                    if SerialConsumer.entities[device]['panel']:                        
                         today = datetime.datetime.today()                                                
                         averages = await self.get_averages(today)
                         await self.channel_layer.group_send(
@@ -140,8 +140,8 @@ class SerialConsumer(AsyncWebsocketConsumer):
             
     @database_sync_to_async
     def get_averages(self,today):
-        Averages = States.objects.filter(date=today).values('param', 'mean')
-        average_serialized = DailyAverageSerializer(Averages,many=True)
+        averages = Averages.objects.first()
+        average_serialized = DailyAverageSerializer(averages)        
         return average_serialized.data
     
     async def send_frame_stream(self, event): 
