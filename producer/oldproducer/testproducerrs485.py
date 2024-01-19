@@ -44,7 +44,7 @@ async def produce_garbage_data(websocket):
 
 if __name__ == "__main__":
     async def connect_to_websocket():
-        async with websockets.connect(f"wss://192.168.29.18:8000/serial_communication_rs485/") as websocket:
+        async with websockets.connect(f"ws://192.168.29.18:8000/serial_communication_rs485/") as websocket:
             print("WebSocket connection established")
             receive_task = asyncio.ensure_future(receive_messages(websocket))
             send_task = asyncio.ensure_future(send_messages(websocket))    

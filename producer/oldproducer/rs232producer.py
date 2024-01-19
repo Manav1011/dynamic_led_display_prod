@@ -53,7 +53,7 @@ async def read_serial_port(port_name, baud_rate=115200,websocket = None):
 
 if __name__ == "__main__":
     async def connect_to_websocket():
-        async with websockets.connect(f"wss://192.168.43.106:8000/serial_communication/123/") as websocket:
+        async with websockets.connect(f"ws://192.168.43.106:8000/serial_communication/123/") as websocket:
             print("WebSocket connection established")
 
             receive_task = asyncio.ensure_future(receive_messages(websocket))

@@ -82,14 +82,14 @@ try:
                 FINAL.append('{:.3f}'.format(struct.unpack('!f', bytes.fromhex(CDAB_STR))[0]))
         if(FINAL):            
             dict_to_stream = update_dict_with_values(dict_to_stream,FINAL)
+            print(dict_to_stream)
             if not started:
                 timestamp = datetime.datetime.strptime(dict_to_stream['RTC'], "%Y-%m-%dT%H:%M:%S.%f")
                 if timestamp.second == 0:
                     started = True
             if started:
                 stored_list.append(dict_to_stream)
-                print(dict_to_stream)
-                time_to_store-=1                
+                time_to_store-=1           
                 if time_to_store == 1:  
                     rain = dict_to_stream['RAIN']                                
                     dict_to_store = find_averages(dict_to_store=dict_to_store,stored_list=stored_list)

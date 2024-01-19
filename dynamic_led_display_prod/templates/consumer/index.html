@@ -99,49 +99,7 @@
   </style>
 <body style="background:black; margin:0 !important; padding:0 !important;">
     <div class="main">
-        <div id="led-panel-container" style="color:white;width: 5.08cm;height: 4.23cm;margin: 0 !important;padding: 0 !important;position: fixed;left: 0;">
-            <!-- <div id="table_element_output_div" style="line-height: 1.5;background-color: black; color: black;">
-                <table class="">
-                  <thead>
-                    <tr style="color: red;">          
-                      <th scope="col" style="padding:0 !important; width:10% !important; max-width: 10% !important; text-align:center;"><img style="width: 100%; height: 100%;" src="{% static 'assets/gifs/AARTI-IND-LOGO-unnamed-unscreen.gif' %}" alt=""></th>
-                      <th scope="col" colspan="2" style="font-weight: 1000; font-size:86%; text-align:center;">AARTI IND LTD</th>
-                      <th scope="col" style="font-weight: 1000; font-size:55%;text-align:center;">2023-11-06 13:30:19</th>
-                    </tr>
-                    <tr class="table-group-divider-custom" style="color: cyan;">          
-                      <th scope="col" colspan="4" style="text-align:center; font-size: 75%; font-weight: 1000;">WEATHER MONITORING SYSTEM</th>
-                    </tr>
-                  </thead>
-                  <tbody style="font-size: 92%; font-weight: 1000;">
-                    <tr class="table-group-divider-custom" style="color: cyan;">          
-                        <td style="font-size:60%; font-weight: 1000;" scope="col" colspan="2">PARAMETER</td>
-                        <td style="text-align:center; font-size: 60%; font-weight: 1000;" scope="col">VALUE</td>
-                        <td style="text-align:center; font-size: 60%; font-weight: 1000;" scope="col">AVG</td>      
-                    </tr>
-                    <tr class="table-group-divider-custom">                        
-                      <td colspan="2" style="color: red;">WSPD(km/h)</td>
-                      <td style="text-align:center; color:green;">Otto</td>
-                      <td style="text-align:center; color:green;">@mdo</td>
-                    </tr>
-                    <tr class="table-group-divider-custom">                        
-                      <td colspan="2" style="color: red;">WDIR(deg)</td>
-                      <td style="text-align:center; color:green;">Otto</td>
-                      <td style="text-align:center; color:green;">@mdo</td>
-                    </tr>
-                    <tr class="table-group-divider-custom">                        
-                      <td colspan="2" style="color: red;">ATMP(degC)</td>
-                      <td style="text-align:center; color:green;">Otto</td>
-                      <td style="text-align:center; color:green;">@mdo</td>
-                    </tr>
-                    <tr class="table-group-divider-custom">                        
-                        <td colspan="2" style="color: red;">HUMD(Per)</td>
-                        <td style="text-align:center; color:green;">Otto</td>
-                        <td style="text-align:center; color:green;">@mdo</td>
-                      </tr>
-                  </tbody>
-                </table>
-              </div> -->
-        </div>
+        <div id="led-panel-container" style="color:white;width: 5.08cm;height: 4.23cm;margin: 0 !important;padding: 0 !important;position: fixed;left: 0;"></div>
     </div>
     <script>
         $('.ui-resizable-handle').remove() 
@@ -151,7 +109,7 @@
             if ("WebSocket" in window) {
             // Let us open a web socket
             ws_serial_communcation_rs485 = new WebSocket(
-                `wss://${window.location.host}/ws/serial_communication/consumer/`
+                `ws://${window.location.host}/ws/serial_communication/consumer/`
             );
             window.rs485_data_socket = ws_serial_communcation_rs485
             ws_serial_communcation_rs485.onopen = async function () {
@@ -183,7 +141,7 @@
   }
         async function StartPanelConsumer(){
             if ("WebSocket" in window) {
-                PanelConsumer = new WebSocket(`wss://${window.location.host}/ws/panel_changed_events/`);
+                PanelConsumer = new WebSocket(`ws://${window.location.host}/ws/panel_changed_events/`);
                 PanelConsumer.onopen = async function() {  
                     PanelConsumer.send(JSON.stringify({            
                         client:'consumer',

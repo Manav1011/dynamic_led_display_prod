@@ -27,7 +27,7 @@ def on_open(ws):
             'action':'connection'
         }))
     
-websocket_url = 'ws://192.168.29.18:8000/ws/serial_communication/producer/'
+websocket_url = 'ws://127.0.0.1:8000/ws/serial_communication/producer/'
 
 ws = websocket.WebSocketApp(websocket_url, on_message=on_message, on_error=on_error, on_close=on_close)
 ws.on_open = on_open

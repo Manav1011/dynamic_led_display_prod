@@ -2,6 +2,7 @@
 <script>
   // globals
   var resetPlottingContainer = null;
+  var dateRangeArr = [];
 </script>
 <div class="col-lg-12 mb-4" id="container_rs485">
   <div class="card bg-light shadow mb-4">
@@ -70,10 +71,55 @@
                       role="group"
                       aria-label="Basic mixed styles example"
                     >
-                      <div
-                        class="d-flex"
-                        style="justify-content: space-evenly; flex-wrap: wrap"
-                      >
+                    <form id="dateRangeForm" onchange="date_range_changed(event)">
+                      <div class="input-group mb-3">
+                          <input type="datetime-local" class="form-control" id="plotstartdate" placeholder="Start Date" aria-label="Start Date" onchange="set_ranges(event); disableStartDate(event)">
+                          <span class="input-group-text">To</span>
+                          <input type="datetime-local" class="form-control" id="plotenddate" placeholder="End Date" aria-label="End Date" onchange="set_ranges(event)" disabled>
+                      </div>
+                  </form>
+                  <script>
+                    function set_ranges(event){
+                          if(event.target.getAttribute('id') == 'plotstartdate'){
+                              document.getElementById('plotenddate').disabled = false;
+
+                              // Use the Date object for date manipulation
+                              const startDate = new Date(event.target.value);
+                              const endDate = new Date(startDate);
+                              endDate.setDate(startDate.getDate() + 1);
+
+                              // Format the endDate to match the datetime-local format
+                              const endDateString = endDate.toISOString().slice(0, 16);
+
+                              document.getElementById('plotenddate').min = endDateString;
+                          }
+                      }
+
+                      function disableStartDate(event) {
+                          event.target.disabled = true;
+                      }
+
+                      function date_range_changed(event){
+                          allSet = 0      
+                          dateRangeArr = []                    
+                          var inputElements = document.getElementById('dateRangeForm').querySelectorAll('input');                
+                          inputElements.forEach(function(element) {
+                              if(element.value){
+                                element.disabled = true
+                                dateRangeArr.push(new Date(element.value).getTime());
+                                allSet ++
+                              }
+                          });
+                          if(allSet >= 2){   
+                            console.log(dateRangeArr)                         
+                            $('#plotOptionsDiv').show()
+                          }
+                      }
+                  </script>
+                      <div id="plotOptionsDiv" class="" style="justify-content: space-evenly; flex-wrap: wrap" >
+                        <script>
+                          $('#plotOptionsDiv').hide()
+                        </script>
                         <button
                           type="button"
                           class="col-3 btn btn-outline-dark"
@@ -81,9 +127,7 @@
                           data-target="#windrosecollapse"
                           aria-expanded="false"
                           aria-controls="windrosecollapse"
-                        >
-                          Windrose
-                        </button>
+                        >Windrose</button>
                         <button
                           type="button"
                           class="col-3 btn btn-outline-dark"
@@ -91,9 +135,7 @@
                           data-target="#linecollapse"
                           aria-expanded="false"
                           aria-controls="linecollapse"
-                        >
-                          Line
-                        </button>
+                        >Line</button>
                         <button
                           type="button"
                           class="col-3 btn btn-outline-dark"
@@ -101,9 +143,7 @@
                           data-target="#areacollapse"
                           aria-expanded="false"
                           aria-controls="areacollapse"
-                        >
-                          Area
-                        </button>
+                        >Area</button>
                       </div>
                     </div>
                   </div>
@@ -366,6 +406,7 @@
                               client: "consumer",
                               action: "get_line_chart",
                               device: "rs485",
+                              daterange:dateRangeArr,
                               params: selected_params,
                             })
                           );
@@ -395,6 +436,7 @@
                               client: "consumer",
                               action: "get_area_chart",
                               device: "rs485",
+                              daterange:dateRangeArr,
                               value: areaChartParam,
                             })
                           );
@@ -530,6 +572,7 @@
                       action: "get_windrose",
                       device: "rs485",
                       values: values,
+                      daterange:dateRangeArr,
                       colors: colors,
                     })
                   );
@@ -701,7 +744,7 @@
     if ("WebSocket" in window) {
       // Let us open a web socket
       ws_serial_communcation_rs485 = new WebSocket(
-        `wss://${window.location.host}/ws/serial_communication/consumer/`
+        `ws://${window.location.host}/ws/serial_communication/consumer/`
       );
       window.rs485_data_socket = ws_serial_communcation_rs485;
       ws_serial_communcation_rs485.onopen = async function () {
@@ -736,19 +779,28 @@
             }
           }
         }
-        if (
-          received_msg.action == "graph_received" &&
-          received_msg.device &&
-          received_msg.image_base64 &&
-          received_msg.df_html
-        ) {
+        if ( received_msg.action == "graph_received" && received_msg.device && received_msg.image_base64 && received_msg.df_html ) {
+          const blob = new Blob([received_msg.df_csv], { type: 'text/csv' });
+          const a = document.createElement('a');
+          a.download = 'exported_table.csv';
+          a.href = window.URL.createObjectURL(blob);
+          a.classList.add('btn')
+          a.classList.add('btn-dark')
+          a.textContent = 'Export'
+
           let chart_container = $("#chart_container_rs485");
           chart_container
             .find("img")
             .attr("src", "data:image/png;base64," + received_msg.image_base64);
           let df_container = $("#stats_df_container_rs485");
+          df_container.addClass('flex-column')
           df_container.html(received_msg.df_html);
           df_container.css("justify-content", "start");
+          df_container.append(a)
+        }
+        if(received_msg.action == "no_data"){
+          $("#chart_container_rs485").find("img").attr("src",`${window.location.origin}/media/no_data.svg`);
+          $("#stats_df_container_rs485").find("img").attr("src",`${window.location.origin}/media/no_data.svg`);
         }
       };
 

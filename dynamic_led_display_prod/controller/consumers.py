@@ -91,7 +91,7 @@ class PorgramsAndElements(AsyncWebsocketConsumer):
                         else:
                             await self.send(json.dumps({'action':'get_elements','error':False,'elements':None}))                  
                     else:
-                        await self.send(json.dumps({
+                        await self.send(json.dumps({ 
                             'action':'add_element',
                             'error':True,
                             'message':'Something went wrong'
@@ -222,7 +222,7 @@ class PorgramsAndElements(AsyncWebsocketConsumer):
             return True
         else:
             return False
-        
+    
     @database_sync_to_async
     def update_program_animation(self,selected_program,animation):
         program_obj = Programs.objects.get(program_name=selected_program)
@@ -265,7 +265,7 @@ class PorgramsAndElements(AsyncWebsocketConsumer):
         programs = panel_obj.return_program_in_order()
         if programs:
             data = serializers.serialize('json', programs)
-            return data        
+            return data       
         return False
         
     @database_sync_to_async
@@ -283,9 +283,9 @@ class PorgramsAndElements(AsyncWebsocketConsumer):
         format, base64_data = file_data.split(";", 1)
         format = format.split(":")[1]
         base64_data = base64_data.split(",")[1]                    
-        bytes_data= base64.b64decode(base64_data)
+        bytes_data= base64.b64decode(base64_data) 
         file_storage_obj = FileSystemStorage()
-        file = ContentFile(bytes_data)
+        file = ContentFile(bytes_data) 
         random_prefix = secrets.token_hex(16)
         if(file_type == 'image/svg+xml'):            
             extension = file_type.split('/')[-1]

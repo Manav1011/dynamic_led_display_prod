@@ -135,6 +135,7 @@ import pandas as pd
 import datetime
 import struct
 import time
+import sys
 
 
 minutes_data = []
@@ -270,8 +271,8 @@ def start_streaming():
                     time_to_store = 60
                 time.sleep(1)
     except KeyboardInterrupt:
-        print("Exiting...")
+        sys.exit()        
 
     finally:
-        pass
+        sys.exit()
         # ser.close()

@@ -45,7 +45,7 @@
             async function WebSocketTestRS232() {
                if ("WebSocket" in window) {
                   // Let us open a web socket
-                  ws_rs232 = new WebSocket(`wss://${window.location.host}/ws/serial_communication_rs232/`);
+                  ws_rs232 = new WebSocket(`ws://${window.location.host}/ws/serial_communication_rs232/`);
                   ws_rs232.onopen = async function() {
                     Connections.RS232 = true
                     await reviewConnections(Connections)
@@ -73,7 +73,7 @@
                
                 if ("WebSocket" in window) {
                    // Let us open a web socket
-                   ws_rs485 = new WebSocket(`wss://${window.location.host}/ws/serial_communication/`);
+                   ws_rs485 = new WebSocket(`ws://${window.location.host}/ws/serial_communication/`);
                     
                    ws_rs485.onopen = async function() {  
                     Connections.RS485 = true
@@ -100,7 +100,7 @@
              }
              async function PanelChangedEevents(){
                 if ("WebSocket" in window) {
-                    ws_panel_changed_events = new WebSocket(`wss://${window.location.host}/ws/panel_changed_events/`);
+                    ws_panel_changed_events = new WebSocket(`ws://${window.location.host}/ws/panel_changed_events/`);
                     ws_panel_changed_events.onopen = async function() {  
                         console.log("Panel Changed Consumer Connected")
                         ws_panel_changed_events.send(JSON.stringify({
@@ -126,7 +126,7 @@
                
                 if ("WebSocket" in window) {
                    // Let us open a web socket
-                   ws_program_and_elements = new WebSocket(`wss://${window.location.host}/ws/programs_and_elements/`);
+                   ws_program_and_elements = new WebSocket(`ws://${window.location.host}/ws/programs_and_elements/`);
                     
                    ws_program_and_elements.onopen = async function() {  
                         ws_program_and_elements.send(JSON.stringify({
@@ -405,7 +405,7 @@ async function SerialCommunicationRS485() {
     if ("WebSocket" in window) {
       // Let us open a web socket
       ws_serial_communcation_rs485 = new WebSocket(
-        `wss://${window.location.host}/ws/serial_communication/consumer/`
+        `ws://${window.location.host}/ws/serial_communication/consumer/`
       );
       window.rs485_data_socket = ws_serial_communcation_rs485
       ws_serial_communcation_rs485.onopen = async function () {
