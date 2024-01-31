@@ -17,7 +17,7 @@ def make_api_call(url):
         print(f"An error occurred: {e}")
 
 # Example API URL
-api_url = "http://192.168.29.18:8000/set_yesterday_average"
+api_url = "http://10.81.7.25:8000/set_yesterday_average"
 
 # Make the API call
 make_api_call(api_url)
