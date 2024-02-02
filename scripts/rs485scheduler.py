@@ -65,7 +65,13 @@ def update_dict_with_values(dict_to_stream,values_list):
     return dict_to_stream
 
 
-async def read_and_print(aioserial_instance: aioserial.AioSerial, write_data: bytes, websocket):    
+async def read_and_print(websocket):    
+    baud_rate = 9600
+    data_bits = 8
+    parity = 'N'
+    stop_bits = 1
+    aioserial_instance = aioserial.AioSerial(port='COM3', baudrate=baud_rate, bytesize=data_bits,parity=parity, stopbits=stop_bits, timeout=1)
+    write_data = bytes.fromhex("01040BB8002073D3")
     global started    
     time_to_store = 60                
     stored_list = []
@@ -117,38 +123,16 @@ async def read_and_print(aioserial_instance: aioserial.AioSerial, write_data: by
                     stored_list = []
                     time_to_store = 60
 
-# Task 2 for streaming data through the RS485 serial connection
-async def establish_serial_connection():
-    baud_rate = 9600
-    data_bits = 8
-    parity = 'N'
-    stop_bits = 1
-    aioserial_instance = aioserial.AioSerial(port='COM3', baudrate=baud_rate, bytesize=data_bits,
-                                                                    parity=parity, stopbits=stop_bits, timeout=1)
-    return aioserial_instance
 
-
-async def main():
-    write_data = bytes.fromhex("01040BB8002073D3")
-    # Get the aioserial instance
-    # Task 1 for the websocket connection    
-    async for websocket in websockets.connect(f"ws://192.168.29.18:8000/ws/serial_communication/producer/"):
+async def main():        
+    while True:        
         try:
-            await websocket.send(json.dumps({'client': 'producer','device': 'rs485','action': 'connection'}))
-            try:
-                while True:
-                    try:                                                
-                        aioserial_instance = await establish_serial_connection()
-                        await asyncio.create_task(read_and_print(aioserial_instance, write_data, websocket))
-                    except Exception as e:                        
-                        await asyncio.sleep(5)
-                
-            except Exception as e:
-                print(e)
-            
-            async for message in websocket:
-                print(message)
-        except websockets.ConnectionClosed:
-            continue                
+            async with websockets.connect(f"ws://172.16.0.130:8000/ws/serial_communication/producer/") as websocket:                                
+                await websocket.send(json.dumps({'client': 'producer','device': 'rs485','action': 'connection'}))
+                await asyncio.gather(read_and_print(websocket),receive_messages(websocket=websocket))                
+        except Exception as e:            
+            await websocket.close()
+            await asyncio.sleep(5)                
+            continue
 
 asyncio.run(main())
