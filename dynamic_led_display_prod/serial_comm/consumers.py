@@ -5,18 +5,14 @@ import numpy as np
 import pandas as pd
 from channels.db import database_sync_to_async
 from .serializers import DailyAverageSerializer
-from .models import SerialCommunication,States,Averages
+from .models import SerialCommunication,Averages
 import matplotlib.pyplot as plt
 import datetime
-from django.core.files.storage import FileSystemStorage
-from django.core.files.base import ContentFile
 import io
 import numpy as np
 import matplotlib.pyplot as plt
 from windrose import WindroseAxes
-from django.http import HttpResponse
 from matplotlib import cm
-from scipy.stats import circmean
 from matplotlib.colors import ListedColormap
 import base64
 import matplotlib.dates as mdates

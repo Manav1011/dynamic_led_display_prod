@@ -125,7 +125,7 @@ async def read_and_print(websocket):
 
 
 async def main():        
-    while True:        
+    while True:    
         try:
             async with websockets.connect(f"ws://172.16.0.130:8000/ws/serial_communication/producer/") as websocket:                                
                 await websocket.send(json.dumps({'client': 'producer','device': 'rs485','action': 'connection'}))

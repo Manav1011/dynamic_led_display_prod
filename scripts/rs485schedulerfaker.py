@@ -98,7 +98,7 @@ async def read_and_print(websocket):
 async def main():        
     while True:        
         try:
-            async with websockets.connect(f"ws://172.16.0.130:8000/ws/serial_communication/producer/") as websocket:                                
+            async with websockets.connect(f"ws://192.168.180.106:8000/ws/serial_communication/producer/") as websocket:                                
                 await websocket.send(json.dumps({'client': 'producer','device': 'rs485','action': 'connection'}))
                 await asyncio.gather(read_and_print(websocket),receive_messages(websocket=websocket))                
         except Exception as e:            
