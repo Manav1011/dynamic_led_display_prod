@@ -36,7 +36,7 @@ SSL_KEY = SSL_KEY_PATH
 DEBUG = True
 
 # add the currently connected IP address
-ALLOWED_HOSTS = {'dynamicled.prod.live','9f77-2409-40c1-10bc-48eb-aad9-3b76-7628-bcf1.ngrok-free.app','127.0.0.1'}
+ALLOWED_HOSTS = {'dynamicled.prod.live','9f77-2409-40c1-10bc-48eb-aad9-3b76-7628-bcf1.ngrok-free.app','localhost'}
 import socket
 def get_private_ipv4_address():
     try:        

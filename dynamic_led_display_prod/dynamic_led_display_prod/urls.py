@@ -21,14 +21,13 @@ from django.conf.urls.static import static
 from django.conf import settings
 from django.views.static import serve
 import threading
-from serial_comm.management.scripts.producer import start_streaming
+# from serial_comm.management.scripts.producer import start_streaming
 import asyncio
 from serial_comm.views import set_yesterday_average
 import multiprocessing
 
 urlpatterns = [
-    path('',views.analytics,name='analytics'),
-    path('controller/',views.controller,name='controller'),
+    path('',views.analytics,name='analytics'),    
     path('admin/', admin.site.urls),
     path('auth/',include('CustomUser.urls')) ,
     path('consumer/',views.consumer,name='consumer'),

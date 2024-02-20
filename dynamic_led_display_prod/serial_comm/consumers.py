@@ -36,12 +36,12 @@ class SerialConsumer(AsyncWebsocketConsumer):
     async def receive(self,text_data):
         text_data = json.loads(text_data)        
         # print(text_data)
-        if text_data['client'] == 'panel' and text_data.get('device') and text_data.get('action'):
-            device = text_data['device']
-            action = text_data['action']
-            if action == 'connection':
-                SerialConsumer.entities[device]['panel'] = self             
-                print(SerialConsumer.entities) 
+        # if text_data['client'] == 'panel' and text_data.get('device') and text_data.get('action'):
+        #     device = text_data['device']
+        #     action = text_data['action']
+        #     if action == 'connection':
+        #         SerialConsumer.entities[device]['panel'] = self             
+        #         print(SerialConsumer.entities) 
 
         if text_data['client'] == 'consumer' and text_data.get('device') and text_data.get('action'):
             device = text_data['device']
@@ -116,7 +116,7 @@ class SerialConsumer(AsyncWebsocketConsumer):
 
             if action == 'stream' and text_data.get('frame') and text_data.get('device'):
                 try:                    
-                    if SerialConsumer.entities[device]['panel']:                        
+                    # if SerialConsumer.entities[device]['panel']:                        
                         today = datetime.datetime.today()                                                
                         averages = await self.get_averages(today)
                         await self.channel_layer.group_send(
