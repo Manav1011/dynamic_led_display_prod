@@ -142,7 +142,7 @@ async def main():
     data_bits = 8
     parity = 'N'
     stop_bits = 1
-    aioserial_instance: aioserial.AioSerial = aioserial.AioSerial(port='COM3', baudrate=baud_rate, bytesize=data_bits,
+    aioserial_instance: aioserial.AioSerial = aioserial.AioSerial(port='/dev/ttyUSB0', baudrate=baud_rate, bytesize=data_bits,
                                                                     parity=parity, stopbits=stop_bits, timeout=1)
 
     # Specify the data you want to write
@@ -151,7 +151,7 @@ async def main():
     while not connected:
         time.sleep(5)
         try:
-            async with websockets.connect(f"ws://10.81.7.25:8000/ws/serial_communication/producer/") as websocket:
+            async with websockets.connect(f"ws://localhost:8000/ws/serial_communication/producer/") as websocket:
                 print("WebSocket connection established")
                 global started
                 started = True
@@ -168,6 +168,7 @@ async def main():
                 # Wait for the read task to complete
                 await read_task
         except Exception as e:
+            print(e)
             print('connected')
             connected=False
 

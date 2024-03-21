@@ -25,33 +25,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!)
 
 
-SECRET_KEY = os.environ['SECRET']
-SSL_CERTIFICATE_PATH = os.path.join(BASE_DIR, "localhost.crt")
-SSL_KEY_PATH = os.path.join(BASE_DIR, "localhost.key")
-
-SSL_CERTIFICATE = SSL_CERTIFICATE_PATH
-SSL_KEY = SSL_KEY_PATH
+SECRET_KEY = os.environ.get('SECRET')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # add the currently connected IP address
-ALLOWED_HOSTS = {'dynamicled.prod.live','9f77-2409-40c1-10bc-48eb-aad9-3b76-7628-bcf1.ngrok-free.app','localhost'}
-import socket
-def get_private_ipv4_address():
-    try:        
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))        
-        private_ip = s.getsockname()[0]
-        s.close()
-        return private_ip
-    except Exception as e:
-        return str(e)
-    
-private_ip_address = get_private_ipv4_address()
-ALLOWED_HOSTS.add(private_ip_address)
-
-ALLOWED_HOSTS = list(ALLOWED_HOSTS)
+ALLOWED_HOSTS = ['dynamicled.prod.live','localhost',os.environ.get('INTERNAL_IP')]
 # Application definition
 
 INSTALLED_APPS = [    
@@ -70,8 +50,7 @@ INSTALLED_APPS = [
     'serial_comm',
     'rangefilter',
     'controller',
-    'django_crontab',
-    'sslserver'
+    'django_crontab',    
 ]
 CRONJOBS = [
     ('1 0 * * *', 'serial_comm.cron.fill_daily_states'),
@@ -111,24 +90,52 @@ ASGI_APPLICATION = "dynamic_led_display_prod.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'sample',
-        'USER': 'manav1011',
-        'PASSWORD': 'Manav@1011',
-        'HOST': 'localhost',  # Set to the PostgreSQL server's address
-        'PORT': '5432',      # Set to the PostgreSQL server's port
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+    CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
+        'LOCATION': '127.0.0.1:11211',  # Adjust this to match your Memcached server's address and port
+        }
+    }
 
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels.layers.InMemoryChannelLayer"
+        }
+    }
+
+else:
+    DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': os.environ.get('DB_NAME'),
+                'USER': os.environ.get('DB_USER'),
+                'PASSWORD': os.environ.get('DB_PASS'),
+                'HOST': os.environ.get('DB_HOST'),
+                'PORT': os.environ.get('DB_PORT')
+            }
+    }
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {
+                # Assuming Redis is running on localhost
+                'hosts': [(os.environ.get('REDIS_HOST'), 6379)]            
+            },
+        },
+    }
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': f"redis://{os.environ.get('REDIS_HOST', 'localhost')}:6379/1",  # Assuming Redis database 1
+        },
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -154,9 +161,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE =  'Asia/Kolkata'
+USE_TZ = True
 USE_I18N = True
-USE_L10N = True
-USE_TZ = False
 
 # LOGGING = {
 #     'version': 1,
@@ -177,12 +183,6 @@ USE_TZ = False
 #     },
 # }
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
-    }
-}
-
 CORS_ALLOW_ALL_ORIGINS=True
 
 CSRF_TRUSTED_ORIGINS = [
@@ -198,12 +198,6 @@ CORS_ALLOW_METHODS = [
 'PUT',
 ]
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
-        'LOCATION': '127.0.0.1:11211',  # Adjust this to match your Memcached server's address and port
-    }
-}
 
 CORS_ALLOW_HEADERS = [
     'accept',

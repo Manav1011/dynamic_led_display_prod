@@ -9,6 +9,7 @@ import math
 import websockets
 import json
 import time
+import os
 
 async def receive_messages(websocket):
     try:
@@ -39,7 +40,7 @@ def get_pairs(s, n):
 def find_averages(dict_to_store,stored_list):
     df = pd.DataFrame(stored_list)
     # Only include following sesnors data
-    sensors_to_include = ['RTC','WSPD','WDIR','RAIN','SRAD','BPRS','WDCH']
+    sensors_to_include = ['RTC','WSPD','WDIR','RAIN','SRAD','BPRS','WDCH','ATMP','HUMD']
     dict_to_store['RTC'] = stored_list[-1]['RTC']
     dict_to_store["WSPD"] = df['WSPD'].mean()
     dict_to_store["WDIR"] = round(circmean(df['WDIR'], high=360, low=0),3)
@@ -49,6 +50,7 @@ def find_averages(dict_to_store,stored_list):
     dict_to_store["BPRS"] = df['BPRS'].mean()
     dict_to_store["WDCH"] = df['WDCH'].mean()
     dict_to_store["DWPT"] = df['DWPT'].mean()
+    dict_to_store["HUMD"] = df['HUMD'].mean()
     dict_to_store["P12"] = df['P12'].mean()
     dict_to_store["P13"] = df['P13'].mean()
     dict_to_store["P14"] = df['P14'].mean()
@@ -73,7 +75,7 @@ async def read_and_print(websocket):
     data_bits = 8
     parity = 'N'
     stop_bits = 1
-    aioserial_instance = aioserial.AioSerial(port='/dev/ttyUSB0', baudrate=baud_rate, bytesize=data_bits,parity=parity, stopbits=stop_bits, timeout=1)
+    aioserial_instance = aioserial.AioSerial(port=os.environ.get('SERIAL_PORT'), baudrate=baud_rate, bytesize=data_bits,parity=parity, stopbits=stop_bits, timeout=1)
     write_data = bytes.fromhex("01040BB8002073D3")
     global started    
     time_to_store = 60                
@@ -112,7 +114,7 @@ async def read_and_print(websocket):
                     started = True
             if started:
                 stored_list.append(dict_to_stream)
-                sensors_to_include = ['RTC','WSPD','WDIR','RAIN','SRAD','BPRS','WDCH']
+                sensors_to_include = ['RTC','WSPD','WDIR','RAIN','SRAD','BPRS','WDCH','HUMD','ATMP']
                 filtered_dict = {key: dict_to_stream[key] for key in sensors_to_include if key in dict_to_stream}
                 print(filtered_dict)
                 await send_messages(websocket,
@@ -133,7 +135,7 @@ async def read_and_print(websocket):
 async def main():        
     while True:    
         try:
-            async with websockets.connect(f"ws://localhost:8000/ws/serial_communication/producer/") as websocket:                                
+            async with websockets.connect(f"ws://{os.environ.get('INTERNAL_IP')}/ws/serial_communication/producer/") as websocket:                                
                 await websocket.send(json.dumps({'client': 'producer','device': 'rs485','action': 'connection'}))
                 await asyncio.gather(read_and_print(websocket),receive_messages(websocket=websocket))                
         except Exception as e:

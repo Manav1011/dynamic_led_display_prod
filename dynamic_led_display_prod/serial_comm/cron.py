@@ -156,6 +156,7 @@ def fill_weekly_states():
     today = date.today()
     one_week_ago = datetime.now() - timedelta(weeks=1)
     objs = list(SerialCommunication.objects.filter(RTC__gte=one_week_ago).values())
+    print(objs)
     if(not objs):        
         return
     df = pd.DataFrame(objs).apply(pd.to_numeric,errors='coerce', downcast='float').round(3)

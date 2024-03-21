@@ -2,7 +2,8 @@
 <script>
   // globals
   var resetPlottingContainer = null;
-  var dateRangeArr = [];
+  var dateRangeArr = [];  
+  var frameRecieved = false;
 </script>
 <div class="col-lg-12 mb-4" id="container_rs485">
   <div class="card bg-light shadow mb-4">
@@ -645,10 +646,57 @@
     datasets: [],
   };
   async function make_live_rs485_chart(stream) {
-    // Set min max
+    // For the bar chart 
+    // if(currently_showring_chart == null || currently_showring_chart == 'all'){      
+    //   delete stream.RTC      
+    //   // delete stream.BPRS
+    //   const labels = Object.keys(stream);
+    //   console.log(Object.values(stream))
+    //   const data = {
+    //     labels: labels,
+    //     datasets: [{
+    //       label: 'Weather Data',
+    //       data: Object.values(stream),
+    //       backgroundColor: [
+    //         'rgba(255, 99, 132, 0.2)',
+    //         'rgba(255, 159, 64, 0.2)',
+    //         'rgba(255, 205, 86, 0.2)',
+    //         'rgba(75, 192, 192, 0.2)',
+    //         'rgba(54, 162, 235, 0.2)',
+    //         'rgba(153, 102, 255, 0.2)',
+    //         'rgba(201, 203, 207, 0.2)'
+    //       ],
+    //       borderColor: [
+    //         'rgb(255, 99, 132)',
+    //         'rgb(255, 159, 64)',
+    //         'rgb(255, 205, 86)',
+    //         'rgb(75, 192, 192)',
+    //         'rgb(54, 162, 235)',
+    //         'rgb(153, 102, 255)',
+    //         'rgb(201, 203, 207)'
+    //       ],
+    //       borderWidth: 1
+    //     }]
+    //   };
+    //   const barconfig = {
+    //   type: 'bar',
+    //   data: data,
+    //   options: {
+    //     scales: {
+    //       y: {
+    //         beginAtZero: true
+    //       }
+    //     }
+    //   },
+    // };
+
+    // var ctx = document.getElementById("rs485live_data").getContext("2d");
+    // rs485_live_chart = new Chart(ctx, barconfig); // Removed the extra 'options' property    
+    // }else{
+      // Set min max
     if (rs485_live_chart == null) {
-      currently_showring_chart =
-        currently_showring_chart == null ? "BPRS" : currently_showring_chart;
+      console.log(stream)
+      currently_showring_chart = currently_showring_chart == null ? Object.keys(stream)[1] : currently_showring_chart;
       for (let i in stream) {
         if (i == "RTC") {
           let date = new Date(stream[i]);
@@ -738,8 +786,10 @@
         rs485_live_chart.data.labels.shift();
       }
       rs485_live_chart.update();
+    } 
     }
-  }
+    
+  // }
   async function SerialCommunicationRS485() {
     if ("WebSocket" in window) {
       // Let us open a web socket
@@ -770,7 +820,10 @@
           let rs485_container = $(`#container_${received_msg.device}`);
           rs485_container.removeClass("d-none");
           await make_live_rs485_chart(received_msg.frame);
-          await populate_param_select_rs485(received_msg.frame);
+          if(!frameRecieved){
+            await populate_param_select_rs485(received_msg.frame);
+            frameRecieved = true
+          }
           if (!$("#connection_label").text().includes("RS485 |")) {
             if ($("#connection_label").text() == "None") {
               $("#connection_label").text("RS485 | ");
@@ -811,12 +864,14 @@
   }
 </script>
 <script>
-  async function populate_param_select_rs485(frame) {
+  async function populate_param_select_rs485(frame) {    
     if (
       JSON.stringify(current_rs485_frame) != JSON.stringify(Object.keys(frame))
     ) {
       let select_element_rs485 = $("#parameters_select_rs485");
       select_element_rs485.html("");
+      // let option_el = $(`<option value='all' selected>All Params</option>`);
+      // select_element_rs485.append(option_el);
       for (i in frame) {
         if (i != "RTC") {
           let option_el = $(`<option value='${i}'>${i}</option>`);

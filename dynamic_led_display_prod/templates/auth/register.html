@@ -1,9 +1,15 @@
-{% extends "base.html" %}
-{% load static %}
-    {% block title %}
-    Authenticattion
-    {% endblock title %}    
-    {% block login %}
+{% load static %}      
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration</title>
+    <link rel="stylesheet" href='{% static "css/bootstrap.min.css" %}'>
+<link rel="stylesheet" href="{% static 'css/sb-admin-2.min.css' %}">
+<script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+</head>
+<body>
     <div class="container">
 
         <!-- Outer Row -->
@@ -27,21 +33,25 @@
                             <div class="col-lg-6">
                                 <div class="p-5">
                                     <div class="text-center">
-                                        <h1 class="h4 text-gray-900 mb-4">Authenticate Yourself!</h1>
+                                        <h1 class="h4 text-gray-900 mb-4">Add New User</h1>
                                     </div>
                                     <form class="user" method="post" action="">
                                         {% csrf_token %}
                                         <div class="form-group">
                                             <input type="email" name="email" class="form-control form-control-user"
                                                 id="exampleInputEmail" aria-describedby="usernameHelp"
-                                                placeholder="Enter Your Email...">
+                                                placeholder="Enter Your Email..." required>
                                         </div>
                                         <div class="form-group">
                                             <input type="password" name="password" class="form-control form-control-user"
-                                                id="exampleInputPassword" placeholder="Password">
+                                                id="exampleInputPassword" placeholder="Password" required>
                                         </div>
+                                        <div class="mb-3 form-check form-group">
+                                            <input type="checkbox" class="form-check-input" name="superusercheck" id="superusercheck">
+                                            <label class="form-check-label" for="exampleCheck1">Is Super User</label>
+                                          </div>                                        
                                         <button type="submit" class="btn btn-primary btn-user btn-block">
-                                            Login
+                                            Add
                                         </button>
                                     </form>
                                 </div>
@@ -55,4 +65,5 @@
         </div>
 
     </div>   
-    {% endblock login %}
+</body>
+</html>
