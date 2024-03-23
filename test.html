@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: inherit;
+      }
+
+      html {
+        box-sizing: border-box;
+        font-size: 100%;
+      }
+
+      body {
+        margin: 0;
+        font-family: sans-serif;
+        overflow-x: hidden;
+      }
+
+      /* .bumper {
+  text-align: center;
+  padding: 128px 16px;
+  background-color: #efefef;
+} */
+
+      .container {
+        /*   position: relative; */
+        width: 1200px;
+        margin: 0 auto;
+        /*   min-height: 100vh; */
+      }
+
+      .space-holder {
+        position: relative;
+        width: 100%;
+      }
+
+      .sticky {
+        position: sticky;
+        top: 0;
+        /*   height: 100vh; */
+        height: 500px;
+        width: 100%;
+        /*   overflow-x: hidden; */
+      }
+
+      .horizontal {
+        position: absolute;
+        height: 100%;
+        will-change: transform;
+      }
+
+      .cards {
+        position: relative;
+        height: 100%;
+        /*   padding: 0 0 0 150px; */
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: flex-start;
+        align-items: center;
+      }
+
+      .sample-card {
+        position: relative;
+        height: 300px;
+        width: 500px;
+        background-color: #111f30;
+        margin-right: 150px;
+        flex-shrink: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <section class="container">
+      <div class="space-holder">
+        <div class="sticky">
+          <div class="horizontal">
+            <section role="feed" class="cards">
+              <article class="sample-card"></article>
+              <article class="sample-card"></article>
+              <article class="sample-card"></article>
+              <article class="sample-card"></article>
+              <article class="sample-card"></article>
+            </section>
+          </div>
+        </div>
+      </div>
+    </section>
+    <script>
+        const spaceHolder = document.querySelector('.space-holder');
+        const horizontal = document.querySelector('.horizontal');
+        spaceHolder.style.height = `${calcDynamicHeight(horizontal)}px`;
+
+        function calcDynamicHeight(ref) {
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const objectWidth = ref.scrollWidth;
+        return objectWidth - vw + vh + vw/2; // 150 is the padding (in pixels) desired on the right side of the .cards container. This can be set to whatever your styles dictate
+        }
+
+        window.addEventListener('scroll', () => {
+        const sticky = document.querySelector('.sticky');
+        horizontal.style.transform = `translateX(-${sticky.offsetTop}px)`;
+        // console.log(sticky.offsetTop)
+        });
+
+        window.addEventListener('resize', () => {
+        spaceHolder.style.height = `${calcDynamicHeight(horizontal)}px`;
+        // console.log(calcDynamicHeight(horizontal))
+        });
+    </script>
+  </body>
+</html>
