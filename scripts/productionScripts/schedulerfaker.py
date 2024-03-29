@@ -11,6 +11,18 @@ import json
 import time
 import os
 
+directions =   {
+   'N': (337.5, 22.5),
+   'NE': (22.5, 67.5),
+   'E': (67.5, 112.5),
+   'SE': (112.5, 157.5),
+   'S': (157.5, 202.5),
+   'SW': (202.5, 247.5),
+   'W': (247.5, 292.5),
+   'NW': (292.5, 337.5),   
+}
+
+
 async def receive_messages(websocket):
     try:
         while True:
@@ -50,7 +62,7 @@ def find_averages(dict_to_store,stored_list):
     dict_to_store["BPRS"] = df['BPRS'].mean()
     dict_to_store["WDCH"] = df['WDCH'].mean()
     dict_to_store["DWPT"] = df['DWPT'].mean()
-    dict_to_store["HUMD"] = df['HUMD'].mean()
+    dict_to_store["HUMD"] = df['HUMD'].mean()    
     dict_to_store["P12"] = df['P12'].mean()
     dict_to_store["P13"] = df['P13'].mean()
     dict_to_store["P14"] = df['P14'].mean()
@@ -71,10 +83,10 @@ def update_dict_with_values(dict_to_stream,values_list):
 
 started = False
 async def read_and_print(websocket):
+    global directions
     global started    
     time_to_store = 60                
     stored_list = []
-
     while True:
         dict_to_stream = {"RTC": datetime.datetime.now().isoformat(), "WSPD": random.uniform(0.0, 10.0),
                               "WDIR": random.uniform(0.0, 360.0), "ATMP": random.uniform(-10.0, 30.0),
@@ -92,10 +104,24 @@ async def read_and_print(websocket):
             print(f'Starting in {60 - timestamp.second}')
             if timestamp.second == 0:
                 started = True
-        if started:
+        if started:            
+            try:
+                direction_found = False                
+                for direction, (lower, upper) in directions.items():                    
+                    if lower <= float(dict_to_stream['WDIR']) < upper:
+                        dict_to_stream['WDIR_MAPPED'] = direction
+                        direction_found = True
+                        break
+                if not direction_found:
+                    print('here')
+                    dict_to_stream['WDIR_MAPPED'] = 'N'
+                                    
+            except Exception as e:
+                print('here',e)
             stored_list.append(dict_to_stream)
-            sensors_to_include = ['RTC','WSPD','WDIR','RAIN','SRAD','BPRS','WDCH','HUMD','ATMP']
-            filtered_dict = {key: dict_to_stream[key] for key in sensors_to_include if key in dict_to_stream}            
+            sensors_to_include = ['RTC','WSPD','WDIR','RAIN','SRAD','BPRS','WDCH','HUMD','ATMP','WDIR_MAPPED']
+            filtered_dict = {key: dict_to_stream[key] for key in sensors_to_include if key in dict_to_stream}           
+            print(dict_to_stream)
             await send_messages(websocket,
                             data={'client': 'producer', 'device': 'rs485', 'action': 'stream',
                                   'frame': filtered_dict})    
@@ -109,12 +135,13 @@ async def read_and_print(websocket):
                                   'frame': dict_to_store})                    
                 stored_list = []
                 time_to_store = 60
+        time.sleep(1)
 
 
 async def main():        
     while True:    
         try:
-            async with websockets.connect(f"ws://{os.environ.get('INTERNAL_IP')}/ws/serial_communication/producer/") as websocket:                                
+            async with websockets.connect(f"ws://192.168.29.18:8000/ws/serial_communication/producer/") as websocket:                                
                 await websocket.send(json.dumps({'client': 'producer','device': 'rs485','action': 'connection'}))
                 await asyncio.gather(read_and_print(websocket),receive_messages(websocket=websocket))                
         except Exception as e:
