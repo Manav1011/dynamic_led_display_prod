@@ -644,7 +644,10 @@
     labels: [],
     datasets: [],
   };
-  async function make_live_rs485_chart(stream) {
+  async function make_live_rs485_chart(stream) {  
+    if(!stream.WDIR_MAPPED){
+      console.log(stream);
+    }
     // Set min max
     if (rs485_live_chart == null) {
       currently_showring_chart =
@@ -662,7 +665,12 @@
             let value = parseFloat(stream[i]).toFixed(2);
             min_max[currently_showring_chart][0] = value;
             min_max[currently_showring_chart][1] = value;
-            let label = `${weatherData[currently_showring_chart][0]} (${weatherData[currently_showring_chart][2]}) Min : ${min_max[currently_showring_chart][0]} Max: ${min_max[currently_showring_chart][1]}`;
+            let label;
+            if(currently_showring_chart == 'WDIR'){
+              label = `${weatherData[currently_showring_chart][0]} (${weatherData[currently_showring_chart][2]}) Current: ${stream.WDIR_MAPPED} Min : ${min_max[currently_showring_chart][0]} Max: ${min_max[currently_showring_chart][1]}`;
+            }else{
+              label = `${weatherData[currently_showring_chart][0]} (${weatherData[currently_showring_chart][2]}) Current: ${value} Min : ${min_max[currently_showring_chart][0]} Max: ${min_max[currently_showring_chart][1]}`;
+            }
             $("#currently_showing_param_value_rs485").text(value);
             let obj = {
               label: label,
@@ -719,7 +727,12 @@
             }
             value = parseFloat(value).toFixed(2);
             $("#currently_showing_param_value_rs485").text(value);
-            let label = `${weatherData[currently_showring_chart][0]} (${weatherData[currently_showring_chart][2]}) Min : ${min_max[currently_showring_chart][0]} Max: ${min_max[currently_showring_chart][1]}`;
+            let label;
+            if(currently_showring_chart == 'WDIR'){              
+              label = `${weatherData[currently_showring_chart][0]} (${weatherData[currently_showring_chart][2]}) Current: ${stream.WDIR_MAPPED} Min : ${min_max[currently_showring_chart][0]} Max: ${min_max[currently_showring_chart][1]}`;
+            }else{
+              label = `${weatherData[currently_showring_chart][0]} (${weatherData[currently_showring_chart][2]}) Current: ${value} Min : ${min_max[currently_showring_chart][0]} Max: ${min_max[currently_showring_chart][1]}`;
+            }
             rs485_live_chart.data.datasets[0].label = label;
             rs485_live_chart.data.datasets[0].data.push(value);
             if (rs485_live_chart.data.datasets[0].data.length > 30) {
@@ -768,7 +781,7 @@
           $(".485_content").removeClass("d-none");
           $(".404_gif").addClass("d-none");
           let rs485_container = $(`#container_${received_msg.device}`);
-          rs485_container.removeClass("d-none");
+          rs485_container.removeClass("d-none");          
           await make_live_rs485_chart(received_msg.frame);
           await populate_param_select_rs485(received_msg.frame);
           if (!$("#connection_label").text().includes("RS485 |")) {
@@ -819,8 +832,13 @@
       select_element_rs485.html("");
       for (i in frame) {
         if (i != "RTC") {
-          let option_el = $(`<option value='${i}'>${i}</option>`);
-          select_element_rs485.append(option_el);
+          if(i == currently_showring_chart){
+            let option_el = $(`<option selected value='${i}'>${i}</option>`);
+            select_element_rs485.append(option_el);
+          }else{
+            let option_el = $(`<option value='${i}'>${i}</option>`);
+            select_element_rs485.append(option_el);
+          }
         }
       }
       current_rs485_frame = Object.keys(frame);

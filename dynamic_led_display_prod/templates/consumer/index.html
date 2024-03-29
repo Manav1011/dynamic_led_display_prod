@@ -167,7 +167,7 @@
             ws_serial_communcation_rs485.onmessage = async function (evt) {
                 let received_msg = JSON.parse(evt.data);        
                 for(let i in received_msg.frame){
-                    let value = parseFloat(received_msg.frame[i]).toFixed(2)                    
+                    let value = !isNaN(received_msg.frame[i]) ? parseFloat(received_msg.frame[i]).toFixed(2) : received_msg.frame[i]                    
                     $(`.${i}_table_val`).text(value)
                 }
                 for (const i in received_msg.averages) {
