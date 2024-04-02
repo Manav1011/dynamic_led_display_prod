@@ -28,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # add the currently connected IP address
 ALLOWED_HOSTS = ['dynamicled.prod.live','localhost',os.environ.get('INTERNAL_IP')]
