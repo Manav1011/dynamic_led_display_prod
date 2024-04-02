@@ -29,7 +29,7 @@ async def receive_messages(websocket):
             message = await websocket.recv()
             print(message)
     except websockets.ConnectionClosed:
-        print("WebSocket connection closed")
+        raise('Connection got closed..trying again')
 
 
 async def send_messages(websocket, data=None):
@@ -37,7 +37,7 @@ async def send_messages(websocket, data=None):
         if data is not None:
             await websocket.send(json.dumps(data))
     except websockets.ConnectionClosed as e:
-        exit(e)
+        raise('Connection got closed..trying again')
 
 
 def get_pairs(s, n):    
@@ -104,20 +104,15 @@ async def read_and_print(websocket):
             print(f'Starting in {60 - timestamp.second}')
             if timestamp.second == 0:
                 started = True
-        if started:            
-            try:
-                direction_found = False                
-                for direction, (lower, upper) in directions.items():                    
-                    if lower <= float(dict_to_stream['WDIR']) < upper:
-                        dict_to_stream['WDIR_MAPPED'] = direction
-                        direction_found = True
-                        break
-                if not direction_found:
-                    print('here')
-                    dict_to_stream['WDIR_MAPPED'] = 'N'
-                                    
-            except Exception as e:
-                print('here',e)
+        if started:                        
+            direction_found = False                
+            for direction, (lower, upper) in directions.items():                    
+                if lower <= float(dict_to_stream['WDIR']) < upper:
+                    dict_to_stream['WDIR_MAPPED'] = direction
+                    direction_found = True
+                    break
+            if not direction_found:                
+                dict_to_stream['WDIR_MAPPED'] = 'N'            
             stored_list.append(dict_to_stream)
             sensors_to_include = ['RTC','WSPD','WDIR','RAIN','SRAD','BPRS','WDCH','HUMD','ATMP','WDIR_MAPPED']
             filtered_dict = {key: dict_to_stream[key] for key in sensors_to_include if key in dict_to_stream}           
@@ -145,7 +140,7 @@ async def main():
                 await websocket.send(json.dumps({'client': 'producer','device': 'rs485','action': 'connection'}))
                 await asyncio.gather(read_and_print(websocket),receive_messages(websocket=websocket))                
         except Exception as e:
-            print(e)        
+            print(e)
             await asyncio.sleep(5)                
             continue
 

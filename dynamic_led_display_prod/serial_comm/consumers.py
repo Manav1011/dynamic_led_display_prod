@@ -4,8 +4,8 @@ import asyncio
 import numpy as np
 import pandas as pd
 from channels.db import database_sync_to_async
-from .serializers import DailyAverageSerializer
-from .models import SerialCommunication,Averages
+from .serializers import DailyAverageSerializer,DailyStatesSerializer,WeeklyStatesSerializer
+from .models import SerialCommunication,Averages,States,StatesWeekly
 import matplotlib.pyplot as plt
 import datetime
 import io
@@ -117,8 +117,7 @@ class SerialConsumer(AsyncWebsocketConsumer):
             if action == 'stream' and text_data.get('frame') and text_data.get('device'):
                 try:                    
                     if SerialConsumer.entities[device]['panel']:                        
-                        today = datetime.datetime.today()                                                
-                        averages = await self.get_averages(today)
+                        averages = await self.get_averages()
                         await self.channel_layer.group_send(
                             'consumers', {"type": "send.frame.stream", "frame_obj": {'device':text_data['device'],'action':'stream','frame':text_data['frame'],'averages':averages}}
                         )
@@ -135,10 +134,12 @@ class SerialConsumer(AsyncWebsocketConsumer):
                 await self.store_stream_into_db(text_data['device'],text_data['frame'])
             
     @database_sync_to_async
-    def get_averages(self,today):
-        averages = Averages.objects.first()
-        average_serialized = DailyAverageSerializer(averages)        
-        return average_serialized.data
+    def get_averages(self):
+        today = datetime.date.today()    
+        states_objs = States.objects.filter(date = today)        
+        if states_objs:
+            states_objs_serialized = DailyStatesSerializer(states_objs,many=True)
+            return states_objs_serialized.data
     
     async def send_frame_stream(self, event): 
         text_data = event['frame_obj']        

@@ -164,16 +164,22 @@
                 );
             };
 
-            ws_serial_communcation_rs485.onmessage = async function (evt) {
+            ws_serial_communcation_rs485.onmessage = async function (evt) {                
                 let received_msg = JSON.parse(evt.data);        
                 for(let i in received_msg.frame){
-                    let value = !isNaN(received_msg.frame[i]) ? parseFloat(received_msg.frame[i]).toFixed(2) : received_msg.frame[i]                    
+                    let value = i !== 'WDIR' ? parseFloat(received_msg.frame[i]).toFixed(2) : received_msg.frame['WDIR_MAPPED']
                     $(`.${i}_table_val`).text(value)
                 }
-                for (const i in received_msg.averages) {
-                    let value = parseFloat(received_msg.averages[i]).toFixed(2)
-                    $(`.${i}_table_avg`).text(value)
-                }
+                received_msg.averages && received_msg.averages.forEach((item,index) => {
+                    try {                        
+                        let value = !isNaN(item.mean) ? parseFloat(item.mean).toFixed(2) : item.mean                                             
+                        if(item.param == 'WDIR'){
+                            $(`.WDIR_MAPPED_table_avg`).text(value)   
+                        }else{
+                            $(`.${item.param}_table_avg`).text(value)   
+                        }
+                    } catch (error) {}
+                })                
             };
 
       ws_serial_communcation_rs485.onclose = async function () {};

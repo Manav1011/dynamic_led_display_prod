@@ -11,13 +11,26 @@ import json
 import time
 import os
 
+
+directions =   {
+   'N': (337.5, 22.5),
+   'NE': (22.5, 67.5),
+   'E': (67.5, 112.5),
+   'SE': (112.5, 157.5),
+   'S': (157.5, 202.5),
+   'SW': (202.5, 247.5),
+   'W': (247.5, 292.5),
+   'NW': (292.5, 337.5),   
+}
+
+
 async def receive_messages(websocket):
     try:
         while True:
             message = await websocket.recv()
             print(message)
     except websockets.ConnectionClosed:
-        print("WebSocket connection closed")
+        raise('Connection got closed..trying again')
 
 
 async def send_messages(websocket, data=None):
@@ -25,7 +38,7 @@ async def send_messages(websocket, data=None):
         if data is not None:
             await websocket.send(json.dumps(data))
     except websockets.ConnectionClosed as e:
-        exit(e)
+        raise('Connection got closed..trying again')
 
 
 def get_pairs(s, n):    
@@ -71,6 +84,7 @@ def update_dict_with_values(dict_to_stream,values_list):
 
 started = False
 async def read_and_print(websocket):    
+    global directions
     baud_rate = 9600
     data_bits = 8
     parity = 'N'
@@ -113,8 +127,18 @@ async def read_and_print(websocket):
                 if timestamp.second == 0:
                     started = True
             if started:
+
+                direction_found = False                
+                for direction, (lower, upper) in directions.items():                    
+                    if lower <= float(dict_to_stream['WDIR']) < upper:
+                        dict_to_stream['WDIR_MAPPED'] = direction
+                        direction_found = True
+                        break
+                if not direction_found:                
+                    dict_to_stream['WDIR_MAPPED'] = 'N' 
+
                 stored_list.append(dict_to_stream)
-                sensors_to_include = ['RTC','WSPD','WDIR','RAIN','SRAD','BPRS','WDCH','HUMD','ATMP']
+                sensors_to_include = ['RTC','WSPD','WDIR','RAIN','SRAD','BPRS','WDCH','HUMD','ATMP','WDIR_MAPPED']
                 filtered_dict = {key: dict_to_stream[key] for key in sensors_to_include if key in dict_to_stream}
                 print(filtered_dict)
                 await send_messages(websocket,

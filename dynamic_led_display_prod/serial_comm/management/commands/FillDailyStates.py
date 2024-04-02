@@ -4,10 +4,11 @@ import pandas as pd
 from scipy.stats import circmean
 from django.core.management.base import BaseCommand
 
+
 class Command(BaseCommand):
     help = 'Cronjob'
 
-    def handle(self, *args, **options):        
+    def handle(self, *args, **options):
         today = date.today()    
         objs = list(SerialCommunication.objects.filter(RTC__date = today).values())
         if(not objs):
@@ -27,9 +28,29 @@ class Command(BaseCommand):
             
 
         # For WDIR we'll find circular mean
+        directions =   {
+            'N': (337.5, 22.5),
+            'NE': (22.5, 67.5),
+            'E': (67.5, 112.5),
+            'SE': (112.5, 157.5),
+            'S': (157.5, 202.5),
+            'SW': (202.5, 247.5),
+            'W': (247.5, 292.5),
+            'NW': (292.5, 337.5),   
+        }
         WDIR_DF = df['WDIR'].describe()
         WDIR_COUNT= WDIR_DF['count']
-        WDIR_MEAN = round(circmean(df['WDIR'], high=360, low=0),3)
+        try:
+            direction_found = False                
+            for direction, (lower, upper) in directions.items():                    
+                if lower <= float(round(circmean(df['WDIR'], high=360, low=0),3)) < upper:                
+                    direction_found = True
+                    WDIR_MEAN = direction
+                    break
+            if not direction_found:
+                WDIR_MEAN = 'N'                      
+        except Exception as e:
+            print('here',e)        
         WDIR_MIN= WDIR_DF['min']
         WDIR_MAX= WDIR_DF['max']
         WDIR_STD= WDIR_DF['std']
@@ -96,63 +117,63 @@ class Command(BaseCommand):
         WDCH_OBJ = States(param='WDCH',count=WDCH_COUNT,mean=WDCH_MEAN,min=WDCH_MIN,max=WDCH_MAX,std=WDCH_STD,date=today)
         WDCH_OBJ.save()
 
-        # For DWPT we'll find arithmetic mean
-        DWPT_DF = df['DWPT'].describe()
-        DWPT_COUNT= DWPT_DF['count']
-        DWPT_MEAN = DWPT_DF['mean']
-        DWPT_MIN= DWPT_DF['min']
-        DWPT_MAX= DWPT_DF['max']
-        DWPT_STD= DWPT_DF['std']
-        DWPT_OBJ = States(param='DWPT',count=DWPT_COUNT,mean=DWPT_MEAN,min=DWPT_MIN,max=DWPT_MAX,std=DWPT_STD,date=today)
-        DWPT_OBJ.save()
+        # # For DWPT we'll find arithmetic mean
+        # DWPT_DF = df['DWPT'].describe()
+        # DWPT_COUNT= DWPT_DF['count']
+        # DWPT_MEAN = DWPT_DF['mean']
+        # DWPT_MIN= DWPT_DF['min']
+        # DWPT_MAX= DWPT_DF['max']
+        # DWPT_STD= DWPT_DF['std']
+        # DWPT_OBJ = States(param='DWPT',count=DWPT_COUNT,mean=DWPT_MEAN,min=DWPT_MIN,max=DWPT_MAX,std=DWPT_STD,date=today)
+        # DWPT_OBJ.save()
 
-        # For P12 we'll find arithmetic mean
-        P12_DF = df['P12'].describe()
-        P12_COUNT= P12_DF['count']
-        P12_MEAN = P12_DF['mean']
-        P12_MIN= P12_DF['min']
-        P12_MAX= P12_DF['max']
-        P12_STD= P12_DF['std']
-        P12_OBJ = States(param='P12',count=P12_COUNT,mean=P12_MEAN,min=P12_MIN,max=P12_MAX,std=P12_STD,date=today)
-        P12_OBJ.save()
+        # # For P12 we'll find arithmetic mean
+        # P12_DF = df['P12'].describe()
+        # P12_COUNT= P12_DF['count']
+        # P12_MEAN = P12_DF['mean']
+        # P12_MIN= P12_DF['min']
+        # P12_MAX= P12_DF['max']
+        # P12_STD= P12_DF['std']
+        # P12_OBJ = States(param='P12',count=P12_COUNT,mean=P12_MEAN,min=P12_MIN,max=P12_MAX,std=P12_STD,date=today)
+        # P12_OBJ.save()
 
-        # For P13 we'll find arithmetic mean
-        P13_DF = df['P13'].describe()
-        P13_COUNT= P13_DF['count']
-        P13_MEAN = P13_DF['mean']
-        P13_MIN= P13_DF['min']
-        P13_MAX= P13_DF['max']
-        P13_STD= P13_DF['std']
-        P13_OBJ = States(param='P13',count=P13_COUNT,mean=P13_MEAN,min=P13_MIN,max=P13_MAX,std=P13_STD,date=today)
-        P13_OBJ.save()
+        # # For P13 we'll find arithmetic mean
+        # P13_DF = df['P13'].describe()
+        # P13_COUNT= P13_DF['count']
+        # P13_MEAN = P13_DF['mean']
+        # P13_MIN= P13_DF['min']
+        # P13_MAX= P13_DF['max']
+        # P13_STD= P13_DF['std']
+        # P13_OBJ = States(param='P13',count=P13_COUNT,mean=P13_MEAN,min=P13_MIN,max=P13_MAX,std=P13_STD,date=today)
+        # P13_OBJ.save()
         
-        # For P14 we'll find arithmetic mean
-        P14_DF = df['P14'].describe()
-        P14_COUNT= P14_DF['count']
-        P14_MEAN = P14_DF['mean']
-        P14_MIN= P14_DF['min']
-        P14_MAX= P14_DF['max']
-        P14_STD= P14_DF['std']
-        P14_OBJ = States(param='P14',count=P14_COUNT,mean=P14_MEAN,min=P14_MIN,max=P14_MAX,std=P14_STD,date=today)
-        P14_OBJ.save()
+        # # For P14 we'll find arithmetic mean
+        # P14_DF = df['P14'].describe()
+        # P14_COUNT= P14_DF['count']
+        # P14_MEAN = P14_DF['mean']
+        # P14_MIN= P14_DF['min']
+        # P14_MAX= P14_DF['max']
+        # P14_STD= P14_DF['std']
+        # P14_OBJ = States(param='P14',count=P14_COUNT,mean=P14_MEAN,min=P14_MIN,max=P14_MAX,std=P14_STD,date=today)
+        # P14_OBJ.save()
 
-        # For P15 we'll find arithmetic mean
-        P15_DF = df['P15'].describe()
-        P15_COUNT= P15_DF['count']
-        P15_MEAN = P15_DF['mean']
-        P15_MIN= P15_DF['min']
-        P15_MAX= P15_DF['max']
-        P15_STD= P15_DF['std']
-        P15_OBJ = States(param='P15',count=P15_COUNT,mean=P15_MEAN,min=P15_MIN,max=P15_MAX,std=P15_STD,date=today)
-        P15_OBJ.save()
+        # # For P15 we'll find arithmetic mean
+        # P15_DF = df['P15'].describe()
+        # P15_COUNT= P15_DF['count']
+        # P15_MEAN = P15_DF['mean']
+        # P15_MIN= P15_DF['min']
+        # P15_MAX= P15_DF['max']
+        # P15_STD= P15_DF['std']
+        # P15_OBJ = States(param='P15',count=P15_COUNT,mean=P15_MEAN,min=P15_MIN,max=P15_MAX,std=P15_STD,date=today)
+        # P15_OBJ.save()
 
-        # For P16 we'll find arithmetic mean
-        P16_DF = df['P16'].describe()
-        P16_COUNT= P16_DF['count']
-        P16_MEAN = P16_DF['mean']
-        P16_MIN= P16_DF['min']
-        P16_MAX= P16_DF['max']
-        P16_STD= P16_DF['std']
-        P16_OBJ = States(param='P16',count=P16_COUNT,mean=P16_MEAN,min=P16_MIN,max=P16_MAX,std=P16_STD,date=today)
-        P16_OBJ.save()
+        # # For P16 we'll find arithmetic mean
+        # P16_DF = df['P16'].describe()
+        # P16_COUNT= P16_DF['count']
+        # P16_MEAN = P16_DF['mean']
+        # P16_MIN= P16_DF['min']
+        # P16_MAX= P16_DF['max']
+        # P16_STD= P16_DF['std']
+        # P16_OBJ = States(param='P16',count=P16_COUNT,mean=P16_MEAN,min=P16_MIN,max=P16_MAX,std=P16_STD,date=today)
+        # P16_OBJ.save()
         self.stdout.write('Daily States Added Successfully')

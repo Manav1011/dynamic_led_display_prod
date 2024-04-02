@@ -48,7 +48,7 @@ class Averages(models.Model):
 class States(models.Model):
     param = models.CharField(max_length=255)
     count = models.IntegerField()
-    mean = models.FloatField()
+    mean = models.CharField(max_length=255)
     min = models.FloatField()
     max = models.FloatField()
     std = models.FloatField()
@@ -62,7 +62,7 @@ class States(models.Model):
 class StatesWeekly(models.Model):
     param = models.CharField(max_length=255)
     count = models.IntegerField()
-    mean = models.FloatField()
+    mean = models.CharField(max_length=255)
     min = models.FloatField()
     max = models.FloatField()
     std = models.FloatField()
