@@ -28,7 +28,7 @@ import multiprocessing
 
 urlpatterns = [
     path('',views.analytics,name='analytics'),    
-    path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls,name='admin'),
     path('auth/',include('CustomUser.urls')) ,
     path('consumer/',views.consumer,name='consumer'),
     path('testing/',views.testing,name='testing'),
